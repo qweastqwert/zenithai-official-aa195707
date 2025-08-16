@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import IntroAnimation from '@/components/IntroAnimation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Brain, BookOpen, Heart, Music, Sparkles, Wind, Meditation as MeditationIcon, Trophy, Calendar, Target } from 'lucide-react';
+import { Brain, BookOpen, Heart, Music, Sparkles, Wind, Activity as MeditationIcon, Trophy, Calendar, Target } from 'lucide-react';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import { useAchievements } from '@/hooks/useAchievements';
 import AchievementNotification from '@/components/achievements/AchievementNotification';
