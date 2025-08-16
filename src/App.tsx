@@ -28,7 +28,6 @@ import Journal from "./components/Journal";
 import IntroAnimation from "./components/IntroAnimation";
 import AuthForm from "./components/auth/AuthForm";
 import OnboardingForm from "./components/OnboardingForm";
-import ChatFAB from "./components/navigation/ChatFAB";
 
 const queryClient = new QueryClient();
 
@@ -142,9 +141,6 @@ const AppContent = () => {
             <Route path="/chat" element={<ChatInterface />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-
-          {/* Chat-only floating button */}
-          <ChatFAB />
         </div>
       </BrowserRouter>
 

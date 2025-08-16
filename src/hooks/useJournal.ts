@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { getCookie, setCookie } from '@/utils/cookieUtils';
 
 export interface JournalEntry {
   id: string;
@@ -13,7 +14,7 @@ export const useJournal = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
 
   useEffect(() => {
-    const savedEntries = localStorage.getItem('zenith-journal-entries');
+    const savedEntries = getCookie('zenith-journal-entries');
     if (savedEntries) {
       try {
         const parsed = JSON.parse(savedEntries);
@@ -21,18 +22,25 @@ export const useJournal = () => {
         console.log('Loaded journal entries:', parsed.length);
       } catch (error) {
         console.error('Error parsing journal entries:', error);
-        localStorage.removeItem('zenith-journal-entries');
+        // Reset corrupted data
+        setCookie('zenith-journal-entries', JSON.stringify([]), 8760);
       }
     }
   }, []);
 
-  const saveEntriesToStorage = (entriesToSave: JournalEntry[]) => {
+  const saveEntriesToCookie = (entriesToSave: JournalEntry[]) => {
     try {
       const jsonData = JSON.stringify(entriesToSave);
-      localStorage.setItem('zenith-journal-entries', jsonData);
+      setCookie('zenith-journal-entries', jsonData, 8760); // 1 year
+      
+      // Force a second write to ensure persistence
+      setTimeout(() => {
+        setCookie('zenith-journal-entries', jsonData, 8760);
+      }, 100);
+      
       console.log('Journal entries saved:', entriesToSave.length);
     } catch (error) {
-      console.error('Error saving journal entries to localStorage:', error);
+      console.error('Error saving journal entries to cookie:', error);
     }
   };
 
@@ -43,6 +51,7 @@ export const useJournal = () => {
     let updatedEntries: JournalEntry[];
 
     if (existingEntryIndex >= 0) {
+      // Update existing entry for today
       updatedEntries = [...entries];
       updatedEntries[existingEntryIndex] = {
         ...updatedEntries[existingEntryIndex],
@@ -51,6 +60,7 @@ export const useJournal = () => {
         timestamp: Date.now()
       };
     } else {
+      // Create new entry
       const newEntry: JournalEntry = {
         id: Date.now().toString(),
         date: today,
@@ -62,7 +72,7 @@ export const useJournal = () => {
     }
 
     setEntries(updatedEntries);
-    saveEntriesToStorage(updatedEntries);
+    saveEntriesToCookie(updatedEntries);
   };
 
   const getTodaysEntry = () => {
@@ -73,7 +83,7 @@ export const useJournal = () => {
   const deleteEntry = (id: string) => {
     const updatedEntries = entries.filter(entry => entry.id !== id);
     setEntries(updatedEntries);
-    saveEntriesToStorage(updatedEntries);
+    saveEntriesToCookie(updatedEntries);
   };
 
   return { entries, saveEntry, getTodaysEntry, deleteEntry };

@@ -14,7 +14,6 @@ interface BreathingPattern {
   exhale: number;
   description: string;
   color: string;
-  instructions: string[];
 }
 
 const breathingPatterns: BreathingPattern[] = [
@@ -24,14 +23,7 @@ const breathingPatterns: BreathingPattern[] = [
     hold: 4,
     exhale: 4,
     description: "Perfect balance for focus and calm",
-    color: "#3B82F6",
-    instructions: [
-      "Sit comfortably with your back straight",
-      "Inhale slowly through your nose for 4 counts",
-      "Hold your breath gently for 4 counts",
-      "Exhale slowly through your mouth for 4 counts",
-      "This creates a 'box' pattern of equal timing"
-    ]
+    color: "#3B82F6"
   },
   {
     name: "4-7-8 Relaxation",
@@ -39,14 +31,7 @@ const breathingPatterns: BreathingPattern[] = [
     hold: 7,
     exhale: 8,
     description: "Deep relaxation and stress relief",
-    color: "#8B5CF6",
-    instructions: [
-      "Place your tongue against the roof of your mouth",
-      "Exhale completely through your mouth",
-      "Inhale through your nose for 4 counts",
-      "Hold your breath for 7 counts",
-      "Exhale through your mouth for 8 counts with a 'whoosh' sound"
-    ]
+    color: "#8B5CF6"
   },
   {
     name: "Energizing Breath",
@@ -54,14 +39,7 @@ const breathingPatterns: BreathingPattern[] = [
     hold: 2,
     exhale: 4,
     description: "Boost energy and alertness",
-    color: "#10B981",
-    instructions: [
-      "Sit up tall to open your chest",
-      "Take a long, deep inhale for 6 counts",
-      "Hold briefly for 2 counts to energize",
-      "Exhale with control for 4 counts",
-      "Feel the revitalizing oxygen flowing through your body"
-    ]
+    color: "#10B981"
   },
   {
     name: "Triangle Breathing",
@@ -69,14 +47,7 @@ const breathingPatterns: BreathingPattern[] = [
     hold: 0,
     exhale: 4,
     description: "Simple and effective for quick calm",
-    color: "#F59E0B",
-    instructions: [
-      "This is perfect for beginners",
-      "Breathe in slowly for 4 counts",
-      "Breathe out slowly for 4 counts",
-      "No holding - just smooth, even breathing",
-      "Focus on the rhythm and flow"
-    ]
+    color: "#F59E0B"
   },
   {
     name: "Deep Meditation",
@@ -84,14 +55,7 @@ const breathingPatterns: BreathingPattern[] = [
     hold: 6,
     exhale: 6,
     description: "Deep meditative breathing",
-    color: "#EC4899",
-    instructions: [
-      "Find a quiet, comfortable position",
-      "Breathe deeply into your belly for 6 counts",
-      "Hold the breath mindfully for 6 counts",
-      "Release slowly and completely for 6 counts",
-      "Let each breath deepen your meditative state"
-    ]
+    color: "#EC4899"
   },
   {
     name: "Quick Reset",
@@ -99,59 +63,7 @@ const breathingPatterns: BreathingPattern[] = [
     hold: 3,
     exhale: 3,
     description: "Fast stress relief technique",
-    color: "#06B6D4",
-    instructions: [
-      "Perfect for busy moments",
-      "Quick inhale for 3 counts",
-      "Brief hold for 3 counts",
-      "Quick exhale for 3 counts",
-      "Rapid stress relief in under a minute"
-    ]
-  },
-  {
-    name: "Anxiety Relief",
-    inhale: 4,
-    hold: 4,
-    exhale: 6,
-    description: "Longer exhale to calm anxiety",
-    color: "#8B5CF6",
-    instructions: [
-      "Breathe in gently for 4 counts",
-      "Hold peacefully for 4 counts",
-      "Exhale slowly for 6 counts to activate calm",
-      "The longer exhale triggers your relaxation response",
-      "Feel anxiety melting away with each breath"
-    ]
-  },
-  {
-    name: "Power Breathing",
-    inhale: 8,
-    hold: 4,
-    exhale: 8,
-    description: "Build inner strength and confidence",
-    color: "#EF4444",
-    instructions: [
-      "Stand or sit with confidence",
-      "Take a powerful inhale for 8 counts",
-      "Hold with strength for 4 counts",
-      "Exhale with control for 8 counts",
-      "Feel your inner power growing with each cycle"
-    ]
-  },
-  {
-    name: "Sleep Preparation",
-    inhale: 3,
-    hold: 5,
-    exhale: 7,
-    description: "Prepare your body for restful sleep",
-    color: "#6366F1",
-    instructions: [
-      "Lie down comfortably in bed",
-      "Gentle inhale for 3 counts",
-      "Hold softly for 5 counts",
-      "Long, releasing exhale for 7 counts",
-      "Let each breath guide you toward peaceful sleep"
-    ]
+    color: "#06B6D4"
   }
 ];
 
@@ -169,6 +81,7 @@ const BreathingExerciseRevamped: React.FC = () => {
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Clear interval helper
   const clearCurrentInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -176,6 +89,7 @@ const BreathingExerciseRevamped: React.FC = () => {
     }
   }, []);
 
+  // Get next phase duration
   const getNextPhase = useCallback((phase: Phase): { nextPhase: Phase; duration: number } => {
     switch (phase) {
       case 'prepare':
@@ -195,6 +109,7 @@ const BreathingExerciseRevamped: React.FC = () => {
     }
   }, [selectedPattern]);
 
+  // Main timer effect
   useEffect(() => {
     if (!isActive || timeLeft <= 0) {
       clearCurrentInterval();
@@ -203,12 +118,16 @@ const BreathingExerciseRevamped: React.FC = () => {
 
     intervalRef.current = setInterval(() => {
       setTimeLeft(prev => {
+        console.log(`Phase: ${currentPhase}, Time: ${prev}`);
+        
         if (prev <= 1) {
+          // Time to transition
           if (currentPhase === 'exhale') {
             const newCycles = cycles + 1;
             setCycles(newCycles);
             
             if (newCycles >= totalCycles) {
+              // Exercise complete
               setIsActive(false);
               setCurrentPhase('prepare');
               setIsComplete(true);
@@ -222,6 +141,7 @@ const BreathingExerciseRevamped: React.FC = () => {
             }
           }
           
+          // Move to next phase
           const { nextPhase, duration } = getNextPhase(currentPhase);
           setCurrentPhase(nextPhase);
           return duration;
@@ -235,6 +155,7 @@ const BreathingExerciseRevamped: React.FC = () => {
   }, [isActive, timeLeft, currentPhase, cycles, totalCycles, getNextPhase, clearCurrentInterval]);
 
   const startExercise = () => {
+    console.log('Starting exercise');
     setIsActive(true);
     setCurrentPhase('prepare');
     setTimeLeft(3);
@@ -243,11 +164,13 @@ const BreathingExerciseRevamped: React.FC = () => {
   };
 
   const pauseExercise = () => {
+    console.log('Pausing exercise');
     setIsActive(false);
     clearCurrentInterval();
   };
 
   const resetExercise = () => {
+    console.log('Resetting exercise');
     setIsActive(false);
     setCurrentPhase('prepare');
     setTimeLeft(0);
@@ -283,6 +206,7 @@ const BreathingExerciseRevamped: React.FC = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-8">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -304,6 +228,7 @@ const BreathingExerciseRevamped: React.FC = () => {
         </p>
       </motion.div>
 
+      {/* Main breathing interface */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200/50 dark:border-blue-700/50">
         <CardContent className="p-8 flex flex-col items-center justify-center space-y-8 min-h-[400px]">
           <BreathingCircle
@@ -331,6 +256,7 @@ const BreathingExerciseRevamped: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Settings panel */}
       <BreathingSettings
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
@@ -340,23 +266,6 @@ const BreathingExerciseRevamped: React.FC = () => {
         totalCycles={totalCycles}
         onCyclesChange={setTotalCycles}
       />
-
-      {/* Instructions Card */}
-      <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
-        <CardContent className="p-6">
-          <h3 className="text-lg font-semibold mb-4">How to Practice {selectedPattern.name}</h3>
-          <ul className="space-y-2">
-            {selectedPattern.instructions.map((instruction, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-6 h-6 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-medium">
-                  {index + 1}
-                </span>
-                <span className="text-gray-700 dark:text-gray-300">{instruction}</span>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
     </div>
   );
 };
