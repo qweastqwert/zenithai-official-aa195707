@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { getCookie, setCookie } from '@/utils/cookieUtils';
 
 export interface ActivityData {
   lastMindMateUse: string | null;
@@ -32,8 +31,7 @@ export const useActivityTracker = () => {
   });
 
   useEffect(() => {
-    // Load activity data from cookies
-    const savedData = getCookie('zenith-activity-data');
+    const savedData = localStorage.getItem('zenith-activity-data');
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
@@ -45,7 +43,6 @@ export const useActivityTracker = () => {
     }
   }, []);
 
-  // Listen for activity tracking events
   useEffect(() => {
     const handleActivityTracking = (event: CustomEvent) => {
       const { type } = event.detail;
@@ -62,7 +59,7 @@ export const useActivityTracker = () => {
 
   const saveActivities = (newActivities: ActivityData) => {
     setActivities(newActivities);
-    setCookie('zenith-activity-data', JSON.stringify(newActivities), 365);
+    localStorage.setItem('zenith-activity-data', JSON.stringify(newActivities));
     console.log('💾 Saved activity data:', newActivities);
   };
 
@@ -79,7 +76,6 @@ export const useActivityTracker = () => {
 
     console.log(`📈 Processing activity: ${activityType} on ${today}`);
 
-    // Update last use date and streaks
     switch (activityType) {
       case 'mindmate':
         if (newActivities.lastMindMateUse !== today) {
@@ -121,13 +117,11 @@ export const useActivityTracker = () => {
         break;
     }
 
-    // Track unique features used
     if (!newActivities.featuresUnlocked.includes(activityType)) {
       newActivities.featuresUnlocked.push(activityType);
       console.log(`🔓 New feature unlocked: ${activityType}`);
     }
 
-    // Update total days used
     const hasUsedToday = [
       newActivities.lastMindMateUse,
       newActivities.lastJournalUse,
