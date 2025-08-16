@@ -1,0 +1,642 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+ 
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+
+    --primary: 222.1 83.9% 49.8%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --ring: 222.1 83.9% 49.8%;
+
+    --radius: 0.5rem;
+
+    /* Zenith Customization */
+    --zenith-primary: #7950f2;
+    --zenith-secondary: #b197fc;
+    --zenith-soft: #e3daff;
+    --zenith-darkpurple: #4c32a3;
+    --zenith-purple: #916df5;
+    --zenith-softpurple: #f5f0ff;
+
+    /* Custom UI */
+    --custom-radius: 0.5rem;
+    --custom-card-bg: #fff;
+    --custom-text: #000;
+    --custom-border: #e0e0e0;
+    --transition-duration: 0.6s;
+    --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+ 
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+ 
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+ 
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+ 
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+ 
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+ 
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+ 
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+ 
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+ 
+    --ring: 212.7 26.8% 83.9%;
+
+    /* Zenith Customization - Dark Mode */
+    --zenith-primary: #b197fc;
+    --zenith-secondary: #e599f7;
+    --zenith-soft: #1a0e3d;
+    --zenith-darkpurple: #f3f0ff;
+    --zenith-purple: #d0bfff;
+    --zenith-softpurple: #2d1b69;
+
+    /* Custom UI - Dark Mode */
+    --custom-card-bg: #1a1a1a;
+    --custom-text: #ffffff;
+    --custom-border: #404040;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    /* Add bottom padding to account for music minibar */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Main content should have padding when minibar is present */
+  main {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+
+  /* Ensure white text in dark mode */
+  .dark {
+    color: white;
+  }
+
+  .dark * {
+    border-color: rgb(64 64 64);
+  }
+
+  .dark .text-gray-900 {
+    color: white !important;
+  }
+
+  .dark .text-gray-800 {
+    color: rgb(229 229 229) !important;
+  }
+
+  .dark .text-gray-700 {
+    color: rgb(209 213 219) !important;
+  }
+
+  .dark .text-gray-600 {
+    color: rgb(156 163 175) !important;
+  }
+}
+
+/* Custom Classes */
+.zenith-button-primary {
+  background-color: var(--zenith-primary);
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.zenith-button-primary:hover {
+  background-color: var(--zenith-secondary);
+}
+
+.zenith-button-secondary {
+  background-color: var(--zenith-soft);
+  color: var(--zenith-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.zenith-button-secondary:hover {
+  background-color: var(--zenith-primary);
+  color: white;
+}
+
+/* Achievement Notification */
+.achievement-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  animation: slideInUp 0.5s ease-out;
+}
+
+.achievement-notification.hide {
+  animation: slideOutDown 0.5s ease-out forwards;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+/* Confetti Animation */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.confetti {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall 3s linear infinite;
+  z-index: 999;
+}
+
+.confetti:nth-child(odd) {
+  background: #ff6b6b;
+  animation-delay: -0.5s;
+}
+
+.confetti:nth-child(even) {
+  background: #4ecdc4;
+  animation-delay: -1s;
+}
+
+.confetti:nth-child(3n) {
+  background: #45b7d1;
+  animation-delay: -1.5s;
+}
+
+.confetti:nth-child(4n) {
+  background: #f9ca24;
+  animation-delay: -2s;
+}
+
+.confetti:nth-child(5n) {
+  background: #6c5ce7;
+  animation-delay: -2.5s;
+}
+
+/* Custom Classes */
+.zenith-button-primary {
+  background-color: var(--zenith-primary);
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.zenith-button-primary:hover {
+  background-color: var(--zenith-secondary);
+}
+
+.zenith-button-secondary {
+  background-color: var(--zenith-soft);
+  color: var(--zenith-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.zenith-button-secondary:hover {
+  background-color: var(--zenith-primary);
+  color: white;
+}
+
+/* Luxury Mode */
+:root.luxury-mode {
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+/* Glass Effect */
+.glass-effect {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 6px var(--shadow-color);
+  backdrop-filter: blur(10px);
+}
+
+/* No Shadows */
+.no-shadows {
+  box-shadow: none !important;
+}
+
+/* No Animations */
+.no-animations {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Compact Mode */
+.compact-mode .sidebar {
+  width: 60px;
+}
+
+.compact-mode .sidebar .nav-item span {
+  display: none;
+}
+
+/* Sidebar Right */
+.sidebar-right .sidebar {
+  right: 0;
+  left: auto;
+}
+
+.sidebar-right .content {
+  margin-left: 0;
+  margin-right: 250px;
+}
+
+/* Header Floating */
+.header-floating .header {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--custom-radius);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Hidden */
+.header-hidden .header {
+  display: none;
+}
+
+/* Padding Sizes */
+.padding-tight {
+  padding: 0.5rem;
+}
+
+.padding-normal {
+  padding: 1rem;
+}
+
+.padding-spacious {
+  padding: 1.5rem;
+}
+
+/* Font Families */
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+
+.font-open-sans {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-serif {
+  font-family: serif;
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+.font-dancing-script {
+  font-family: 'Dancing Script', cursive;
+}
+
+.font-oswald {
+  font-family: 'Oswald', sans-serif;
+}
+
+.font-merriweather {
+  font-family: 'Merriweather', serif;
+}
+
+/* High Contrast Mode */
+.high-contrast {
+  filter: contrast(175%) brightness(110%);
+}
+
+/* Reduce Motion */
+.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Focus Indicators */
+.focus-indicators *:focus {
+  outline: 2px solid var(--zenith-primary);
+  outline-offset: 2px;
+}
+
+/* Background Patterns */
+.bg-dots {
+  background-image: url("data:image/svg+xml,%3Csvg width='42' height='44' viewBox='0 0 42 44' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 22V44H20L42 22V0H22L0 22Z' fill='%23E5E7EB'/%3E%3C/svg%3E");
+  @apply dark:bg-gray-700;
+}
+
+.bg-grid {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0H24V24H0V0ZM16 16H8V8H16V16ZM24 16H32V8H24V16ZM8 24H16V32H8V24ZM24 24H40V32H24V24ZM0 16H8V0H0V16ZM32 0H40V16H32V0ZM16 40H0V24H16V40ZM40 40H24V24H40V40Z' fill='%23D1D5DB'/%3E%3C/svg%3E");
+  @apply dark:bg-gray-700;
+}
+
+.bg-waves {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Cdefs%3E%3ClinearGradient id='grad1' x1='0%' y1='0%' x2='100%' y2='0%'%3E%3Cstop offset='0%' style='stop-color:rgba(147,197,253,0.3);stop-opacity:1' /%3E%3Cstop offset='100%' style='stop-color:rgba(192,219,254,0.3);stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath fill='url(%23grad1)' d='M0,100 Q100,150 200,100 Q300,50 400,100 Q500,150 600,100 Q700,50 800,100 L800,400 L0,400 Z'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #fbcfe8, #c7d2fe);
+}
+
+/* Royal Background Themes */
+.bg-royal-velvet {
+  background: linear-gradient(135deg, 
+    #2d1b69 0%, 
+    #1a0e3d 25%, 
+    #0f0725 50%, 
+    #1a0e3d 75%, 
+    #2d1b69 100%);
+  background-size: 400% 400%;
+  animation: royal-shimmer 20s ease-in-out infinite;
+}
+
+.bg-royal-marble {
+  background: linear-gradient(135deg, 
+    #f8f9fa 0%, 
+    #e9ecef 20%, 
+    #dee2e6 40%, 
+    #ced4da 60%, 
+    #adb5bd 80%, 
+    #6c757d 100%);
+  background-size: 400% 400%;
+  animation: marble-flow 25s ease-in-out infinite;
+  position: relative;
+}
+
+.bg-royal-marble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.05) 2px,
+    rgba(255,255,255,0.05) 4px
+  );
+  pointer-events: none;
+}
+
+.bg-royal-silk {
+  background: linear-gradient(135deg, 
+    #ffd700 0%, 
+    #ffed4e 25%, 
+    #fff8dc 50%, 
+    #ffed4e 75%, 
+    #ffd700 100%);
+  background-size: 300% 300%;
+  animation: silk-wave 18s ease-in-out infinite;
+  position: relative;
+}
+
+.bg-royal-silk::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 50%, 
+    rgba(255,255,255,0.2) 0%, 
+    transparent 50%);
+  animation: silk-glow 8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.bg-royal-gold {
+  background: linear-gradient(135deg, 
+    #b8860b 0%, 
+    #daa520 20%, 
+    #ffd700 40%, 
+    #ffed4e 60%, 
+    #ffd700 80%, 
+    #b8860b 100%);
+  background-size: 400% 400%;
+  animation: gold-gleam 15s ease-in-out infinite;
+  position: relative;
+}
+
+.bg-royal-gold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255,255,255,0.3) 50%,
+    transparent 70%
+  );
+  background-size: 200% 200%;
+  animation: gold-shine 12s linear infinite;
+  pointer-events: none;
+}
+
+.bg-royal-diamond {
+  background: radial-gradient(circle at 30% 20%, 
+    #e3f2fd 0%, 
+    #bbdefb 20%, 
+    #90caf9 40%, 
+    #64b5f6 60%, 
+    #42a5f5 80%, 
+    #2196f3 100%);
+  background-size: 300% 300%;
+  animation: diamond-sparkle 20s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-royal-diamond::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(255,255,255,0.3) 30deg,
+    transparent 60deg,
+    rgba(255,255,255,0.1) 90deg,
+    transparent 120deg
+  );
+  animation: diamond-rotation 30s linear infinite;
+  pointer-events: none;
+}
+
+/* Royal Animation Keyframes */
+@keyframes royal-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes marble-flow {
+  0%, 100% { background-position: 0% 50%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+}
+
+@keyframes silk-wave {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes silk-glow {
+  0% { opacity: 0.3; }
+  100% { opacity: 0.7; }
+}
+
+@keyframes gold-gleam {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 50% 100%; }
+  75% { background-position: 100% 0%; }
+}
+
+@keyframes gold-shine {
+  0% { background-position: -200% -200%; }
+  100% { background-position: 200% 200%; }
+}
+
+@keyframes diamond-sparkle {
+  0%, 100% { background-position: 0% 50%; }
+  33% { background-position: 100% 0%; }
+  66% { background-position: 0% 100%; }
+}
+
+@keyframes diamond-rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Animate In Keyframes */
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes animate-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes animate-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animation Utilities */
+.animate-in {
+  animation: animate-in 0.75s forwards ease-out;
+}
+
+.animate-scale-in {
+  animation: animate-scale-in 0.5s forwards ease-out;
+}
+
+.animate-fade-in {
+  animation: animate-fade-in 0.3s forwards ease-out;
+}
