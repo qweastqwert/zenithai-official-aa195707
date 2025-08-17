@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 
-interface Message {
+export interface Message {
   text: string;
   sender: 'user' | 'bot';
   timestamp?: Date;

@@ -6,6 +6,7 @@ import { Send, Loader2 } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from '@/hooks/useAuth';
 import { useChat } from '@/hooks/useChat';
+import type { Message } from '@/hooks/useChat';
 import { useSpeech } from '@/hooks/useSpeech';
 import { useSettings } from '@/hooks/useSettings';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
@@ -50,7 +51,7 @@ const ChatInterface: React.FC = () => {
     if (!input.trim()) return;
 
     setIsLoading(true);
-    const userMessage = { text: input, sender: 'user' };
+    const userMessage: Message = { text: input, sender: 'user' };
     addMessage(userMessage);
     setInput('');
 
@@ -68,7 +69,7 @@ const ChatInterface: React.FC = () => {
       }
 
       const data = await response.json();
-      const botMessage = { text: data.response, sender: 'bot' };
+      const botMessage: Message = { text: data.response, sender: 'bot' };
       addMessage(botMessage);
 
       if (settings.enableSpeech) {
@@ -227,7 +228,7 @@ const ChatInterface: React.FC = () => {
                       <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">
                         Control the length of Zenith AI's responses.
                       </p>
-                      <Select onValueChange={(value) => updateSettings({ ...settings, responseLength: value })}>
+                      <Select onValueChange={(value) => updateSettings({ ...settings, responseLength: value as 'short' | 'medium' | 'long' })}>
                         <SelectTrigger className="w-full mt-2">
                           <SelectValue placeholder="Select a length" defaultValue={settings.responseLength} />
                         </SelectTrigger>
@@ -246,7 +247,7 @@ const ChatInterface: React.FC = () => {
                       <p className="mt-1 text-sm leading-5 text-gray-500 dark:text-gray-400">
                         Choose the tone and style of Zenith AI's responses.
                       </p>
-                      <Select onValueChange={(value) => updateSettings({ ...settings, toneStyle: value })}>
+                      <Select onValueChange={(value) => updateSettings({ ...settings, toneStyle: value as 'friendly' | 'professional' | 'humorous' | 'motivational' })}>
                         <SelectTrigger className="w-full mt-2">
                           <SelectValue placeholder="Select a tone" defaultValue={settings.toneStyle} />
                         </SelectTrigger>
