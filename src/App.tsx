@@ -14,6 +14,7 @@ import { NotificationService } from "@/services/notificationService";
 import { MusicProvider } from "@/contexts/MusicContext";
 import MusicMinibar from "@/components/MusicMinibar";
 import AchievementNotification from "@/components/achievements/AchievementNotification";
+import PWAInstallDialog from "@/components/PWAInstallDialog";
 import Index from "./pages/Index";
 import MeditationPage from "./pages/Meditation";
 import MoodTrackingPage from "./pages/MoodTracking";
@@ -145,6 +146,7 @@ const AppContent = () => {
       </BrowserRouter>
 
       <MusicMinibar />
+      <PWAInstallDialog />
 
       {/* Achievement Notification */}
       <AchievementNotification 

@@ -1,0 +1,35 @@
+
+{
+  "name": "Zenith AI - Mental Wellness Companion",
+  "short_name": "Zenith AI",
+  "description": "AI-powered mental wellness platform with meditation, mood tracking, and personalized resources",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "lifestyle", "wellness"],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}
