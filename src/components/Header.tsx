@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import PWAInstallButton from '@/components/PWAInstallButton';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,7 +13,11 @@ const Header = () => {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between min-h-[64px]">
         <Link to="/" className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zenith-purple to-zenith-darkpurple flex items-center justify-center">
-            <span className="text-white font-bold text-xl">Z</span>
+            <img 
+              src="/lovable-uploads/289cf3ca-64e3-425c-8e29-1e27aae89509.png"
+              alt="Zenith AI"
+              className="w-6 h-6"
+            />
           </div>
           <span className="text-xl sm:text-2xl font-bold text-zenith-darkpurple">Zenith AI</span>
         </Link>
@@ -27,15 +32,18 @@ const Header = () => {
           <Link to="/resources" className="text-foreground hover:text-zenith-purple transition text-sm lg:text-base">Resources</Link>
         </nav>
         
-        {/* Mobile Menu Button */}
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="md:hidden p-2"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </Button>
+        {/* PWA Install Button & Mobile Menu Button */}
+        <div className="flex items-center gap-2">
+          <PWAInstallButton />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="md:hidden p-2"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
       </div>
       
       {/* Mobile Navigation */}

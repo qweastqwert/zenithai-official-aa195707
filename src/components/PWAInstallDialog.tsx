@@ -139,7 +139,7 @@ const PWAInstallDialog = () => {
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
                 <img 
-                  src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png"
+                  src="/lovable-uploads/289cf3ca-64e3-425c-8e29-1e27aae89509.png"
                   alt="Zenith AI"
                   className="w-8 h-8"
                 />
@@ -168,6 +168,9 @@ const PWAInstallDialog = () => {
             <p className="text-gray-700 dark:text-gray-300">
               Get instant access to your mental wellness companion directly from your home screen.
             </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+              Note: AI features require internet connection. Meditation, breathing exercises, and music work offline.
+            </p>
           </div>
 
           {getInstallInstructions()}
@@ -192,7 +195,7 @@ const PWAInstallDialog = () => {
           </div>
 
           <div className="text-xs text-center text-gray-500 dark:text-gray-400">
-            ✨ Works offline • 🚀 Faster loading • 📱 Native experience
+            ✨ Works offline (non-AI features) • 🚀 Faster loading • 📱 Native experience
           </div>
         </div>
       </DialogContent>
