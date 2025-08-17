@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { getCookie, setCookie } from '@/utils/cookieUtils';
 
 export interface ActivityData {
   lastMindMateUse: string | null;
@@ -31,8 +32,8 @@ export const useActivityTracker = () => {
   });
 
   useEffect(() => {
-    // Load activity data from localStorage
-    const savedData = localStorage.getItem('zenith-activity-data');
+    // Load activity data from cookies
+    const savedData = getCookie('zenith-activity-data');
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
@@ -61,7 +62,7 @@ export const useActivityTracker = () => {
 
   const saveActivities = (newActivities: ActivityData) => {
     setActivities(newActivities);
-    localStorage.setItem('zenith-activity-data', JSON.stringify(newActivities));
+    setCookie('zenith-activity-data', JSON.stringify(newActivities), 365);
     console.log('💾 Saved activity data:', newActivities);
   };
 
