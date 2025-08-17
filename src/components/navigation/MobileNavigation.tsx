@@ -38,41 +38,41 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   ];
 
   return (
-    <Card className="fixed bottom-2 left-2 right-2 bg-white/95 backdrop-blur-sm shadow-lg z-50 border-gray-200 dark:border-gray-700 dark:bg-gray-800/95">
-      <div className="flex justify-around items-center py-1.5">
+    <Card className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-lg z-50 border-gray-200 dark:border-gray-700 dark:bg-gray-800/95 border-t border-l-0 border-r-0 border-b-0 rounded-t-lg rounded-b-none">
+      <div className="flex justify-around items-center py-2 px-1 safe-area-inset-bottom">
         {navigationItems.map((item) => (
           <Button
             key={item.id}
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center space-y-0.5 h-auto py-1.5 px-2 ${
+            className={`flex flex-col items-center space-y-1 h-auto py-2 px-1.5 min-w-0 flex-1 ${
               currentView === item.id 
                 ? 'text-zenith-primary bg-zenith-soft' 
                 : 'text-gray-600 dark:text-gray-400'
             }`}
             onClick={() => onNavigate(item.id)}
           >
-            <item.icon className="h-4 w-4" />
-            <span className="text-xs font-medium">{item.label}</span>
+            <item.icon className="h-5 w-5" />
+            <span className="text-xs font-medium truncate">{item.label}</span>
           </Button>
         ))}
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center space-y-0.5 h-auto py-1.5 px-2 text-gray-600 dark:text-gray-400"
+          className="flex flex-col items-center space-y-1 h-auto py-2 px-1.5 text-gray-600 dark:text-gray-400 min-w-0 flex-1"
           onClick={onAchievements}
         >
-          <Trophy className="h-4 w-4" />
-          <span className="text-xs font-medium">Rewards</span>
+          <Trophy className="h-5 w-5" />
+          <span className="text-xs font-medium truncate">Rewards</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center space-y-0.5 h-auto py-1.5 px-2 text-gray-600 dark:text-gray-400"
+          className="flex flex-col items-center space-y-1 h-auto py-2 px-1.5 text-gray-600 dark:text-gray-400 min-w-0 flex-1"
           onClick={onSettings}
         >
-          <Settings className="h-4 w-4" />
-          <span className="text-xs font-medium">Settings</span>
+          <Settings className="h-5 w-5" />
+          <span className="text-xs font-medium truncate">Settings</span>
         </Button>
       </div>
     </Card>
