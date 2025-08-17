@@ -3,29 +3,9 @@ import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import MeditationTimer from '@/components/MeditationTimer';
+import GuidedMeditations from '@/components/GuidedMeditations';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-const guidedMeditations = [
-  {
-    id: '1',
-    title: 'Breath Awareness',
-    duration: '5 min',
-    description: 'A simple meditation focusing on the breath to calm the mind.',
-  },
-  {
-    id: '2',
-    title: 'Body Scan',
-    duration: '10 min',
-    description: 'Systematically release tension throughout your body with this guided practice.',
-  },
-  {
-    id: '3',
-    title: 'Loving-Kindness',
-    duration: '15 min',
-    description: 'Cultivate compassion for yourself and others through this gentle meditation.',
-  },
-];
 
 const MeditationPage = () => {
   return (
@@ -40,15 +20,22 @@ const MeditationPage = () => {
             </p>
           </div>
           
-          <Tabs defaultValue="timer" className="max-w-3xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="timer">Meditation Timer</TabsTrigger>
+          <Tabs defaultValue="guided" className="max-w-4xl mx-auto">
+            <TabsList className="grid w-full grid-cols-3 mb-8">
               <TabsTrigger value="guided">Guided Sessions</TabsTrigger>
+              <TabsTrigger value="timer">Meditation Timer</TabsTrigger>
+              <TabsTrigger value="tips">Tips & Info</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="guided" className="space-y-8">
+              <GuidedMeditations />
+            </TabsContent>
             
             <TabsContent value="timer" className="space-y-8">
               <MeditationTimer />
-              
+            </TabsContent>
+            
+            <TabsContent value="tips" className="space-y-4">
               <Card>
                 <CardContent className="pt-6">
                   <h3 className="text-xl font-bold mb-4">Tips for Effective Meditation</h3>
@@ -76,35 +63,6 @@ const MeditationPage = () => {
                   </ul>
                 </CardContent>
               </Card>
-            </TabsContent>
-            
-            <TabsContent value="guided" className="space-y-4">
-              {guidedMeditations.map((meditation) => (
-                <Card key={meditation.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6 flex flex-col sm:flex-row items-center sm:items-start gap-4">
-                    <div className="w-16 h-16 rounded-full bg-zenith-softpurple flex items-center justify-center flex-shrink-0">
-                      <span className="text-zenith-darkpurple">▶️</span>
-                    </div>
-                    
-                    <div className="flex-grow text-center sm:text-left">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                        <h3 className="text-xl font-medium">{meditation.title}</h3>
-                        <span className="text-sm text-gray-500">{meditation.duration}</span>
-                      </div>
-                      <p className="text-gray-700 mb-4">{meditation.description}</p>
-                      <button className="zenith-button-secondary py-2 px-4 inline-block">
-                        Start Session
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-              
-              <div className="text-center mt-6">
-                <p className="text-gray-600">
-                  More guided meditations coming soon!
-                </p>
-              </div>
             </TabsContent>
           </Tabs>
         </div>

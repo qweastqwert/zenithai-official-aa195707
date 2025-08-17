@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { getCookie, setCookie } from '@/utils/cookieUtils';
 
 export interface MoodEntry {
   id: string;
@@ -17,7 +16,7 @@ export const useMoodData = () => {
   const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
 
   useEffect(() => {
-    const savedMoods = getCookie('zenith-mood-data');
+    const savedMoods = localStorage.getItem('zenith-mood-data');
     if (savedMoods) {
       try {
         const parsed = JSON.parse(savedMoods);
@@ -35,7 +34,7 @@ export const useMoodData = () => {
       } catch (error) {
         console.error('Error parsing mood data:', error);
         // Clear corrupted data
-        setCookie('zenith-mood-data', JSON.stringify([]), 8760);
+        localStorage.removeItem('zenith-mood-data');
       }
     }
   }, []);
@@ -64,16 +63,9 @@ export const useMoodData = () => {
     const updatedEntries = [newEntry, ...moodEntries].slice(0, 100); // Keep only last 100 entries
     setMoodEntries(updatedEntries);
     
-    // Save to cookies with proper JSON formatting and force persistence
+    // Save to localStorage
     try {
-      const jsonData = JSON.stringify(updatedEntries);
-      setCookie('zenith-mood-data', jsonData, 8760); // 1 year expiry
-      
-      // Force a second write to ensure persistence
-      setTimeout(() => {
-        setCookie('zenith-mood-data', jsonData, 8760);
-      }, 100);
-      
+      localStorage.setItem('zenith-mood-data', JSON.stringify(updatedEntries));
       console.log('Mood entry saved:', newEntry);
       console.log('Total entries:', updatedEntries.length);
     } catch (error) {
