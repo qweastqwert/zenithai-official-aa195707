@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles } from 'lucide-react';
+import { Wind } from 'lucide-react';
 import BreathingCircle from './BreathingCircle';
 import BreathingControls from './BreathingControls';
 import BreathingSettings from './BreathingSettings';
@@ -17,51 +18,51 @@ interface BreathingPattern {
 
 const breathingPatterns: BreathingPattern[] = [
   {
-    name: "Executive Balance",
+    name: "Box Breathing",
     inhale: 4,
     hold: 4,
     exhale: 4,
-    description: "Perfect equilibrium for focus and composure",
+    description: "Perfect balance for focus and calm",
     color: "#3B82F6"
   },
   {
-    name: "Serenity Suite",
+    name: "4-7-8 Relaxation",
     inhale: 4,
     hold: 7,
     exhale: 8,
-    description: "Deep relaxation for the sophisticated mind",
+    description: "Deep relaxation and stress relief",
     color: "#8B5CF6"
   },
   {
-    name: "Vitality Protocol",
+    name: "Energizing Breath",
     inhale: 6,
     hold: 2,
     exhale: 4,
-    description: "Energizing breath for peak performance",
+    description: "Boost energy and alertness",
     color: "#10B981"
   },
   {
-    name: "Harmony Flow",
+    name: "Triangle Breathing",
     inhale: 4,
     hold: 0,
     exhale: 4,
-    description: "Effortless calm for immediate clarity",
+    description: "Simple and effective for quick calm",
     color: "#F59E0B"
   },
   {
-    name: "Meditation Mastery",
+    name: "Deep Meditation",
     inhale: 6,
     hold: 6,
     exhale: 6,
-    description: "Deep contemplative breathing technique",
+    description: "Deep meditative breathing",
     color: "#EC4899"
   },
   {
-    name: "Reset Ritual",
+    name: "Quick Reset",
     inhale: 3,
     hold: 3,
     exhale: 3,
-    description: "Quick restoration for busy lifestyles",
+    description: "Fast stress relief technique",
     color: "#06B6D4"
   }
 ];
@@ -80,6 +81,7 @@ const BreathingExerciseRevamped: React.FC = () => {
   
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Clear interval helper
   const clearCurrentInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -87,6 +89,7 @@ const BreathingExerciseRevamped: React.FC = () => {
     }
   }, []);
 
+  // Get next phase duration
   const getNextPhase = useCallback((phase: Phase): { nextPhase: Phase; duration: number } => {
     switch (phase) {
       case 'prepare':
@@ -106,6 +109,7 @@ const BreathingExerciseRevamped: React.FC = () => {
     }
   }, [selectedPattern]);
 
+  // Main timer effect
   useEffect(() => {
     if (!isActive || timeLeft <= 0) {
       clearCurrentInterval();
@@ -117,11 +121,13 @@ const BreathingExerciseRevamped: React.FC = () => {
         console.log(`Phase: ${currentPhase}, Time: ${prev}`);
         
         if (prev <= 1) {
+          // Time to transition
           if (currentPhase === 'exhale') {
             const newCycles = cycles + 1;
             setCycles(newCycles);
             
             if (newCycles >= totalCycles) {
+              // Exercise complete
               setIsActive(false);
               setCurrentPhase('prepare');
               setIsComplete(true);
@@ -135,6 +141,7 @@ const BreathingExerciseRevamped: React.FC = () => {
             }
           }
           
+          // Move to next phase
           const { nextPhase, duration } = getNextPhase(currentPhase);
           setCurrentPhase(nextPhase);
           return duration;
@@ -183,14 +190,14 @@ const BreathingExerciseRevamped: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center space-y-6 p-8 bg-gradient-to-br from-white to-indigo-50 dark:from-gray-800 dark:to-indigo-900/20 rounded-3xl border border-indigo-200/50 dark:border-indigo-700/50 shadow-2xl backdrop-blur-sm"
+          className="text-center space-y-6"
         >
-          <div className="text-6xl mb-4">✨</div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Session Complete
+          <div className="text-6xl">🎉</div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            Session Complete!
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
-            Exquisite work. You have completed your breathing practice with grace and intention.
+          <p className="text-gray-600 dark:text-gray-400">
+            Great job completing your breathing exercise. You've taken an important step for your wellbeing.
           </p>
         </motion.div>
       </div>
@@ -208,22 +215,22 @@ const BreathingExerciseRevamped: React.FC = () => {
         <div className="flex items-center justify-center gap-3">
           <motion.div
             animate={{ rotate: [0, 360] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
           >
-            <Sparkles className="h-8 w-8 text-indigo-500" />
+            <Wind className="h-8 w-8 text-blue-500" />
           </motion.div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Breathing Studio
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            Breathing Exercise
           </h1>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
+        <p className="text-gray-600 dark:text-gray-400">
           {selectedPattern.description}
         </p>
       </motion.div>
 
       {/* Main breathing interface */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 dark:from-gray-800 dark:via-indigo-900/20 dark:to-purple-900/20 border-2 border-indigo-200/50 dark:border-indigo-700/50 shadow-2xl backdrop-blur-sm rounded-3xl">
-        <CardContent className="p-12 flex flex-col items-center justify-center space-y-8 min-h-[500px]">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200/50 dark:border-blue-700/50">
+        <CardContent className="p-8 flex flex-col items-center justify-center space-y-8 min-h-[400px]">
           <BreathingCircle
             phase={currentPhase}
             timeLeft={timeLeft}
@@ -231,12 +238,9 @@ const BreathingExerciseRevamped: React.FC = () => {
             isActive={isActive}
           />
 
-          <div className="text-center space-y-3">
-            <div className="text-sm text-gray-600 dark:text-gray-400 font-medium tracking-wide uppercase">
+          <div className="text-center space-y-2">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               {selectedPattern.name}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-500 italic">
-              Curated for Excellence
             </div>
           </div>
 
