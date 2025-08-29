@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -10,8 +11,6 @@ export interface MoodEntry {
   reason: string;
   timestamp: number;
   user_id?: string;
-  formattedDate: string;
-  dayOfWeek: string;
 }
 
 export const useMoodDataSupabase = () => {
@@ -40,18 +39,7 @@ export const useMoodDataSupabase = () => {
 
       if (error) throw error;
 
-      // Transform data to include formattedDate and dayOfWeek
-      const transformedEntries = (data || []).map(entry => ({
-        ...entry,
-        formattedDate: new Date(entry.timestamp).toLocaleDateString('en-US', { 
-          month: 'long', 
-          day: 'numeric', 
-          year: 'numeric' 
-        }),
-        dayOfWeek: new Date(entry.timestamp).toLocaleDateString('en-US', { weekday: 'long' })
-      }));
-
-      setEntries(transformedEntries);
+      setEntries(data || []);
     } catch (error) {
       console.error('Error fetching mood entries:', error);
     } finally {
@@ -85,18 +73,7 @@ export const useMoodDataSupabase = () => {
 
       if (error) throw error;
 
-      // Transform the new entry to include formattedDate and dayOfWeek
-      const transformedEntry = {
-        ...data,
-        formattedDate: now.toLocaleDateString('en-US', { 
-          month: 'long', 
-          day: 'numeric', 
-          year: 'numeric' 
-        }),
-        dayOfWeek: now.toLocaleDateString('en-US', { weekday: 'long' })
-      };
-
-      setEntries(prev => [transformedEntry, ...prev]);
+      setEntries(prev => [data, ...prev]);
     } catch (error) {
       console.error('Error adding mood entry:', error);
     }
