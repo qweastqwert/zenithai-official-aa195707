@@ -146,7 +146,7 @@ const Index = () => {
               exit={{ opacity: 0, y: -20 }}
               className="h-full"
             >
-              <MindMateEnhanced />
+              <MindMateEnhanced onBack={handleBack} />
             </motion.div>
           )}
 
@@ -174,15 +174,19 @@ const Index = () => {
           )}
 
           {currentView === 'settings' && (
-            <Settings />
+            <Settings onClose={handleBack} />
           )}
 
           {currentView === 'achievements' && (
-            <Achievements />
+            <Achievements onClose={handleBack} />
           )}
 
           {currentView === 'profile' && (
-            <ProfileSettings />
+            <ProfileSettings 
+              profile={{ name: '', age: '', gender: '', hobbies: '', problems: '' }}
+              onUpdate={() => {}}
+              onDelete={() => {}}
+            />
           )}
 
           {currentView === 'home' && (
@@ -213,7 +217,10 @@ const Index = () => {
               </div>
 
               {/* Quick Insights */}
-              <QuickInsights entries={moodData.entries} />
+              <QuickInsights 
+                moodEntries={moodData.entries} 
+                journalEntries={journalData.entries}
+              />
 
               {/* Feature Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
