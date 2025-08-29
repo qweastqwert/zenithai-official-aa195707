@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Clock, TrendingUp, Calendar } from 'lucide-react';
+import { X, Heart, Clock, TrendingUp, Calendar, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import MoodSelection from './MoodSelection';
 import MoodReasonInput from './MoodReasonInput';
+import MoodInsights from './MoodInsights';
 import { useMoodData, MoodEntry } from '@/hooks/useMoodData';
 import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,10 +61,8 @@ const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
       if (user) {
         await saveMoodEntry(selectedMood, reason || '');
       } else {
-        // For cookie-based storage, use the saveMoodEntry method from useMoodData
         cookieMoodData.saveMoodEntry(selectedMood, reason || '');
       }
-      // Reset form
       setSelectedMood('');
       setStep('select');
     }
@@ -118,9 +117,10 @@ const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
 
             <CardContent className="p-0 flex-1 overflow-hidden">
               <Tabs defaultValue="log" className="w-full h-full flex flex-col">
-                <TabsList className="grid w-full grid-cols-2 m-6 mb-0 flex-shrink-0">
+                <TabsList className="grid w-full grid-cols-3 m-6 mb-0 flex-shrink-0">
                   <TabsTrigger value="log" className="text-base">Log Mood</TabsTrigger>
                   <TabsTrigger value="reflections" className="text-base">Reflections</TabsTrigger>
+                  <TabsTrigger value="insights" className="text-base">Insights</TabsTrigger>
                 </TabsList>
 
                 <ScrollArea className="flex-1">
@@ -163,6 +163,10 @@ const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
                           </motion.div>
                         )}
                       </AnimatePresence>
+                    </TabsContent>
+
+                    <TabsContent value="insights" className="space-y-6 mt-0">
+                      <MoodInsights entries={moodEntries} />
                     </TabsContent>
 
                     <TabsContent value="reflections" className="space-y-6 mt-0">
