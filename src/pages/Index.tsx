@@ -1,36 +1,50 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, BookOpen, Heart, Brain, Music, Wind, Settings as SettingsIcon, Trophy, User } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import MoodTracker from '@/components/MoodTracker';
-import Journal from '@/components/Journal';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  MessageCircle, 
+  Wind, 
+  Heart, 
+  Music, 
+  Settings as SettingsIcon,
+  BookOpen, 
+  Brain,
+  Flower2,
+  Calendar,
+  TrendingUp,
+  Trophy
+} from 'lucide-react';
+
+import IntroAnimation from '@/components/IntroAnimation';
 import MindMateEnhanced from '@/components/MindMateEnhanced';
-import MeditationTimer from '@/components/MeditationTimer';
+import BreathingExerciseRevamped from '@/components/breathing/BreathingExerciseRevamped';
 import SoothingMusic from '@/components/SoothingMusic';
-import BreathingExerciseOptimized from '@/components/BreathingExerciseOptimized';
+import MoodSanctuary from '@/components/mood/MoodSanctuary';
+import Journal from '@/components/Journal';
+import MoodTracker from '@/components/MoodTracker';
 import Settings from '@/components/Settings';
 import Achievements from '@/components/achievements/Achievements';
 import ProfileSettings from '@/components/ProfileSettings';
+import MobileNavigation from '@/components/navigation/MobileNavigation';
+import MobileHeader from '@/components/navigation/MobileHeader';
 import QuickInsights from '@/components/insights/QuickInsights';
+
+import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useMoodData } from '@/hooks/useMoodData';
 import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useJournal } from '@/hooks/useJournal';
 import { useJournalSupabase } from '@/hooks/useJournalSupabase';
 import { useAuth } from '@/hooks/useAuth';
-import { useProfile } from '@/hooks/useProfile';
-import { useActivityTracker } from '@/hooks/useActivityTracker';
-import MobileNavigation from '@/components/navigation/MobileNavigation';
-import MobileHeader from '@/components/navigation/MobileHeader';
+import { getCookie, setCookie } from '@/utils/cookieUtils';
 
 const Index = () => {
-  const [activeView, setActiveView] = useState<string>('dashboard');
-  const [showMoodTracker, setShowMoodTracker] = useState(false);
-  const [showJournal, setShowJournal] = useState(false);
+  const [currentView, setCurrentView] = useState('home');
+  const [showIntro, setShowIntro] = useState(false);
+  const [showMoodPrompt, setShowMoodPrompt] = useState(false);
+  const { isMobile } = useDeviceDetection();
   const { user } = useAuth();
-  const { profile } = useProfile();
-  const { trackActivity } = useActivityTracker();
 
   // Use appropriate hooks based on authentication status
   const cookieMoodData = useMoodData();
@@ -41,320 +55,316 @@ const Index = () => {
   const moodData = user ? supabaseMoodData : cookieMoodData;
   const journalData = user ? supabaseJournal : cookieJournal;
 
-  const handleOpenMoodTracker = () => {
-    setShowMoodTracker(true);
-    trackActivity('mood');
+  useEffect(() => {
+    const hasSeenIntro = getCookie('zenith-intro-seen');
+    if (!hasSeenIntro) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const checkMoodPrompt = () => {
+      const lastPrompt = getCookie('zenith-last-mood-prompt');
+      const now = Date.now();
+      const sixHours = 6 * 60 * 60 * 1000;
+      
+      if (!lastPrompt || (now - parseInt(lastPrompt)) > sixHours) {
+        const timer = setTimeout(() => {
+          setShowMoodPrompt(true);
+        }, 10000);
+        
+        return () => clearTimeout(timer);
+      }
+    };
+
+    if (!showIntro && currentView === 'home') {
+      return checkMoodPrompt();
+    }
+  }, [showIntro, currentView]);
+
+  const handleIntroComplete = () => {
+    setShowIntro(false);
+    setCookie('zenith-intro-seen', 'true', 8760);
   };
 
-  const handleOpenJournal = () => {
-    setShowJournal(true);
-    trackActivity('journal');
+  const handleMoodPromptComplete = () => {
+    setShowMoodPrompt(false);
   };
 
-  const handleOpenMindMate = () => {
-    setActiveView('mindmate');
-    trackActivity('mindmate');
+  const handleNavigate = (view: string) => {
+    setCurrentView(view);
   };
 
-  const handleOpenMeditation = () => {
-    setActiveView('meditation');
-    trackActivity('meditation');
+  const handleSettings = () => {
+    setCurrentView('settings');
   };
 
-  const handleOpenBreathing = () => {
-    setActiveView('breathing');
-    trackActivity('breathing');
+  const handleBack = () => {
+    setCurrentView('home');
   };
 
-  const renderActiveView = () => {
-    switch (activeView) {
-      case 'mindmate':
-        return <MindMateEnhanced onBack={() => setActiveView('dashboard')} />;
-      case 'meditation':
-        return (
-          <div className="min-h-screen bg-gradient-to-br from-zenith-softpurple via-white to-zenith-lightblue p-4 pt-20">
-            <div className="max-w-2xl mx-auto">
-              <Button 
-                variant="ghost" 
-                onClick={() => setActiveView('dashboard')} 
-                className="mb-6"
-              >
-                ← Back to Dashboard
-              </Button>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Brain className="h-6 w-6" style={{ color: 'var(--zenith-primary)' }} />
-                    Meditation
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <MeditationTimer />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-      case 'music':
-        return (
-          <div className="min-h-screen bg-gradient-to-br from-zenith-softpurple via-white to-zenith-lightblue p-4 pt-20">
-            <div className="max-w-4xl mx-auto">
-              <Button 
-                variant="ghost" 
-                onClick={() => setActiveView('dashboard')} 
-                className="mb-6"
-              >
-                ← Back to Dashboard
-              </Button>
-              <SoothingMusic />
-            </div>
-          </div>
-        );
-      case 'breathing':
-        return (
-          <div className="min-h-screen bg-gradient-to-br from-zenith-softpurple via-white to-zenith-lightblue p-4 pt-20">
-            <div className="max-w-2xl mx-auto">
-              <Button 
-                variant="ghost" 
-                onClick={() => setActiveView('dashboard')} 
-                className="mb-6"
-              >
-                ← Back to Dashboard
-              </Button>
-              <BreathingExerciseOptimized />
-            </div>
-          </div>
-        );
-      case 'settings':
-        return <Settings onBack={() => setActiveView('dashboard')} />;
-      case 'achievements':
-        return <Achievements onBack={() => setActiveView('dashboard')} />;
-      case 'profile':
-        return <ProfileSettings onBack={() => setActiveView('dashboard')} />;
-      default:
-        return (
-          <div className="min-h-screen bg-gradient-to-br from-zenith-softpurple via-white to-zenith-lightblue">
-            <MobileHeader />
-            
-            <div className="pt-20 pb-24 px-4">
-              <div className="max-w-6xl mx-auto space-y-8">
-                {/* Welcome Section */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-center space-y-4"
-                >
-                  <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-zenith-primary via-zenith-purple to-zenith-darkpurple bg-clip-text text-transparent">
-                    Welcome {profile?.name ? `back, ${profile.name}` : 'to Zenith'}
-                  </h1>
-                  <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                    Your personal sanctuary for mental wellness and emotional balance
-                  </p>
-                </motion.div>
+  const handleAchievements = () => {
+    setCurrentView('achievements');
+  };
 
-                {/* Quick Insights */}
-                {(moodData.entries.length > 0 || journalData.entries.length > 0) && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                  >
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Trophy className="h-5 w-5" style={{ color: 'var(--zenith-primary)' }} />
-                          Your Wellness Journey
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <QuickInsights 
-                          moodEntries={moodData.entries} 
-                          journalEntries={journalData.entries} 
-                        />
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-
-                {/* Main Features Grid */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                >
-                  {/* MindMate Card */}
-                  <Card 
-                    className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 dark:from-gray-800 dark:to-purple-900/20 border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-700"
-                    onClick={handleOpenMindMate}
-                  >
-                    <CardHeader className="text-center pb-4">
-                      <motion.div
-                        className="mx-auto mb-4 p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                        whileHover={{ rotate: 10 }}
-                      >
-                        <Heart className="h-8 w-8 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-xl">MindMate</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Chat with your caring AI companion for emotional support and meaningful conversations
-                      </p>
-                      <Button className="w-full group-hover:scale-105 transition-transform duration-300" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-                        Start Conversation
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Mood Tracker Card */}
-                  <Card 
-                    className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900/20 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-700"
-                    onClick={handleOpenMoodTracker}
-                  >
-                    <CardHeader className="text-center pb-4">
-                      <motion.div
-                        className="mx-auto mb-4 p-4 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                        whileHover={{ rotate: -10 }}
-                      >
-                        <Calendar className="h-8 w-8 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-xl">Mood Sanctuary</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Track your emotions, discover patterns, and gain insights into your emotional well-being
-                      </p>
-                      <Button className="w-full group-hover:scale-105 transition-transform duration-300" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-                        Track Mood
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Journal Card */}
-                  <Card 
-                    className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900/20 border-2 border-transparent hover:border-green-200 dark:hover:border-green-700"
-                    onClick={handleOpenJournal}
-                  >
-                    <CardHeader className="text-center pb-4">
-                      <motion.div
-                        className="mx-auto mb-4 p-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                        whileHover={{ rotate: 10 }}
-                      >
-                        <BookOpen className="h-8 w-8 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-xl">Daily Journal</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Reflect on your thoughts and experiences through guided journaling prompts
-                      </p>
-                      <Button className="w-full group-hover:scale-105 transition-transform duration-300" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-                        Write Today
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Meditation Card */}
-                  <Card 
-                    className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-orange-50 dark:from-gray-800 dark:to-orange-900/20 border-2 border-transparent hover:border-orange-200 dark:hover:border-orange-700"
-                    onClick={handleOpenMeditation}
-                  >
-                    <CardHeader className="text-center pb-4">
-                      <motion.div
-                        className="mx-auto mb-4 p-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                        whileHover={{ rotate: -10 }}
-                      >
-                        <Brain className="h-8 w-8 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-xl">Meditation</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Find inner peace with guided meditation sessions and calming background music
-                      </p>
-                      <Button className="w-full group-hover:scale-105 transition-transform duration-300" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-                        Start Session
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Breathing Exercises Card */}
-                  <Card 
-                    className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-teal-50 dark:from-gray-800 dark:to-teal-900/20 border-2 border-transparent hover:border-teal-200 dark:hover:border-teal-700"
-                    onClick={handleOpenBreathing}
-                  >
-                    <CardHeader className="text-center pb-4">
-                      <motion.div
-                        className="mx-auto mb-4 p-4 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                        whileHover={{ rotate: 10 }}
-                      >
-                        <Wind className="h-8 w-8 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-xl">Breathing</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Practice mindful breathing techniques to reduce stress and find balance
-                      </p>
-                      <Button className="w-full group-hover:scale-105 transition-transform duration-300" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-                        Start Exercise
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Music Card */}
-                  <Card 
-                    className="group cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-pink-50 dark:from-gray-800 dark:to-pink-900/20 border-2 border-transparent hover:border-pink-200 dark:hover:border-pink-700"
-                    onClick={() => setActiveView('music')}
-                  >
-                    <CardHeader className="text-center pb-4">
-                      <motion.div
-                        className="mx-auto mb-4 p-4 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                        whileHover={{ rotate: -10 }}
-                      >
-                        <Music className="h-8 w-8 text-white" />
-                      </motion.div>
-                      <CardTitle className="text-xl">Soothing Music</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <p className="text-gray-600 dark:text-gray-300 mb-4">
-                        Immerse yourself in carefully curated music for relaxation and focus
-                      </p>
-                      <Button className="w-full group-hover:scale-105 transition-transform duration-300" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-                        Play Music
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
-            </div>
-
-            <MobileNavigation 
-              currentView={activeView}
-              onNavigate={setActiveView}
-            />
-
-            {/* Modals */}
-            <AnimatePresence>
-              {showMoodTracker && (
-                <MoodTracker 
-                  showPromptOnly={true}
-                  onPromptComplete={() => setShowMoodTracker(false)}
-                />
-              )}
-              
-              {showJournal && (
-                <Journal onClose={() => setShowJournal(false)} />
-              )}
-            </AnimatePresence>
-          </div>
-        );
+  // Get page title based on current view
+  const getPageTitle = () => {
+    switch (currentView) {
+      case 'mindmate': return 'MindMate';
+      case 'journal': return 'Journal';
+      case 'meditation': return 'Meditation';
+      case 'mood': return 'Mood Sanctuary';
+      case 'settings': return 'Settings';
+      case 'achievements': return 'Achievements';
+      case 'profile': return 'Profile';
+      default: return 'Zenith';
     }
   };
 
-  return renderActiveView();
+  if (showIntro) {
+    return <IntroAnimation onComplete={handleIntroComplete} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800">
+      {isMobile && (
+        <MobileHeader 
+          title={getPageTitle()}
+          showBack={currentView !== 'home'}
+          onBack={currentView !== 'home' ? handleBack : undefined}
+          onSettings={handleSettings}
+        />
+      )}
+
+      <div className={`${isMobile ? 'pb-20 pt-16' : 'p-8'} min-h-screen`}>
+        <AnimatePresence mode="wait">
+          {currentView === 'mindmate' && (
+            <motion.div
+              key="mindmate"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="h-full"
+            >
+              <MindMateEnhanced />
+            </motion.div>
+          )}
+
+          {currentView === 'journal' && (
+            <Journal onClose={handleBack} />
+          )}
+
+          {currentView === 'meditation' && (
+            <motion.div
+              key="meditation"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="h-full"
+            >
+              <BreathingExerciseRevamped />
+            </motion.div>
+          )}
+
+          {currentView === 'mood' && (
+            <MoodSanctuary 
+              isOpen={true}
+              onClose={handleBack}
+            />
+          )}
+
+          {currentView === 'settings' && (
+            <Settings />
+          )}
+
+          {currentView === 'achievements' && (
+            <Achievements />
+          )}
+
+          {currentView === 'profile' && (
+            <ProfileSettings />
+          )}
+
+          {currentView === 'home' && (
+            <motion.div
+              key="home"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="max-w-7xl mx-auto"
+            >
+              <div className="text-center mb-8">
+                <motion.h1 
+                  className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent mb-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  Welcome to Zenith
+                </motion.h1>
+                <motion.p 
+                  className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  Your personal sanctuary for mental wellness, mindfulness, and emotional balance
+                </motion.p>
+              </div>
+
+              {/* Quick Insights */}
+              <QuickInsights entries={moodData.entries} />
+
+              {/* Feature Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {[
+                  {
+                    id: 'mindmate',
+                    icon: Brain,
+                    title: 'MindMate',
+                    description: 'AI-powered mental health companion',
+                    gradient: 'from-purple-500 to-pink-500'
+                  },
+                  {
+                    id: 'journal',
+                    icon: BookOpen,
+                    title: 'Daily Journal',
+                    description: 'Reflect and track your thoughts',
+                    gradient: 'from-blue-500 to-cyan-500'
+                  },
+                  {
+                    id: 'meditation',
+                    icon: Flower2,
+                    title: 'Meditation',
+                    description: 'Guided breathing and mindfulness',
+                    gradient: 'from-green-500 to-teal-500'
+                  },
+                  {
+                    id: 'mood',
+                    icon: Heart,
+                    title: 'Mood Sanctuary',
+                    description: 'Track and understand your emotions',
+                    gradient: 'from-pink-500 to-rose-500'
+                  }
+                ].map((feature, index) => (
+                  <motion.div
+                    key={feature.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: index * 0.1 + 0.4 }}
+                  >
+                    <Card 
+                      className="group cursor-pointer hover:shadow-lg transition-all duration-300 border-2 hover:border-purple-200 dark:hover:border-purple-700"
+                      onClick={() => handleNavigate(feature.id)}
+                    >
+                      <CardHeader className="text-center pb-4">
+                        <div className={`w-16 h-16 rounded-full bg-gradient-to-r ${feature.gradient} flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                          <feature.icon className="h-8 w-8 text-white" />
+                        </div>
+                        <CardTitle className="text-xl mb-2">{feature.title}</CardTitle>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {feature.description}
+                        </p>
+                      </CardHeader>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Quick Stats */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+              >
+                <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                  <CardContent className="p-6 text-center">
+                    <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-purple-800 dark:text-purple-300">
+                      {moodData.entries.length}
+                    </div>
+                    <div className="text-sm text-purple-600 dark:text-purple-400">Mood Entries</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                  <CardContent className="p-6 text-center">
+                    <BookOpen className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-blue-800 dark:text-blue-300">
+                      {journalData.entries.length}
+                    </div>
+                    <div className="text-sm text-blue-600 dark:text-blue-400">Journal Entries</div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+                  <CardContent className="p-6 text-center">
+                    <Calendar className="h-8 w-8 text-green-600 mx-auto mb-2" />
+                    <div className="text-2xl font-bold text-green-800 dark:text-green-300">
+                      {new Date().toLocaleDateString('en-US', { day: 'numeric' })}
+                    </div>
+                    <div className="text-sm text-green-600 dark:text-green-400">Today</div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Call to Action */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.0 }}
+                className="text-center"
+              >
+                <Card className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                  <CardContent className="p-8">
+                    <h3 className="text-2xl font-bold mb-4">Start Your Wellness Journey Today</h3>
+                    <p className="mb-6 opacity-90">
+                      Take a moment to check in with yourself and begin building healthier mental habits
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button 
+                        variant="secondary" 
+                        size="lg" 
+                        onClick={() => handleNavigate('mood')}
+                        className="bg-white text-purple-600 hover:bg-gray-100"
+                      >
+                        <Heart className="h-5 w-5 mr-2" />
+                        Track Your Mood
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="lg" 
+                        onClick={() => handleNavigate('journal')}
+                        className="border-white text-white hover:bg-white/10"
+                      >
+                        <BookOpen className="h-5 w-5 mr-2" />
+                        Start Journaling
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {isMobile && (
+        <MobileNavigation
+          currentView={currentView}
+          onNavigate={handleNavigate}
+          onSettings={handleSettings}
+          onAchievements={handleAchievements}
+        />
+      )}
+
+      <MoodTracker
+        showPromptOnly={showMoodPrompt}
+        onPromptComplete={handleMoodPromptComplete}
+      />
+    </div>
+  );
 };
 
 export default Index;
