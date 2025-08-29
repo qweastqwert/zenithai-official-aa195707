@@ -30,8 +30,7 @@ export const useJournalSupabase = () => {
     if (!user) return;
 
     try {
-      // Using any to bypass type checking since the table exists but isn't in types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('journal_entries')
         .select('*')
         .eq('user_id', user.id)
@@ -59,7 +58,7 @@ export const useJournalSupabase = () => {
     try {
       if (existingEntry) {
         // Update existing entry
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('journal_entries')
           .update({ content, mood, timestamp })
           .eq('id', existingEntry.id)
@@ -81,7 +80,7 @@ export const useJournalSupabase = () => {
           timestamp
         };
 
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('journal_entries')
           .insert(newEntry)
           .select()
@@ -103,7 +102,7 @@ export const useJournalSupabase = () => {
 
   const deleteEntry = async (id: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('journal_entries')
         .delete()
         .eq('id', id);

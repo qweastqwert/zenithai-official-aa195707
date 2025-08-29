@@ -7,11 +7,20 @@ import MoodSanctuary from '@/components/mood/MoodSanctuary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useMoodData } from '@/hooks/useMoodData';
+import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
+import { useAuth } from '@/hooks/useAuth';
 import { Heart, TrendingUp, Calendar, Clock, Sparkles } from 'lucide-react';
 
 const MoodTracking = () => {
   const [showMoodSanctuary, setShowMoodSanctuary] = useState(false);
-  const { moodEntries, getMoodStats } = useMoodData();
+  const { user } = useAuth();
+  
+  // Use appropriate hook based on authentication status
+  const cookieMoodData = useMoodData();
+  const supabaseMoodData = useMoodDataSupabase();
+  
+  const moodData = user ? supabaseMoodData : cookieMoodData;
+  const { entries: moodEntries, getMoodStats } = moodData;
   const stats = getMoodStats();
 
   const moodEmojis: { [key: string]: string } = {
@@ -57,6 +66,7 @@ const MoodTracking = () => {
             </div>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Track your emotional journey with grace and discover patterns that illuminate your path to wellness
+              {user && <span className="block text-sm mt-2 text-green-600">✨ Synced to your account</span>}
             </p>
           </motion.div>
           
@@ -158,7 +168,7 @@ const MoodTracking = () => {
                           <span className="text-sm text-gray-500">• {entry.time}</span>
                         </div>
                         <div className="text-sm text-gray-600 dark:text-gray-400">
-                          {entry.formattedDate}
+                          {entry.formattedDate || new Date(entry.date).toLocaleDateString()}
                         </div>
                         {entry.reason && (
                           <div className="text-sm text-gray-700 dark:text-gray-300 mt-2 italic">

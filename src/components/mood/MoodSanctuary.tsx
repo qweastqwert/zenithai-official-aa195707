@@ -9,6 +9,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import MoodSelection from './MoodSelection';
 import MoodReasonInput from './MoodReasonInput';
 import { useMoodData, MoodEntry } from '@/hooks/useMoodData';
+import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
+import { useAuth } from '@/hooks/useAuth';
 
 interface MoodSanctuaryProps {
   isOpen: boolean;
@@ -18,7 +20,14 @@ interface MoodSanctuaryProps {
 const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
   const [selectedMood, setSelectedMood] = useState('');
   const [step, setStep] = useState<'select' | 'reason'>('select');
-  const { moodEntries, saveMoodEntry, getMoodStats } = useMoodData();
+  const { user } = useAuth();
+  
+  // Use appropriate hook based on authentication status
+  const cookieMoodData = useMoodData();
+  const supabaseMoodData = useMoodDataSupabase();
+  
+  const moodData = user ? supabaseMoodData : cookieMoodData;
+  const { entries: moodEntries, addEntry: saveMoodEntry, getMoodStats } = moodData;
   const stats = getMoodStats();
 
   const moodEmojis: { [key: string]: string } = {
@@ -46,13 +55,17 @@ const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
     setStep('reason');
   };
 
-  const handleMoodSubmit = (reason?: string) => {
+  const handleMoodSubmit = async (reason?: string) => {
     if (selectedMood) {
-      saveMoodEntry(selectedMood, reason || '');
+      if (user) {
+        await saveMoodEntry(selectedMood, reason || '');
+      } else {
+        // For cookie-based storage, use the saveMoodEntry method from useMoodData
+        cookieMoodData.saveMoodEntry(selectedMood, reason || '');
+      }
       // Reset form
       setSelectedMood('');
       setStep('select');
-      // Show success message or animation here if needed
     }
   };
 
@@ -93,7 +106,7 @@ const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
                       Mood Sanctuary
                     </CardTitle>
                     <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-                      Your sacred space for emotional wellness
+                      Your sacred space for emotional wellness {user && '(Synced)'}
                     </p>
                   </div>
                 </div>
@@ -218,7 +231,7 @@ const MoodSanctuary: React.FC<MoodSanctuaryProps> = ({ isOpen, onClose }) => {
                                         <span className="text-sm text-gray-500">• {entry.time}</span>
                                       </div>
                                       <div className="text-sm text-gray-600 dark:text-gray-400">
-                                        {entry.formattedDate}
+                                        {entry.formattedDate || new Date(entry.date).toLocaleDateString()}
                                       </div>
                                       {entry.reason && (
                                         <div className="text-sm text-gray-700 dark:text-gray-300 mt-2 italic">

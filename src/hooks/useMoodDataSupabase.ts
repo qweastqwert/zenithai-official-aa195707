@@ -31,8 +31,7 @@ export const useMoodDataSupabase = () => {
     if (!user) return;
 
     try {
-      // Using any to bypass type checking since the table exists but isn't in types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('mood_entries')
         .select('*')
         .eq('user_id', user.id)
@@ -66,7 +65,7 @@ export const useMoodDataSupabase = () => {
         timestamp
       };
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('mood_entries')
         .insert(newEntry)
         .select()
@@ -82,7 +81,7 @@ export const useMoodDataSupabase = () => {
 
   const deleteEntry = async (id: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('mood_entries')
         .delete()
         .eq('id', id);
