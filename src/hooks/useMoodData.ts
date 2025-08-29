@@ -81,8 +81,26 @@ export const useMoodData = () => {
     }
   };
 
+  const addEntry = async (mood: string, reason: string = '') => {
+    saveMoodEntry(mood, reason);
+  };
+
   const addMoodEntry = (entry: { mood: string; date: string; notes: string }) => {
     saveMoodEntry(entry.mood, entry.notes);
+  };
+
+  const deleteEntry = async (id: string) => {
+    const updatedEntries = moodEntries.filter(entry => entry.id !== id);
+    setMoodEntries(updatedEntries);
+    setCookie('zenith-mood-data', JSON.stringify(updatedEntries), 8760);
+  };
+
+  const getEntriesForDate = (date: string) => {
+    return moodEntries.filter(entry => entry.date === date);
+  };
+
+  const getEntriesForDateRange = (startDate: string, endDate: string) => {
+    return moodEntries.filter(entry => entry.date >= startDate && entry.date <= endDate);
   };
 
   const getMoodStats = () => {
@@ -109,9 +127,16 @@ export const useMoodData = () => {
   };
 
   return { 
+    entries: moodEntries,
     moodEntries, 
+    addEntry,
     saveMoodEntry, 
     addMoodEntry, 
-    getMoodStats 
+    deleteEntry,
+    getEntriesForDate,
+    getEntriesForDateRange,
+    getMoodStats,
+    loading: false,
+    refetch: () => Promise.resolve()
   };
 };

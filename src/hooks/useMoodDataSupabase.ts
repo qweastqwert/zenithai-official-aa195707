@@ -102,12 +102,38 @@ export const useMoodDataSupabase = () => {
     return entries.filter(entry => entry.date >= startDate && entry.date <= endDate);
   };
 
+  const getMoodStats = () => {
+    const last7Days = entries.filter(entry => {
+      const entryDate = new Date(entry.timestamp);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return entryDate >= weekAgo;
+    });
+
+    const moodCounts = last7Days.reduce((acc, entry) => {
+      acc[entry.mood] = (acc[entry.mood] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return {
+      totalEntries: entries.length,
+      last7DaysCount: last7Days.length,
+      mostCommonMood: Object.keys(moodCounts).reduce((a, b) => 
+        moodCounts[a] > moodCounts[b] ? a : b, Object.keys(moodCounts)[0]
+      ),
+      moodCounts
+    };
+  };
+
   return {
     entries,
+    moodEntries: entries, // Add alias for backward compatibility
     addEntry,
+    saveMoodEntry: addEntry, // Add alias for backward compatibility
     deleteEntry,
     getEntriesForDate,
     getEntriesForDateRange,
+    getMoodStats,
     loading,
     refetch: fetchEntries
   };
