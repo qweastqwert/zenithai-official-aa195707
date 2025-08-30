@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -6,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { JournalEntry } from '@/hooks/useJournal';
 import { useToast } from '@/hooks/use-toast';
+import { useJournalAutosave } from '@/hooks/useJournalAutosave';
+import { Save, RotateCcw } from 'lucide-react';
 
 interface JournalWriteViewProps {
   todaysEntry: JournalEntry | undefined;
@@ -15,15 +18,41 @@ interface JournalWriteViewProps {
 const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journalHook }) => {
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { saveEntry } = journalHook;
   const { toast } = useToast();
+  const { loadDraft, clearDraft } = useJournalAutosave(content, mood);
 
   useEffect(() => {
     if (todaysEntry) {
       setContent(todaysEntry.content);
       setMood(todaysEntry.mood);
+    } else {
+      // Load draft if no entry for today
+      const draft = loadDraft();
+      if (draft.content || draft.mood) {
+        setContent(draft.content);
+        setMood(draft.mood);
+        setHasUnsavedChanges(true);
+        toast({
+          title: "Draft Restored 📝",
+          description: "We found a saved draft and restored it for you.",
+          duration: 3000,
+        });
+      }
     }
-  }, [todaysEntry]);
+  }, [todaysEntry, loadDraft, toast]);
+
+  // Track changes for unsaved indicator
+  useEffect(() => {
+    if (todaysEntry) {
+      setHasUnsavedChanges(
+        content !== todaysEntry.content || mood !== todaysEntry.mood
+      );
+    } else {
+      setHasUnsavedChanges(content.trim() !== '' || mood !== '');
+    }
+  }, [content, mood, todaysEntry]);
 
   const handleSaveEntry = async () => {
     if (!content.trim() || !mood) {
@@ -36,6 +65,9 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
     }
 
     await saveEntry(content, mood);
+    clearDraft(); // Clear the draft after successful save
+    setHasUnsavedChanges(false);
+    
     toast({
       title: "Journal Saved! 📝",
       description: "Your daily reflection has been recorded.",
@@ -45,6 +77,22 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       setContent('');
       setMood('');
     }
+  };
+
+  const handleDiscardDraft = () => {
+    if (todaysEntry) {
+      setContent(todaysEntry.content);
+      setMood(todaysEntry.mood);
+    } else {
+      setContent('');
+      setMood('');
+    }
+    clearDraft();
+    setHasUnsavedChanges(false);
+    toast({
+      title: "Draft Discarded",
+      description: "Changes have been reverted.",
+    });
   };
 
   return (
@@ -58,6 +106,9 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       <div className="text-center">
         <h3 className="text-xl font-semibold mb-2">
           {todaysEntry ? "Update Today's Entry" : "How was your day?"}
+          {hasUnsavedChanges && (
+            <span className="ml-2 text-sm text-orange-500">• Unsaved changes</span>
+          )}
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
           {new Date().toLocaleDateString('en-US', { 
@@ -114,13 +165,26 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
           />
         </div>
 
-        <Button 
-          onClick={handleSaveEntry}
-          className="w-full"
-          style={{ backgroundColor: 'var(--zenith-primary)' }}
-        >
-          {todaysEntry ? 'Update Entry' : 'Save Entry'}
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            onClick={handleSaveEntry}
+            className="flex-1"
+            style={{ backgroundColor: 'var(--zenith-primary)' }}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            {todaysEntry ? 'Update Entry' : 'Save Entry'}
+          </Button>
+          
+          {hasUnsavedChanges && (
+            <Button 
+              onClick={handleDiscardDraft}
+              variant="outline"
+              className="px-4"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
     </motion.div>
   );

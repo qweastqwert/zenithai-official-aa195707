@@ -1,17 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { getCookie, setCookie } from '@/utils/cookieUtils';
-
-export interface MoodEntry {
-  id: string;
-  date: string;
-  time: string;
-  mood: string;
-  reason: string;
-  timestamp: number;
-  formattedDate: string;
-  dayOfWeek: string;
-}
+import { MoodEntry } from '@/types/mood';
 
 export const useMoodData = () => {
   const [moodEntries, setMoodEntries] = useState<MoodEntry[]>([]);
