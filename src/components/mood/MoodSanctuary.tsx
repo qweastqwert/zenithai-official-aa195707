@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Clock, TrendingUp, Calendar } from 'lucide-react';
@@ -8,9 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import MoodSelection from './MoodSelection';
 import MoodReasonInput from './MoodReasonInput';
-import { useMoodData, MoodEntry } from '@/hooks/useMoodData';
+import { useMoodData } from '@/hooks/useMoodData';
 import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useAuth } from '@/hooks/useAuth';
+import { MoodEntry } from '@/types/mood';
 
 interface MoodSanctuaryProps {
   isOpen: boolean;
