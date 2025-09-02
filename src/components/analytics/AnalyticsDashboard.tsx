@@ -91,21 +91,57 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className }) =>
       const moodSummary = periodMoods.map(m => `${m.mood}: ${m.reason}`).join('; ');
       const journalSummary = periodJournals.map(j => j.content.substring(0, 100)).join('; ');
       
-      const { data, error } = await supabase.functions.invoke('generate-ai-tip', {
-        body: {
-          timeframe,
-          moodData: moodSummary,
-          journalData: journalSummary,
-          usageStats: getUsageAnalytics()
-        }
+      const tipGenerationPrompt = `Based on the following user wellness data from the ${timeframe} period, provide a single, concise, and actionable wellness tip (max 20 words):
+
+Mood Data: ${moodSummary || 'No mood entries'}
+Journal Insights: ${journalSummary || 'No journal entries'}
+AI Usage: ${getUsageAnalytics().mindMateUsage} sessions
+Activity Level: ${getUsageAnalytics().totalSessions} total wellness interactions
+
+Guidelines:
+- Keep it positive and encouraging
+- Make it actionable
+- Focus on mental wellness
+- Be supportive, not prescriptive
+- Use encouraging emojis sparingly (max 1)`;
+
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a supportive mental wellness coach. Provide brief, actionable, and encouraging tips based on user data.'
+            },
+            {
+              role: 'user',
+              content: tipGenerationPrompt
+            }
+          ],
+          maxTokens: 50,
+          temperature: 0.7,
+        }),
       });
 
-      if (error) throw error;
-      
-      setAiTip(data.tip || 'Keep maintaining your mental wellness journey! 🌟');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
+      setAiTip(tip);
     } catch (error) {
       console.error('Error generating AI tip:', error);
-      setAiTip('Focus on consistency in your wellness journey. Small daily steps make big changes! 💪');
+      // Fallback tips based on timeframe
+      const fallbackTips = {
+        weekly: 'Focus on small daily wins - they build momentum for bigger changes! 💪',
+        monthly: 'Reflect on your progress and celebrate how far you\'ve come this month! 🌟'
+      };
+      const fallbackTip = fallbackTips[timeframe] || 'Remember: every step forward is progress, no matter how small! ✨';
+      setAiTip(fallbackTip);
     } finally {
       setLoading(false);
     }
