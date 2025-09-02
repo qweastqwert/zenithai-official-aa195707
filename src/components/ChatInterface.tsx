@@ -25,6 +25,9 @@ import Achievements from '@/components/achievements/Achievements';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useMoodPromptFrequency } from '@/hooks/useMoodPromptFrequency';
+import { useSyncData } from '@/hooks/useSyncData';
+import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
 
 const ChatInterface = () => {
   const [showIntro, setShowIntro] = useState(true);
@@ -34,12 +37,14 @@ const ChatInterface = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [newAchievement, setNewAchievement] = useState<any>(null);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { hasProfile, profile } = useProfile();
   const { isMobile, isTablet, isDesktop } = useDeviceDetection();
   const navigate = useNavigate();
   const { trackActivity } = useActivityTracker();
   const { getNewlyUnlocked } = useAchievements();
+  const { shouldShowPrompt, recordPromptShown, recordPromptDismissed } = useMoodPromptFrequency();
+  const { isSyncing } = useSyncData();
 
   // Use mobile interface for mobile devices, desktop for tablets in landscape and desktop
   const useMobileInterface = isMobile && !isDesktop;
@@ -660,6 +665,8 @@ const ChatInterface = () => {
                 </Button>
               </div>
             </div>
+            
+            {user && <AnalyticsDashboard />}
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {/* Achievements - Featured */}

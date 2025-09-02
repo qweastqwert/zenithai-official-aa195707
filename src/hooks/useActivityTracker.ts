@@ -156,8 +156,26 @@ export const useActivityTracker = () => {
     saveActivities(newActivities);
   };
 
+  const getStats = () => {
+    return {
+      mindMateUsage: activities.mindMateStreak,
+      journalUsage: activities.journalStreak,
+      moodUsage: activities.moodStreak,
+      meditationUsage: activities.meditationStreak,
+      totalDaysUsed: activities.totalDaysUsed,
+      featuresUnlocked: activities.featuresUnlocked.length,
+      currentStreaks: {
+        mindmate: activities.mindMateStreak,
+        journal: activities.journalStreak,
+        mood: activities.moodStreak,
+        meditation: activities.meditationStreak
+      }
+    };
+  };
+
   return {
     activities,
-    trackActivity
+    trackActivity,
+    getStats
   };
 };
