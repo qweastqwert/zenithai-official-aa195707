@@ -1,1 +1,4 @@
 project_id = "tipqgwdgplxlbwuvxyxa"
+
+[functions.mindmate-chat]
+verify_jwt = true

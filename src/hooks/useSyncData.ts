@@ -1,66 +1,95 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useMoodData } from './useMoodData';
 import { useMoodDataSupabase } from './useMoodDataSupabase';
 import { useJournal } from './useJournal';
 import { useJournalSupabase } from './useJournalSupabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useSyncData = () => {
   const { user } = useAuth();
-  const { moodEntries: localMoodEntries, saveMoodEntry } = useMoodData();
-  const { addEntry: addMoodToSupabase } = useMoodDataSupabase();
-  const { entries: localJournalEntries, saveEntry } = useJournal();
-  const { saveEntry: saveJournalToSupabase } = useJournalSupabase();
+  const moodData = useMoodData();
+  const journalData = useJournal();
+  const [loading, setLoading] = useState(false);
 
-  // Sync mood data to Supabase when user is authenticated
-  useEffect(() => {
-    if (user && localMoodEntries.length > 0) {
-      const syncMoodData = async () => {
-        console.log('🔄 Syncing mood data to Supabase...');
-        
-        // Sync all local mood entries to Supabase
-        for (const entry of localMoodEntries) {
-          try {
-            await addMoodToSupabase(entry.mood, entry.reason);
-          } catch (error) {
-            console.error('Error syncing mood entry:', error);
-          }
+  const syncData = async () => {
+    if (!user || loading) return;
+
+    setLoading(true);
+    try {
+      // Get local data
+      const localMoodData = moodData.moodEntries;
+      const localJournalData = journalData.entries;
+
+      // Check existing data to prevent duplicates
+      const { data: existingMoods } = await supabase
+        .from('mood_entries')
+        .select('timestamp')
+        .eq('user_id', user.id);
+
+      const { data: existingJournals } = await supabase
+        .from('journal_entries')
+        .select('timestamp')
+        .eq('user_id', user.id);
+
+      const existingMoodTimestamps = new Set(existingMoods?.map(m => m.timestamp) || []);
+      const existingJournalTimestamps = new Set(existingJournals?.map(j => j.timestamp) || []);
+
+      // Sync only new mood data
+      const newMoodData = localMoodData.filter(mood => !existingMoodTimestamps.has(mood.timestamp));
+      for (const mood of newMoodData) {
+        const { error } = await supabase
+          .from('mood_entries')
+          .insert({
+            user_id: user.id,
+            mood: mood.mood,
+            reason: mood.reason || '',
+            date: mood.date,
+            time: mood.time,
+            timestamp: mood.timestamp,
+          });
+
+        if (error) {
+          console.error('Error syncing mood data:', error);
         }
-        
-        console.log('✅ Mood data sync completed');
-      };
+      }
 
-      // Delay sync to avoid overwhelming the API
-      const timer = setTimeout(syncMoodData, 2000);
+      // Sync only new journal data
+      const newJournalData = localJournalData.filter(journal => !existingJournalTimestamps.has(journal.timestamp));
+      for (const journal of newJournalData) {
+        const { error } = await supabase
+          .from('journal_entries')
+          .insert({
+            user_id: user.id,
+            content: journal.content,
+            mood: journal.mood,
+            date: journal.date,
+            timestamp: journal.timestamp,
+          });
+
+        if (error) {
+          console.error('Error syncing journal data:', error);
+        }
+      }
+
+      console.log(`Data sync completed: ${newMoodData.length} moods, ${newJournalData.length} journals synced`);
+    } catch (error) {
+      console.error('Error during data sync:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Auto-sync when user is authenticated
+  useEffect(() => {
+    if (user) {
+      const timer = setTimeout(syncData, 2000);
       return () => clearTimeout(timer);
     }
-  }, [user, localMoodEntries.length]);
-
-  // Sync journal data to Supabase when user is authenticated
-  useEffect(() => {
-    if (user && localJournalEntries.length > 0) {
-      const syncJournalData = async () => {
-        console.log('🔄 Syncing journal data to Supabase...');
-        
-        // Sync all local journal entries to Supabase
-        for (const entry of localJournalEntries) {
-          try {
-            await saveJournalToSupabase(entry.content, entry.mood);
-          } catch (error) {
-            console.error('Error syncing journal entry:', error);
-          }
-        }
-        
-        console.log('✅ Journal data sync completed');
-      };
-
-      // Delay sync to avoid overwhelming the API
-      const timer = setTimeout(syncJournalData, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, localJournalEntries.length]);
+  }, [user]);
 
   return {
-    isSyncing: false // Could add sync status tracking here
+    syncData,
+    isSyncing: loading
   };
 };

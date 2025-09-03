@@ -2,7 +2,8 @@
 export const setCookie = (name: string, value: string, hours: number) => {
   const expires = new Date();
   expires.setTime(expires.getTime() + (hours * 60 * 60 * 1000));
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+  // Use secure cookie attributes for security
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax;Secure`;
 };
 
 export const getCookie = (name: string): string | null => {
@@ -17,5 +18,5 @@ export const getCookie = (name: string): string | null => {
 };
 
 export const deleteCookie = (name: string) => {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;SameSite=Lax;Secure`;
 };

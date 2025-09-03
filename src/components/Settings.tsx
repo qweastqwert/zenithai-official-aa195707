@@ -9,12 +9,20 @@ import AppearanceSection from '@/components/settings/AppearanceSection';
 import UICustomizationSection from '@/components/settings/UICustomizationSection';
 import AudioSection from '@/components/settings/AudioSection';
 import NotificationsSection from '@/components/settings/NotificationsSection';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SettingsProps {
   onClose: () => void;
 }
 
 const Settings: React.FC<SettingsProps> = ({ onClose }) => {
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 animate-scale-in">
@@ -36,12 +44,21 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <NotificationsSection />
           <Separator />
           
-          <div className="flex space-x-3">
-            <Button onClick={onClose} className="flex-1" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-              Save Changes
-            </Button>
-            <Button variant="outline" onClick={onClose} className="flex-1">
-              Cancel
+          <div className="flex flex-col space-y-3">
+            <div className="flex space-x-3">
+              <Button onClick={onClose} className="flex-1" style={{ backgroundColor: 'var(--zenith-primary)' }}>
+                Save Changes
+              </Button>
+              <Button variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+            <Button 
+              onClick={handleSignOut} 
+              variant="destructive" 
+              className="w-full"
+            >
+              Sign Out
             </Button>
           </div>
         </CardContent>

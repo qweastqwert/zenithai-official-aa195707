@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { setCookie, getCookie } from '@/utils/cookieUtils';
 
+// NOTE: This is NOT a real security control - it's just a UI demonstration
+// For actual bot protection, implement proper CAPTCHA or use Cloudflare Turnstile
 interface ReCAPTCHAProps {
   onVerified: () => void;
   title: string;

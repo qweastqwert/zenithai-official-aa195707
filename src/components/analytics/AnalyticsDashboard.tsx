@@ -105,12 +105,8 @@ Guidelines:
 - Be supportive, not prescriptive
 - Use encouraging emojis sparingly (max 1)`;
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await supabase.functions.invoke('mindmate-chat', {
+        body: {
           messages: [
             {
               role: 'system',
@@ -123,14 +119,14 @@ Guidelines:
           ],
           maxTokens: 50,
           temperature: 0.7,
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.error) {
+        throw new Error(response.error);
       }
 
-      const data = await response.json();
+      const data = response.data;
       const tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
       setAiTip(tip);
     } catch (error) {

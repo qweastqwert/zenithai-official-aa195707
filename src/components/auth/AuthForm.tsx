@@ -209,22 +209,55 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
               </motion.div>
             </form>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 0.6 }}
-              className="mt-6 text-center"
-            >
-              <p className="text-gray-600">
-                {isLogin ? "Don't have an account? " : "Already have an account? "}
-                <button
-                  onClick={toggleMode}
-                  className="text-zenith-primary hover:text-zenith-darkpurple font-semibold transition-colors"
+              {isLogin && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.55 }}
+                  className="mt-4 text-center"
                 >
-                  {isLogin ? 'Sign Up' : 'Sign In'}
-                </button>
-              </p>
-            </motion.div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!email) {
+                        setError('Please enter your email address');
+                        return;
+                      }
+                      try {
+                        await supabase.auth.resetPasswordForEmail(email, {
+                          redirectTo: `${window.location.origin}/auth/reset-password`
+                        });
+                        toast({
+                          title: "Reset link sent! 📧",
+                          description: "Check your email for password reset instructions.",
+                        });
+                      } catch (error: any) {
+                        setError(error.message);
+                      }
+                    }}
+                    className="text-sm text-zenith-primary hover:text-zenith-darkpurple transition-colors"
+                  >
+                    Forgot your password?
+                  </button>
+                </motion.div>
+              )}
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+                className="mt-6 text-center"
+              >
+                <p className="text-gray-600">
+                  {isLogin ? "Don't have an account? " : "Already have an account? "}
+                  <button
+                    onClick={toggleMode}
+                    className="text-zenith-primary hover:text-zenith-darkpurple font-semibold transition-colors"
+                  >
+                    {isLogin ? 'Sign Up' : 'Sign In'}
+                  </button>
+                </p>
+              </motion.div>
           </CardContent>
         </Card>
       </motion.div>

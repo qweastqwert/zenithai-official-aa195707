@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Send, ArrowLeft, MoreVertical, Brain, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
-import { getApiKey } from '@/utils/apiKeyManager';
+import { supabase } from '@/integrations/supabase/client';
 import { UserProfile } from '@/hooks/useProfile';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -1104,48 +1104,28 @@ Customize your therapeutic approach based on this information while maintaining 
     setInput('');
     setIsLoading(true);
 
-    try {
-      const apiKey = getApiKey();
-      
-      if (!apiKey) {
-        toast({
-          title: "API Key Error",
-          description: "There was an issue with the API key. Please try again later.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-      
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Zenith AI - MindMate'
-        },
-        body: JSON.stringify({
-          model: isDeepThinkEnabled ? 'deepseek/deepseek-r1:free' : 'deepseek/deepseek-r1:free',
+    try {      
+      const response = await supabase.functions.invoke('mindmate-chat', {
+        body: {
           messages: [
             { role: 'system', content: getSystemInstruction() },
             ...messages.map(m => ({ role: m.role, content: m.content })),
             { role: userMessage.role, content: userMessage.content }
           ],
+          maxTokens: isDeepThinkEnabled ? 2000 : 1000,
           temperature: isDeepThinkEnabled ? 0.3 : 0.7,
-          max_tokens: isDeepThinkEnabled ? 2000 : 1000,
-        })
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+      if (response.error) {
+        throw new Error(response.error);
       }
 
-      const data = await response.json();
+      const data = response.data;
       const assistantMessageId = `assistant-${Date.now()}`;
       const assistantMessage: Message = {
         role: 'assistant',
-        content: data.choices[0].message.content,
+        content: data.reply || 'I apologize, but I had trouble generating a response.',
         id: assistantMessageId
       };
       
