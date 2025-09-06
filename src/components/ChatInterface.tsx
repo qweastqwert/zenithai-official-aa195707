@@ -28,17 +28,22 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useMoodPromptFrequency } from '@/hooks/useMoodPromptFrequency';
 import { useSyncData } from '@/hooks/useSyncData';
 import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
+import { SleepTracker } from './sleep/SleepTracker';
+import { SleepPrompt } from './sleep/SleepPrompt';
+import { useSleepProfile } from '@/hooks/useSleepProfile';
 
 const ChatInterface = () => {
   const [showIntro, setShowIntro] = useState(true);
-  const [activeChatbot, setActiveChatbot] = useState<'mindmate' | 'characters' | 'meditation' | 'journal' | null>(null);
+  const [activeChatbot, setActiveChatbot] = useState<'mindmate' | 'characters' | 'meditation' | 'journal' | 'sleep' | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showMoodPrompt, setShowMoodPrompt] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [newAchievement, setNewAchievement] = useState<any>(null);
+  const [showSleepPrompt, setShowSleepPrompt] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { hasProfile, profile } = useProfile();
+  const { profile: sleepProfile, loading: sleepProfileLoading } = useSleepProfile();
   const { isMobile, isTablet, isDesktop } = useDeviceDetection();
   const navigate = useNavigate();
   const { trackActivity } = useActivityTracker();
@@ -72,6 +77,19 @@ const ChatInterface = () => {
       checkForNewAchievements();
     }
   }, [hasProfile, getNewlyUnlocked]);
+
+  // Check if user needs sleep profile setup
+  useEffect(() => {
+    if (!user || !hasProfile || sleepProfileLoading) return;
+    
+    if (profile && !sleepProfile) {
+      // Existing user without sleep profile - show prompt after a delay
+      const timer = setTimeout(() => {
+        setShowSleepPrompt(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, profile, sleepProfile, hasProfile, sleepProfileLoading]);
 
   // Check for mood prompt
   useEffect(() => {
@@ -137,6 +155,12 @@ const ChatInterface = () => {
       setIsTransitioning(true);
       setTimeout(() => {
         setActiveChatbot('journal');
+        setIsTransitioning(false);
+      }, 300);
+    } else if (destination === 'sleep') {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveChatbot('sleep');
         setIsTransitioning(false);
       }, 300);
     } else if (destination === 'mood') {
@@ -669,6 +693,23 @@ const ChatInterface = () => {
             {user && <AnalyticsDashboard />}
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {/* Sleep Tracker Card */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card 
+                  className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800 cursor-pointer hover:shadow-lg transition-all duration-200"
+                  onClick={() => handleNavigation('sleep')}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className="text-4xl mb-3">🌙</div>
+                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Sleep Tracker</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Track your sleep patterns and get insights</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
               {/* Achievements - Featured */}
               <motion.div
                 whileHover={{ scale: 1.02 }}

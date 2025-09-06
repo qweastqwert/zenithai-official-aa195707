@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useProfile, UserProfile } from '@/hooks/useProfile';
+import { useSleepProfile } from '@/hooks/useSleepProfile';
 
 interface OnboardingFormProps {
   onComplete: () => void;
@@ -16,22 +17,40 @@ interface OnboardingFormProps {
 
 const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
   const { createProfile } = useProfile();
+  const { createProfile: createSleepProfile } = useSleepProfile();
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({
     name: '',
     age: '',
     gender: '',
     hobbies: '',
-    problems: ''
+    problems: '',
+    sleepTime: '22:00',
+    wakeTime: '07:00'
   });
+
+  const handleNextStep = () => {
+    if (step === 1) {
+      if (!profile.name || !profile.age || !profile.gender) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields (Name, Age, Gender).",
+          variant: "destructive",
+        });
+        return;
+      }
+      setStep(2);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!profile.name || !profile.age || !profile.gender) {
+    if (!profile.sleepTime || !profile.wakeTime) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields (Name, Age, Gender).",
+        description: "Please set your sleep schedule.",
         variant: "destructive",
       });
       return;
@@ -39,7 +58,18 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
 
     setLoading(true);
     try {
-      await createProfile(profile);
+      // Create user profile
+      await createProfile({
+        name: profile.name,
+        age: profile.age,
+        gender: profile.gender,
+        hobbies: profile.hobbies,
+        problems: profile.problems
+      });
+
+      // Create sleep profile
+      await createSleepProfile(profile.sleepTime, profile.wakeTime);
+
       toast({
         title: "Profile Created! 🎉",
         description: "Welcome to Zenith AI! Your personalized experience is ready.",
@@ -63,12 +93,16 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
           <CardTitle className="text-2xl sm:text-3xl font-bold text-zenith-darkpurple mb-2">
             Welcome to Zenith AI! 🌟
           </CardTitle>
-          <p className="text-gray-600 text-sm sm:text-base px-2">
-            Let's personalize your mental wellness journey. Tell us a bit about yourself.
-          </p>
+          <CardDescription className="text-gray-600 text-sm sm:text-base px-2">
+            {step === 1 
+              ? "Let's personalize your mental wellness journey. Tell us a bit about yourself."
+              : "Set up your sleep schedule for better wellness tracking and reminders."
+            }
+          </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          {step === 1 ? (
+            <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">Name *</Label>
               <Input
@@ -134,21 +168,72 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
               />
             </div>
 
-            <Button 
-              type="submit"
-              disabled={loading}
-              className="w-full zenith-button-primary text-base sm:text-lg py-3 sm:py-4 font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Your Profile...
-                </>
-              ) : (
-                'Start My Wellness Journey 🚀'
-              )}
-            </Button>
-          </form>
+              <Button 
+                type="submit"
+                className="w-full zenith-button-primary text-base sm:text-lg py-3 sm:py-4 font-semibold"
+              >
+                Continue to Sleep Schedule
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="text-center mb-4">
+                <p className="text-sm text-gray-500">
+                  Help us send you timely sleep reminders and track your sleep patterns
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sleepTime" className="text-sm font-medium">Sleep Time *</Label>
+                <Input
+                  id="sleepTime"
+                  type="time"
+                  value={profile.sleepTime}
+                  onChange={(e) => setProfile({ ...profile, sleepTime: e.target.value })}
+                  required
+                  className="border-gray-200 focus:border-zenith-primary focus:ring-zenith-primary/20"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="wakeTime" className="text-sm font-medium">Wake Time *</Label>
+                <Input
+                  id="wakeTime"
+                  type="time"
+                  value={profile.wakeTime}
+                  onChange={(e) => setProfile({ ...profile, wakeTime: e.target.value })}
+                  required
+                  className="border-gray-200 focus:border-zenith-primary focus:ring-zenith-primary/20"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setStep(1)}
+                  disabled={loading}
+                >
+                  Back
+                </Button>
+                <Button 
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 zenith-button-primary text-base sm:text-lg py-3 sm:py-4 font-semibold"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Profile...
+                    </>
+                  ) : (
+                    'Complete Setup 🚀'
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

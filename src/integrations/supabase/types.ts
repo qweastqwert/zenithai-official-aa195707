@@ -143,6 +143,66 @@ export type Database = {
         }
         Relationships: []
       }
+      sleep_logs: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          sleep_confirmed_at: string | null
+          sleep_quality: string | null
+          updated_at: string
+          user_id: string
+          wake_response_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          sleep_confirmed_at?: string | null
+          sleep_quality?: string | null
+          updated_at?: string
+          user_id: string
+          wake_response_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          sleep_confirmed_at?: string | null
+          sleep_quality?: string | null
+          updated_at?: string
+          user_id?: string
+          wake_response_at?: string | null
+        }
+        Relationships: []
+      }
+      sleep_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          sleep_time: string
+          updated_at: string
+          user_id: string
+          wake_time: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          sleep_time: string
+          updated_at?: string
+          user_id: string
+          wake_time: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          sleep_time?: string
+          updated_at?: string
+          user_id?: string
+          wake_time?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
