@@ -8,10 +8,12 @@ export interface ActivityData {
   lastMoodTrack: string | null;
   lastMeditationUse: string | null;
   lastBreathingUse: string | null;
+  lastSleepUse: string | null;
   mindMateStreak: number;
   journalStreak: number;
   moodStreak: number;
   meditationStreak: number;
+  sleepStreak: number;
   totalDaysUsed: number;
   featuresUnlocked: string[];
 }
@@ -23,10 +25,12 @@ export const useActivityTracker = () => {
     lastMoodTrack: null,
     lastMeditationUse: null,
     lastBreathingUse: null,
+    lastSleepUse: null,
     mindMateStreak: 0,
     journalStreak: 0,
     moodStreak: 0,
     meditationStreak: 0,
+    sleepStreak: 0,
     totalDaysUsed: 0,
     featuresUnlocked: []
   });
@@ -73,7 +77,7 @@ export const useActivityTracker = () => {
     return lastDate === yesterday.toDateString();
   };
 
-  const trackActivity = (activityType: 'mindmate' | 'journal' | 'mood' | 'meditation' | 'breathing') => {
+  const trackActivity = (activityType: 'mindmate' | 'journal' | 'mood' | 'meditation' | 'breathing' | 'sleep') => {
     const today = new Date().toDateString();
     const newActivities = { ...activities };
 
@@ -119,6 +123,14 @@ export const useActivityTracker = () => {
           console.log(`🌬️ Breathing exercise completed`);
         }
         break;
+      case 'sleep':
+        if (newActivities.lastSleepUse !== today) {
+          newActivities.sleepStreak = isConsecutiveDay(newActivities.lastSleepUse) ? 
+            newActivities.sleepStreak + 1 : 1;
+          newActivities.lastSleepUse = today;
+          console.log(`😴 Sleep streak: ${newActivities.sleepStreak}`);
+        }
+        break;
     }
 
     // Track unique features used
@@ -133,7 +145,8 @@ export const useActivityTracker = () => {
       newActivities.lastJournalUse,
       newActivities.lastMoodTrack,
       newActivities.lastMeditationUse,
-      newActivities.lastBreathingUse
+      newActivities.lastBreathingUse,
+      newActivities.lastSleepUse
     ].some(date => date === today);
 
     if (hasUsedToday) {
@@ -144,7 +157,8 @@ export const useActivityTracker = () => {
           newActivities.lastJournalUse,
           newActivities.lastMoodTrack,
           newActivities.lastMeditationUse,
-          newActivities.lastBreathingUse
+          newActivities.lastBreathingUse,
+          newActivities.lastSleepUse
         ].filter(date => date !== null)).size
       );
       
@@ -168,7 +182,8 @@ export const useActivityTracker = () => {
         mindmate: activities.mindMateStreak,
         journal: activities.journalStreak,
         mood: activities.moodStreak,
-        meditation: activities.meditationStreak
+        meditation: activities.meditationStreak,
+        sleep: activities.sleepStreak
       }
     };
   };

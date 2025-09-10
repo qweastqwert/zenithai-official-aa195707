@@ -13,7 +13,8 @@ import {
   BookOpen,
   Brain,
   Flower2,
-  Trophy
+  Trophy,
+  Moon
 } from 'lucide-react';
 
 interface MobileNavigationProps {
@@ -34,7 +35,8 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
     { id: 'mindmate', icon: Brain, label: 'MindMate' },
     { id: 'journal', icon: BookOpen, label: 'Journal' },
     { id: 'meditation', icon: Flower2, label: 'Meditate' },
-    { id: 'mood', icon: Heart, label: 'Mood' }
+    { id: 'mood', icon: Heart, label: 'Mood' },
+    { id: 'sleep', icon: Moon, label: 'Sleep' }
   ];
 
   return (

@@ -28,13 +28,12 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useMoodPromptFrequency } from '@/hooks/useMoodPromptFrequency';
 import { useSyncData } from '@/hooks/useSyncData';
 import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
-import { SleepTracker } from './sleep/SleepTracker';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 
 const ChatInterface = () => {
   const [showIntro, setShowIntro] = useState(true);
-  const [activeChatbot, setActiveChatbot] = useState<'mindmate' | 'characters' | 'meditation' | 'journal' | 'sleep' | null>(null);
+  const [activeChatbot, setActiveChatbot] = useState<'mindmate' | 'characters' | 'meditation' | 'journal' | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showMoodPrompt, setShowMoodPrompt] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -158,11 +157,8 @@ const ChatInterface = () => {
         setIsTransitioning(false);
       }, 300);
     } else if (destination === 'sleep') {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setActiveChatbot('sleep');
-        setIsTransitioning(false);
-      }, 300);
+      trackActivity('sleep');
+      navigate('/sleep-tracking');
     } else if (destination === 'mood') {
       trackActivity('mood');
       navigate('/mood-tracking');
