@@ -77,7 +77,7 @@ export const useActivityTracker = () => {
     return lastDate === yesterday.toDateString();
   };
 
-  const trackActivity = (activityType: 'mindmate' | 'journal' | 'mood' | 'meditation' | 'breathing' | 'sleep') => {
+  const trackActivity = (activityType: 'mindmate' | 'journal' | 'mood' | 'meditation' | 'breathing' | 'sleep' | 'community') => {
     const today = new Date().toDateString();
     const newActivities = { ...activities };
 
@@ -130,6 +130,9 @@ export const useActivityTracker = () => {
           newActivities.lastSleepUse = today;
           console.log(`😴 Sleep streak: ${newActivities.sleepStreak}`);
         }
+        break;
+      case 'community':
+        console.log(`💬 Community Support accessed`);
         break;
     }
 

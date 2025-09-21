@@ -159,6 +159,9 @@ const ChatInterface = () => {
     } else if (destination === 'sleep') {
       trackActivity('sleep');
       navigate('/sleep-tracking');
+    } else if (destination === 'community') {
+      trackActivity('community');
+      navigate('/community');
     } else if (destination === 'mood') {
       trackActivity('mood');
       navigate('/mood-tracking');
@@ -703,6 +706,24 @@ const ChatInterface = () => {
                     <div className="text-4xl mb-3">🌙</div>
                     <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Sleep Tracker</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Track your sleep patterns and get insights</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Community Support Card */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card 
+                  className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border-emerald-200 dark:border-emerald-800 cursor-pointer hover:shadow-lg transition-all duration-200"
+                  onClick={() => handleNavigation('community')}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className="text-4xl mb-3">💬</div>
+                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Community Support</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Share experiences and get advice anonymously</p>
                   </CardContent>
                 </Card>
               </motion.div>
