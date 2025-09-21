@@ -588,6 +588,36 @@ const ChatInterface = () => {
                   </CardContent>
                 </Card>
 
+                <Card 
+                  className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                  onClick={() => handleNavigation('sleep')}
+                >
+                  <CardContent className="p-3 flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/20 flex items-center justify-center">
+                      <span className="text-sm">🌙</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Sleep Tracker</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Track sleep patterns</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card 
+                  className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                  onClick={() => handleNavigation('community')}
+                >
+                  <CardContent className="p-3 flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center">
+                      <span className="text-sm">💬</span>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Community</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">Share & get advice</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Music Menu - Compact */}
                 <div className="flex justify-center">
                   <SongMenu />
