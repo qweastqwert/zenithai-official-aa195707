@@ -4,6 +4,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
+import { useProfile } from '@/hooks/useProfile';
+import { filterContent } from '@/utils/contentFilter';
+import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 interface CreatePostProps {
   onCancel: () => void;
@@ -14,6 +18,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createPost } = useCommunityPosts();
+  const { profile } = useProfile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
