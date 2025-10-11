@@ -2,3 +2,6 @@ project_id = "tipqgwdgplxlbwuvxyxa"
 
 [functions.mindmate-chat]
 verify_jwt = true
+
+[functions.analyze-conversation]
+verify_jwt = true

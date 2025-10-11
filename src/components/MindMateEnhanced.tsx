@@ -5,9 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ArrowLeft, Send, Loader2, Heart } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Heart, MoreVertical, Brain } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Message {
   id: string;
@@ -25,8 +33,11 @@ const MindMateEnhanced: React.FC<MindMateEnhancedProps> = ({ onBack }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { getPersonalizedSystemInstruction } = useProfile();
+  const { toast } = useToast();
+  const conversationSavedRef = useRef(false);
 
   const mindMateSystemPrompt = `You are MindMate, a warm and understanding companion who's here to listen, support, and chat with genuine care. You're like that trusted friend who's always there when someone needs to talk - whether they're celebrating victories, working through challenges, or just want someone to understand them.
 
@@ -89,6 +100,80 @@ Remember: You're a caring friend, not a therapist. Your role is to listen, under
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  }, [messages]);
+
+  const analyzeAndSaveConversation = async () => {
+    // Only analyze if there are meaningful messages (more than just the greeting)
+    if (messages.length <= 2 || conversationSavedRef.current) {
+      return;
+    }
+
+    try {
+      setIsAnalyzing(true);
+      console.log('Analyzing conversation...');
+
+      const conversationMessages = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.log('No session, skipping analysis');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('analyze-conversation', {
+        body: { messages: conversationMessages }
+      });
+
+      if (error) {
+        console.error('Error analyzing conversation:', error);
+        return;
+      }
+
+      conversationSavedRef.current = true;
+
+      if (data?.memoriesExtracted > 0) {
+        toast({
+          title: 'Memories Saved',
+          description: `${data.memoriesExtracted} key insight${data.memoriesExtracted > 1 ? 's' : ''} added to your MindArchive`,
+        });
+      }
+
+      console.log('Conversation analyzed:', data);
+    } catch (error) {
+      console.error('Error in analyzeAndSaveConversation:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleManualAnalysis = async () => {
+    if (messages.length <= 1) {
+      toast({
+        title: 'No Conversation',
+        description: 'Start a conversation first before analyzing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    await analyzeAndSaveConversation();
+  };
+
+  const handleBack = async () => {
+    await analyzeAndSaveConversation();
+    onBack();
+  };
+
+  useEffect(() => {
+    // Cleanup: analyze conversation when component unmounts
+    return () => {
+      if (messages.length > 2 && !conversationSavedRef.current) {
+        analyzeAndSaveConversation();
+      }
+    };
   }, [messages]);
 
   const sendMessage = async () => {
@@ -178,7 +263,7 @@ Remember to:
   return (
     <div className="flex flex-col h-full bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
       <div className="flex items-center gap-3 p-4 border-b bg-white dark:bg-gray-800 shadow-sm">
-        <Button variant="ghost" size="icon" onClick={onBack}>
+        <Button variant="ghost" size="icon" onClick={handleBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <Avatar className="h-10 w-10 bg-gradient-to-r from-purple-500 to-pink-500">
@@ -186,11 +271,25 @@ Remember to:
             <Heart className="h-5 w-5" />
           </AvatarFallback>
         </Avatar>
-        <div>
+        <div className="flex-1">
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">MindMate</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">Your caring companion</p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleManualAnalysis} disabled={isAnalyzing}>
+              <Brain className="h-4 w-4 mr-2" />
+              {isAnalyzing ? 'Analyzing...' : 'Save Memories Now'}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
 
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4 max-w-3xl mx-auto">

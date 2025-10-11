@@ -106,6 +106,30 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_history: {
+        Row: {
+          analyzed: boolean
+          created_at: string
+          id: string
+          messages: Json
+          user_id: string
+        }
+        Insert: {
+          analyzed?: boolean
+          created_at?: string
+          id?: string
+          messages: Json
+          user_id: string
+        }
+        Update: {
+          analyzed?: boolean
+          created_at?: string
+          id?: string
+          messages?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       journal_entries: {
         Row: {
           content: string
@@ -378,6 +402,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_conversations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["app_role"]
