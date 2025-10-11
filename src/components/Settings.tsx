@@ -9,6 +9,7 @@ import AppearanceSection from '@/components/settings/AppearanceSection';
 import UICustomizationSection from '@/components/settings/UICustomizationSection';
 import AudioSection from '@/components/settings/AudioSection';
 import NotificationsSection from '@/components/settings/NotificationsSection';
+import { MindArchiveSection } from '@/components/settings/MindArchiveSection';
 import { useAuth } from '@/hooks/useAuth';
 
 interface SettingsProps {
@@ -34,6 +35,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <ProfileSection />
+          <Separator />
+          <MindArchiveSection />
           <Separator />
           <AppearanceSection />
           <Separator />

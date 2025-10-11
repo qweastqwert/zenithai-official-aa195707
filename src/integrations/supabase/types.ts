@@ -139,6 +139,33 @@ export type Database = {
         }
         Relationships: []
       }
+      mind_archive: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          memory_text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memory_text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          memory_text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mood_entries: {
         Row: {
           created_at: string

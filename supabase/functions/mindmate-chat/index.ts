@@ -43,12 +43,58 @@ serve(async (req) => {
     console.log('Processing MindMate chat request for user:', user.id);
     console.log('Messages count:', messages.length);
 
+    // Fetch user's memories from MindArchive
+    const { data: memories } = await supabaseClient
+      .from('mind_archive')
+      .select('memory_text, category')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    // Build memory context for AI
+    const memoryContext = memories && memories.length > 0
+      ? `\n\nIMPORTANT CONTEXT - User's MindArchive (key information from previous conversations):\n${memories.map(m => `- ${m.memory_text}${m.category ? ` [${m.category}]` : ''}`).join('\n')}`
+      : '';
+
     const openaiApiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openaiApiKey) {
       throw new Error('OpenRouter API key not configured');
     }
 
-    // Call OpenRouter API instead of OpenAI
+    // Prepare messages with memory context added to system message
+    const enhancedMessages = messages.map((msg: any, index: number) => {
+      if (index === 0 && msg.role === 'system') {
+        return {
+          ...msg,
+          content: msg.content + memoryContext
+        };
+      }
+      return msg;
+    });
+
+    // Tool for extracting memories
+    const tools = [{
+      type: "function",
+      function: {
+        name: "save_memory",
+        description: "Save important information about the user to their MindArchive. Only use for significant insights like triggers, preferences, important life events, ongoing challenges, or valuable context. Do NOT save simple greetings, basic requests, or casual conversation.",
+        parameters: {
+          type: "object",
+          properties: {
+            memory_text: {
+              type: "string",
+              description: "The key information to remember about the user"
+            },
+            category: {
+              type: "string",
+              description: "Category of the memory (e.g., 'trigger', 'preference', 'challenge', 'goal', 'background')"
+            }
+          },
+          required: ["memory_text", "category"]
+        }
+      }
+    }];
+
+    // Call OpenRouter API with tool support
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -59,9 +105,11 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'openai/gpt-4o-mini',
-        messages,
+        messages: enhancedMessages,
         max_tokens: maxTokens,
         temperature,
+        tools,
+        tool_choice: "auto",
         stream: false,
       }),
     });
@@ -73,8 +121,36 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || 'I apologize, but I had trouble generating a response. Please try again.';
+    const choice = data.choices?.[0];
+    const reply = choice?.message?.content || 'I apologize, but I had trouble generating a response. Please try again.';
     const tokensUsed = data.usage?.total_tokens || 0;
+
+    // Handle tool calls (memory extraction)
+    const toolCalls = choice?.message?.tool_calls;
+    if (toolCalls && toolCalls.length > 0) {
+      for (const toolCall of toolCalls) {
+        if (toolCall.function.name === 'save_memory') {
+          try {
+            const args = JSON.parse(toolCall.function.arguments);
+            const { error: memoryError } = await supabaseClient
+              .from('mind_archive')
+              .insert({
+                user_id: user.id,
+                memory_text: args.memory_text,
+                category: args.category
+              });
+            
+            if (memoryError) {
+              console.error('Error saving memory:', memoryError);
+            } else {
+              console.log('Memory saved successfully:', args.category);
+            }
+          } catch (e) {
+            console.error('Error processing memory tool call:', e);
+          }
+        }
+      }
+    }
 
     // Log AI usage for analytics
     const { error: logError } = await supabaseClient
