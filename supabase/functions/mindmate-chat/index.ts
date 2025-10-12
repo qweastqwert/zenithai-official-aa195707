@@ -104,7 +104,7 @@ serve(async (req) => {
         'X-Title': 'Zenith AI - MindMate',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o-mini',
+        model: 'deepseek/deepseek-chat-v3.1:free',
         messages: enhancedMessages,
         max_tokens: maxTokens,
         temperature,
