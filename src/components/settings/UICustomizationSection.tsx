@@ -337,14 +337,14 @@ const UICustomizationSection = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Accessibility className="h-4 w-4" />
-                Accessibility Options
+                Accessibility & Comfort Options
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Label>High Contrast Mode</Label>
-                  <p className="text-sm text-gray-500">Increases contrast for better visibility</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Increases contrast for better visibility</p>
                 </div>
                 <Switch 
                   checked={customization.highContrast} 
@@ -355,7 +355,7 @@ const UICustomizationSection = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Reduce Motion</Label>
-                  <p className="text-sm text-gray-500">Minimizes animations and transitions</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Minimizes animations and transitions</p>
                 </div>
                 <Switch 
                   checked={customization.reduceMotion} 
@@ -366,12 +366,40 @@ const UICustomizationSection = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Focus Indicators</Label>
-                  <p className="text-sm text-gray-500">Enhanced keyboard navigation indicators</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Enhanced keyboard navigation indicators</p>
                 </div>
                 <Switch 
                   checked={customization.focusIndicators} 
                   onCheckedChange={(checked) => updateCustomization({ focusIndicators: checked })} 
                 />
+              </div>
+
+              <Separator />
+
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-900 dark:text-gray-100">Reading Comfort</h4>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Dyslexia-Friendly Font</Label>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Uses OpenDyslexic font for better readability</p>
+                  </div>
+                  <Switch 
+                    checked={customization.dyslexiaFont} 
+                    onCheckedChange={(checked) => updateCustomization({ dyslexiaFont: checked })} 
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Screen Reader Optimized</Label>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Enhances compatibility with screen readers</p>
+                  </div>
+                  <Switch 
+                    checked={customization.screenReaderOptimized} 
+                    onCheckedChange={(checked) => updateCustomization({ screenReaderOptimized: checked })} 
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

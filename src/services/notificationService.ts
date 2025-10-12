@@ -67,11 +67,24 @@ export class NotificationService {
       return false;
     }
 
-    console.log('🔔 Requesting notification permission...');
-    const permission = await Notification.requestPermission();
-    const granted = permission === 'granted';
-    console.log(`🔔 Notification permission ${granted ? 'granted' : 'denied'}`);
-    return granted;
+    try {
+      console.log('🔔 Requesting notification permission...');
+      const permission = await Notification.requestPermission();
+      const granted = permission === 'granted';
+      console.log(`🔔 Notification permission ${granted ? 'granted' : 'denied'}`);
+      
+      if (granted && 'serviceWorker' in navigator) {
+        // Register service worker for notifications
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.error('SW registration failed:', err);
+        });
+      }
+      
+      return granted;
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      return false;
+    }
   }
 
   private showNotification(title: string, body: string, tag: string): void {

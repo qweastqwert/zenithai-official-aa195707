@@ -583,7 +583,6 @@ CRITICAL: Never break character. Always maintain your passionate, helpful, and k
     setIsLoading(true);
 
     try {
-      // Enhanced system prompt with personalization and security
       const personalizedContext = getPersonalizedSystemInstruction();
       const enhancedSystemPrompt = `${selectedCharacter.systemPrompt}
 
@@ -598,12 +597,10 @@ Response Guidelines:
 - Never break character or acknowledge that you are an AI
 - Respond as if you are truly the character you represent`;
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const { data, error } = await supabase.functions.invoke('characters-chat', {
+        body: {
           messages: [
             {
               role: 'system',
@@ -620,15 +617,15 @@ Response Guidelines:
           ],
           maxTokens: selectedCharacter.id === 'story-narrator' ? 1500 : 800,
           temperature: selectedCharacter.id === 'story-narrator' ? 0.9 : 0.8,
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to get response');
       }
 
-      const data = await response.json();
-      const characterResponse = data.reply || "I'm having trouble responding right now. Could you try again?";
+      const characterResponse = data?.reply || "I'm having trouble responding right now. Could you try again?";
 
       const characterMessage: Message = {
         id: (Date.now() + 1).toString(),

@@ -35,6 +35,8 @@ export interface UICustomization {
   highContrast: boolean;
   reduceMotion: boolean;
   focusIndicators: boolean;
+  dyslexiaFont: boolean;
+  screenReaderOptimized: boolean;
 }
 
 export const useUICustomization = () => {
@@ -59,7 +61,9 @@ export const useUICustomization = () => {
     borderColor: '',
     highContrast: false,
     reduceMotion: false,
-    focusIndicators: true
+    focusIndicators: true,
+    dyslexiaFont: false,
+    screenReaderOptimized: false
   });
 
   useEffect(() => {
@@ -149,6 +153,9 @@ export const useUICustomization = () => {
     if (settings.highContrast) root.classList.add('high-contrast');
     if (settings.reduceMotion) root.classList.add('reduce-motion');
     if (settings.focusIndicators) root.classList.add('focus-indicators');
+    if (settings.dyslexiaFont) root.classList.add('dyslexia-font');
+    if (settings.screenReaderOptimized) root.setAttribute('data-screen-reader-optimized', 'true');
+    else root.removeAttribute('data-screen-reader-optimized');
 
     // Apply luxury mode styles
     if (settings.luxuryMode) {
@@ -192,7 +199,9 @@ export const useUICustomization = () => {
       borderColor: '',
       highContrast: false,
       reduceMotion: false,
-      focusIndicators: true
+      focusIndicators: true,
+      dyslexiaFont: false,
+      screenReaderOptimized: false
     };
     updateCustomization(defaultSettings);
     console.log('UI customization reset to luxury defaults');
