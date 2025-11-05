@@ -60,39 +60,111 @@ serve(async (req) => {
       throw new Error('OpenRouter API key not configured');
     }
 
-    // Prepare messages with memory context added to system message
+    // Prepare messages with memory context and tool instructions added to system message
+    const toolInstructions = `
+
+EMOTIONAL INTELLIGENCE & SUPPORT TOOLS:
+After EACH user message, analyze their emotional state:
+- Signs of stress/anxiety: tension, worry, overwhelm, racing thoughts, difficulty focusing
+- Signs of crisis: suicidal thoughts, self-harm mentions, hopelessness, saying goodbye, discussing methods
+
+When you detect stress/anxiety: Call show_breathing_exercise with appropriate cycles (1-5)
+When you detect severe crisis/suicidal ideation: IMMEDIATELY call show_emergency_help with user's country
+
+TEXT FORMATTING RULES:
+Use these formatting patterns in your responses:
+- Heading 1: *(text)* - wrap with single asterisk
+- Heading 2: **(text)** - wrap with double asterisks  
+- Heading 3: ***(text)*** - wrap with triple asterisks
+- Bullet list: Start line with "* " followed by item text
+- Numbered list: Use standard "1. ", "2. ", "3. " format
+
+Example formatting:
+*(Main Topic)*
+Here's some text.
+
+**(Subtopic)**
+* First point
+* Second point
+* Third point
+
+1. First step
+2. Second step
+
+IMPORTANT: 
+- Separate headings from lists with blank lines
+- Bullet lists use "* " (asterisk + space) at line start
+- Numbered lists use normal "1. " format
+- Indent list items properly`;
+
     const enhancedMessages = messages.map((msg: any, index: number) => {
       if (index === 0 && msg.role === 'system') {
         return {
           ...msg,
-          content: msg.content + memoryContext
+          content: msg.content + memoryContext + toolInstructions
         };
       }
       return msg;
     });
 
-    // Tool for extracting memories
-    const tools = [{
-      type: "function",
-      function: {
-        name: "save_memory",
-        description: "Save important information about the user to their MindArchive. Only use for significant insights like triggers, preferences, important life events, ongoing challenges, or valuable context. Do NOT save simple greetings, basic requests, or casual conversation.",
-        parameters: {
-          type: "object",
-          properties: {
-            memory_text: {
-              type: "string",
-              description: "The key information to remember about the user"
+    // Tools for emotional intelligence and support
+    const tools = [
+      {
+        type: "function",
+        function: {
+          name: "save_memory",
+          description: "Save important information about the user to their MindArchive. Only use for significant insights like triggers, preferences, important life events, ongoing challenges, or valuable context. Do NOT save simple greetings, basic requests, or casual conversation.",
+          parameters: {
+            type: "object",
+            properties: {
+              memory_text: {
+                type: "string",
+                description: "The key information to remember about the user"
+              },
+              category: {
+                type: "string",
+                description: "Category of the memory (e.g., 'trigger', 'preference', 'challenge', 'goal', 'background')"
+              }
             },
-            category: {
-              type: "string",
-              description: "Category of the memory (e.g., 'trigger', 'preference', 'challenge', 'goal', 'background')"
-            }
-          },
-          required: ["memory_text", "category"]
+            required: ["memory_text", "category"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "show_breathing_exercise",
+          description: "Display an interactive breathing exercise widget when the user shows signs of stress, anxiety, overwhelm, or needs calming. This helps them regulate their emotions through guided breathing.",
+          parameters: {
+            type: "object",
+            properties: {
+              cycles: {
+                type: "number",
+                description: "Number of breathing cycles to perform (default 3, range 1-5)"
+              }
+            },
+            required: []
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "show_emergency_help",
+          description: "CRITICAL: Display emergency helpline widget ONLY when you detect clear signs of suicidal ideation, self-harm intent, or severe crisis. Signs include: explicit mentions of wanting to die, self-harm plans, feeling hopeless/worthless, saying goodbye, or discussing suicide methods. Be cautious and supportive.",
+          parameters: {
+            type: "object",
+            properties: {
+              country: {
+                type: "string",
+                description: "User's country code for appropriate helpline (US, UK, CA, AU, IN, or 'default')"
+              }
+            },
+            required: ["country"]
+          }
         }
       }
-    }];
+    ];
 
     // Call OpenRouter API with tool support
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -125,13 +197,16 @@ serve(async (req) => {
     const reply = choice?.message?.content || 'I apologize, but I had trouble generating a response. Please try again.';
     const tokensUsed = data.usage?.total_tokens || 0;
 
-    // Handle tool calls (memory extraction)
+    // Handle tool calls
     const toolCalls = choice?.message?.tool_calls;
+    const toolCallsData: any[] = [];
+    
     if (toolCalls && toolCalls.length > 0) {
       for (const toolCall of toolCalls) {
-        if (toolCall.function.name === 'save_memory') {
-          try {
-            const args = JSON.parse(toolCall.function.arguments);
+        try {
+          const args = JSON.parse(toolCall.function.arguments);
+          
+          if (toolCall.function.name === 'save_memory') {
             const { error: memoryError } = await supabaseClient
               .from('mind_archive')
               .insert({
@@ -145,9 +220,21 @@ serve(async (req) => {
             } else {
               console.log('Memory saved successfully:', args.category);
             }
-          } catch (e) {
-            console.error('Error processing memory tool call:', e);
+          } else if (toolCall.function.name === 'show_breathing_exercise') {
+            toolCallsData.push({
+              type: 'breathing_exercise',
+              cycles: args.cycles || 3
+            });
+            console.log('Breathing exercise triggered:', args.cycles || 3);
+          } else if (toolCall.function.name === 'show_emergency_help') {
+            toolCallsData.push({
+              type: 'emergency_help',
+              country: args.country || 'default'
+            });
+            console.log('Emergency help triggered:', args.country);
           }
+        } catch (e) {
+          console.error('Error processing tool call:', e);
         }
       }
     }
@@ -169,7 +256,8 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       reply,
-      tokensUsed 
+      tokensUsed,
+      toolCalls: toolCallsData.length > 0 ? toolCallsData : undefined
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

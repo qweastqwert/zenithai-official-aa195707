@@ -16,6 +16,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import BreathingExerciseWidget from '@/components/widgets/BreathingExerciseWidget';
+import EmergencyHelpWidget from '@/components/widgets/EmergencyHelpWidget';
 
 interface Message {
   id: string;
@@ -23,6 +25,10 @@ interface Message {
   sender: 'user' | 'mindmate';
   role: 'user' | 'assistant' | 'system';
   timestamp: Date;
+  widget?: {
+    type: 'breathing_exercise' | 'emergency_help';
+    data: any;
+  };
 }
 
 interface MindMateEnhancedProps {
@@ -204,12 +210,13 @@ Remember to:
 - Be sensitive to their specific areas of concern while maintaining your warm, friend-like approach
 - Make conversations feel personal and meaningful, not generic`;
 
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Please sign in to use MindMate');
+      }
+
+      const { data, error } = await supabase.functions.invoke('mindmate-chat', {
+        body: {
           messages: [
             {
               role: 'system',
@@ -226,25 +233,43 @@ Remember to:
           ],
           maxTokens: 800,
           temperature: 0.8,
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        throw error;
       }
-
-      const data = await response.json();
       const mindMateResponse = data.reply || "I'm here for you, but I'm having trouble connecting right now. Could you try again?";
 
-      const mindMateMessage: Message = {
+      const newMessages: Message[] = [];
+
+      // Add AI response message
+      newMessages.push({
         id: (Date.now() + 1).toString(),
         content: mindMateResponse,
         sender: 'mindmate',
         role: 'assistant',
         timestamp: new Date()
-      };
+      });
 
-      setMessages(prev => [...prev, mindMateMessage]);
+      // Add widget messages if tool calls were made
+      if (data.toolCalls && Array.isArray(data.toolCalls)) {
+        data.toolCalls.forEach((toolCall: any, index: number) => {
+          newMessages.push({
+            id: (Date.now() + 2 + index).toString(),
+            content: '',
+            sender: 'mindmate',
+            role: 'assistant',
+            timestamp: new Date(),
+            widget: {
+              type: toolCall.type,
+              data: toolCall
+            }
+          });
+        });
+      }
+
+      setMessages(prev => [...prev, ...newMessages]);
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage: Message = {
@@ -258,6 +283,54 @@ Remember to:
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const formatMessageContent = (content: string) => {
+    // Split into lines for processing
+    const lines = content.split('\n');
+    const formatted: JSX.Element[] = [];
+    let key = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Heading 1: *(text)*
+      if (line.match(/^\*([^*]+)\*$/)) {
+        const text = line.replace(/^\*([^*]+)\*$/, '$1');
+        formatted.push(<h1 key={key++} className="text-xl font-bold mt-4 mb-2">{text}</h1>);
+      }
+      // Heading 2: **(text)**
+      else if (line.match(/^\*\*([^*]+)\*\*$/)) {
+        const text = line.replace(/^\*\*([^*]+)\*\*$/, '$1');
+        formatted.push(<h2 key={key++} className="text-lg font-semibold mt-3 mb-2">{text}</h2>);
+      }
+      // Heading 3: ***(text)***
+      else if (line.match(/^\*\*\*([^*]+)\*\*\*$/)) {
+        const text = line.replace(/^\*\*\*([^*]+)\*\*\*$/, '$1');
+        formatted.push(<h3 key={key++} className="text-base font-semibold mt-2 mb-1">{text}</h3>);
+      }
+      // Bullet list: * item
+      else if (line.match(/^\* /)) {
+        const text = line.replace(/^\* /, '');
+        formatted.push(<li key={key++} className="ml-4 mb-1">{text}</li>);
+      }
+      // Numbered list: 1. item
+      else if (line.match(/^\d+\. /)) {
+        const text = line.replace(/^\d+\. /, '');
+        const number = line.match(/^(\d+)\./)?.[1];
+        formatted.push(<li key={key++} className="ml-4 mb-1" value={number}>{text}</li>);
+      }
+      // Regular text
+      else if (line.trim()) {
+        formatted.push(<p key={key++} className="mb-2">{line}</p>);
+      }
+      // Empty line
+      else {
+        formatted.push(<br key={key++} />);
+      }
+    }
+
+    return <div>{formatted}</div>;
   };
 
   return (
@@ -298,22 +371,44 @@ Remember to:
               key={message.id}
               className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {message.sender === 'mindmate' && (
+              {message.sender === 'mindmate' && !message.widget && (
                 <Avatar className="h-8 w-8 mt-1 bg-gradient-to-r from-purple-500 to-pink-500">
                   <AvatarFallback className="text-sm text-white">
                     <Heart className="h-4 w-4" />
                   </AvatarFallback>
                 </Avatar>
               )}
-              <div
-                className={`max-w-[80%] p-3 rounded-2xl ${
-                  message.sender === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100'
-                }`}
-              >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-              </div>
+              {message.widget ? (
+                <div className="max-w-[80%]">
+                  {message.widget.type === 'breathing_exercise' && (
+                    <BreathingExerciseWidget
+                      cycles={message.widget.data.cycles}
+                      onSkip={() => {}}
+                      onComplete={() => {}}
+                    />
+                  )}
+                  {message.widget.type === 'emergency_help' && (
+                    <EmergencyHelpWidget
+                      country={message.widget.data.country}
+                      onDismiss={() => {}}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div
+                  className={`max-w-[80%] p-3 rounded-2xl ${
+                    message.sender === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100'
+                  }`}
+                >
+                  {message.content && (
+                    <div className="text-sm leading-relaxed">
+                      {formatMessageContent(message.content)}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
           {isLoading && (
