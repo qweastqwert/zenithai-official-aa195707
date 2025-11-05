@@ -176,7 +176,7 @@ IMPORTANT:
         'X-Title': 'Zenith AI - MindMate',
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1:free',
+        model: 'deepseek/deepseek-chat-v3.1',
         messages: enhancedMessages,
         max_tokens: maxTokens,
         temperature,
