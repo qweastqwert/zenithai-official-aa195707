@@ -99,7 +99,7 @@ ${conversationText}`;
         'X-Title': 'Zenith AI - Memory Analysis',
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1',
+        model: 'meta-llama/llama-4-maverick:free',
         messages: [
           { role: 'user', content: analysisPrompt }
         ],

@@ -31,7 +31,7 @@ serve(async (req) => {
         'X-Title': 'Zenith AI - Characters Chat',
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat-v3.1',
+        model: 'meta-llama/llama-4-maverick:free',
         messages: messages,
         max_tokens: maxTokens || 800,
         temperature: temperature || 0.8,
