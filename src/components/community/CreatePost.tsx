@@ -4,9 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
-import { useProfile } from '@/hooks/useProfile';
-import { filterContent } from '@/utils/contentFilter';
-import { toast } from 'sonner';
+import { validateContentWithToast } from '@/utils/validateContent';
 import { motion } from 'framer-motion';
 
 interface CreatePostProps {
@@ -18,7 +16,6 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createPost } = useCommunityPosts();
-  const { profile } = useProfile();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,21 +23,22 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
       return;
     }
 
-    // Validate title length
-    if (title.length > 200) {
-      toast.error('Title must be less than 200 characters');
-      return;
-    }
+    // Validate title
+    const validatedTitle = validateContentWithToast(title.trim(), {
+      maxLength: 200,
+      fieldName: 'Title',
+    });
+    if (!validatedTitle) return;
 
-    // Validate and filter content
-    const filterResult = filterContent(description.trim(), 18);
-    if (!filterResult.isAllowed) {
-      toast.error('Content violates community guidelines. Please revise your post.');
-      return;
-    }
+    // Validate description
+    const validatedDescription = validateContentWithToast(description.trim(), {
+      maxLength: 2000,
+      fieldName: 'Description',
+    });
+    if (!validatedDescription) return;
 
     setIsSubmitting(true);
-    const success = await createPost(title.trim(), filterResult.filteredContent);
+    const success = await createPost(validatedTitle, validatedDescription);
     setIsSubmitting(false);
 
     if (success) {

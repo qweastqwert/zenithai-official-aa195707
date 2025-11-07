@@ -32,12 +32,7 @@ export const useCommunityPosts = () => {
 
       const { data, error } = await query;
 
-      if (error) {
-        console.error('Error fetching posts:', error);
-        toast.error('Failed to load posts');
-        return;
-      }
-
+      if (error) throw error;
       setPosts(data || []);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -63,14 +58,10 @@ export const useCommunityPosts = () => {
           is_anonymous: isAnonymous
         });
 
-      if (error) {
-        console.error('Error creating post:', error);
-        toast.error('Failed to create post');
-        return false;
-      }
+      if (error) throw error;
 
       toast.success('Post created successfully!');
-      fetchPosts();
+      await fetchPosts();
       return true;
     } catch (error) {
       console.error('Error creating post:', error);
@@ -92,14 +83,10 @@ export const useCommunityPosts = () => {
         .eq('id', postId)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error deleting post:', error);
-        toast.error('Failed to delete post');
-        return false;
-      }
+      if (error) throw error;
 
       toast.success('Post deleted successfully!');
-      fetchPosts();
+      await fetchPosts();
       return true;
     } catch (error) {
       console.error('Error deleting post:', error);

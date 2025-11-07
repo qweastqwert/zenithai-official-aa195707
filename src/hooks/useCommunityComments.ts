@@ -27,12 +27,7 @@ export const useCommunityComments = (postId: string) => {
         .eq('post_id', postId)
         .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching comments:', error);
-        toast.error('Failed to load comments');
-        return;
-      }
-
+      if (error) throw error;
       setComments(data || []);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -58,14 +53,10 @@ export const useCommunityComments = (postId: string) => {
           is_anonymous: isAnonymous
         });
 
-      if (error) {
-        console.error('Error creating comment:', error);
-        toast.error('Failed to create comment');
-        return false;
-      }
+      if (error) throw error;
 
       toast.success('Comment added successfully!');
-      fetchComments();
+      await fetchComments();
       return true;
     } catch (error) {
       console.error('Error creating comment:', error);
@@ -87,14 +78,10 @@ export const useCommunityComments = (postId: string) => {
         .eq('id', commentId)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error deleting comment:', error);
-        toast.error('Failed to delete comment');
-        return false;
-      }
+      if (error) throw error;
 
       toast.success('Comment deleted successfully!');
-      fetchComments();
+      await fetchComments();
       return true;
     } catch (error) {
       console.error('Error deleting comment:', error);
