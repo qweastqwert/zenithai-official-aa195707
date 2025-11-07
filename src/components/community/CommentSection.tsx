@@ -5,6 +5,8 @@ import { Trash2, Calendar } from 'lucide-react';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
+import { filterContent } from '@/utils/contentFilter';
+import { toast } from 'sonner';
 
 interface CommentSectionProps {
   postId: string;
@@ -20,13 +22,25 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    setIsSubmitting(true);
-    const success = await createComment(newComment.trim());
-    setIsSubmitting(false);
+    // Validate comment length
+    if (newComment.length > 2000) {
+      toast.error('Comment must be less than 2000 characters');
+      return;
+    }
 
+    // Validate and filter content
+    const filterResult = filterContent(newComment.trim(), 18);
+    if (!filterResult.isAllowed) {
+      toast.error('Content violates community guidelines. Please revise your comment.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const success = await createComment(filterResult.filteredContent);
     if (success) {
       setNewComment('');
     }
+    setIsSubmitting(false);
   };
 
   const handleDeleteComment = async (commentId: string) => {

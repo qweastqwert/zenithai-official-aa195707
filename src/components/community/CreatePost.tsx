@@ -26,8 +26,21 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
       return;
     }
 
+    // Validate title length
+    if (title.length > 200) {
+      toast.error('Title must be less than 200 characters');
+      return;
+    }
+
+    // Validate and filter content
+    const filterResult = filterContent(description.trim(), 18);
+    if (!filterResult.isAllowed) {
+      toast.error('Content violates community guidelines. Please revise your post.');
+      return;
+    }
+
     setIsSubmitting(true);
-    const success = await createPost(title.trim(), description.trim());
+    const success = await createPost(title.trim(), filterResult.filteredContent);
     setIsSubmitting(false);
 
     if (success) {
