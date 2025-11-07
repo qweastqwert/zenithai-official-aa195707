@@ -24,6 +24,7 @@ import BreathingExercisesPage from "./pages/BreathingExercises";
 import SoothingMusicPage from "./pages/SoothingMusic";
 import SleepTrackingPage from "./pages/SleepTracking";
 import CommunityPage from "./pages/Community";
+import AdminPage from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ChatInterface from "./components/ChatInterface";
 import MoodTracker from "./components/MoodTracker";
@@ -143,6 +144,7 @@ const AppContent = () => {
             <Route path="/soothing-music" element={<SoothingMusicPage />} />
             <Route path="/sleep-tracking" element={<SleepTrackingPage />} />
             <Route path="/community" element={<CommunityPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="/chat" element={<ChatInterface />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

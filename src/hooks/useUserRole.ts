@@ -18,17 +18,17 @@ export const useUserRole = () => {
       }
 
       try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
+        // Use the security definer function to get role
+        const { data, error } = await supabase.rpc('get_user_role', {
+          user_uuid: user.id
+        });
 
-        if (error) throw error;
-        
-        setRole(data?.role || 'user');
+        if (error) {
+          console.error('Error fetching user role:', error);
+          setRole('user');
+        } else {
+          setRole(data || 'user');
+        }
       } catch (error) {
         console.error('Error fetching user role:', error);
         setRole('user');
@@ -40,5 +40,11 @@ export const useUserRole = () => {
     fetchUserRole();
   }, [user]);
 
-  return { role, loading, isAdmin: role === 'admin', isTherapist: role === 'therapist' };
+  return { 
+    role, 
+    loading, 
+    isAdmin: role === 'admin', 
+    isTherapist: role === 'therapist',
+    isUser: role === 'user'
+  };
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,9 +9,11 @@ import {
   Settings,
   Home,
   Users,
-  Trophy
+  Trophy,
+  Shield
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useUserRole } from '@/hooks/useUserRole';
 
 interface CompactSidebarProps {
   onNavigate: (destination: string) => void;
@@ -21,6 +22,7 @@ interface CompactSidebarProps {
 
 const CompactSidebar: React.FC<CompactSidebarProps> = ({ onNavigate, onSettings }) => {
   const navigate = useNavigate();
+  const { isAdmin } = useUserRole();
 
   const menuItems = [
     { id: 'home', icon: Home, label: 'Home', action: () => onNavigate('home') },
@@ -30,6 +32,7 @@ const CompactSidebar: React.FC<CompactSidebarProps> = ({ onNavigate, onSettings 
     { id: 'breathing', icon: Wind, label: 'Breathing', action: () => navigate('/breathing-exercises') },
     { id: 'mood', icon: Heart, label: 'Mood', action: () => navigate('/mood-tracking') },
     { id: 'music', icon: Music, label: 'Music', action: () => navigate('/soothing-music') },
+    ...(isAdmin ? [{ id: 'admin', icon: Shield, label: 'Admin', action: () => navigate('/admin') }] : []),
     { id: 'settings', icon: Settings, label: 'Settings', action: onSettings },
   ];
 
