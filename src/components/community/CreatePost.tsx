@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { validateContentWithToast } from '@/utils/validateContent';
 import { motion } from 'framer-motion';
+import TurnstileWidget from '@/components/TurnstileWidget';
+import { Shield } from 'lucide-react';
 
 interface CreatePostProps {
   onCancel: () => void;
@@ -15,10 +17,16 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { createPost } = useCommunityPosts();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!turnstileToken) {
+      return;
+    }
+    
     if (!title.trim() || !description.trim()) {
       return;
     }
@@ -73,6 +81,16 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               className="bg-background/50 border-border/50 resize-none"
             />
           </div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Shield className="h-4 w-4" />
+              <span>Verify you're human to post</span>
+            </div>
+            <TurnstileWidget
+              onVerify={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken(null)}
+            />
+          </div>
           <div className="flex gap-2 justify-end">
             <Button
               type="button"
@@ -84,7 +102,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim() || !description.trim() || isSubmitting}
+              disabled={!title.trim() || !description.trim() || !turnstileToken || isSubmitting}
             >
               {isSubmitting ? 'Posting...' : 'Post Anonymously'}
             </Button>

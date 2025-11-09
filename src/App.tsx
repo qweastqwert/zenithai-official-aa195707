@@ -8,6 +8,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useUICustomization } from "@/hooks/useUICustomization";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useProfileSync } from "@/hooks/useProfileSync";
 import { useAchievements } from "@/hooks/useAchievements";
 import { useEffect, useState } from "react";
 import { NotificationService } from "@/services/notificationService";
@@ -39,6 +40,7 @@ const AppContent = () => {
   // Initialize theme and UI customization
   useTheme();
   useUICustomization();
+  useProfileSync(); // Ensure profile exists for OAuth users
   
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { hasProfile, loading: profileLoading } = useProfile();

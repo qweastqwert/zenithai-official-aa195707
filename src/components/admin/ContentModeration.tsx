@@ -3,9 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Eye, MessageSquare, FileText, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Trash2, Eye, MessageSquare, FileText, Loader2, AlertTriangle, Search, Flag } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { filterContent } from '@/utils/contentFilter';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +43,8 @@ const ContentModeration: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<{ type: 'post' | 'comment', id: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterMode, setFilterMode] = useState<'all' | 'flagged'>('all');
 
   useEffect(() => {
     fetchContent();
@@ -103,6 +108,37 @@ const ContentModeration: React.FC = () => {
     setDeleteTarget(null);
   };
 
+  const analyzeContent = (content: string) => {
+    const result = filterContent(content, 18);
+    return result;
+  };
+
+  const filteredPosts = posts.filter(post => {
+    const matchesSearch = searchTerm === '' || 
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (filterMode === 'flagged') {
+      const titleAnalysis = analyzeContent(post.title);
+      const descAnalysis = analyzeContent(post.description);
+      return matchesSearch && (titleAnalysis.severity !== 'none' || descAnalysis.severity !== 'none');
+    }
+    
+    return matchesSearch;
+  });
+
+  const filteredComments = comments.filter(comment => {
+    const matchesSearch = searchTerm === '' || 
+      comment.content.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (filterMode === 'flagged') {
+      const analysis = analyzeContent(comment.content);
+      return matchesSearch && analysis.severity !== 'none';
+    }
+    
+    return matchesSearch;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -113,6 +149,32 @@ const ContentModeration: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Search and Filter */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex gap-4 items-center">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search posts and comments..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Tabs value={filterMode} onValueChange={(v) => setFilterMode(v as 'all' | 'flagged')}>
+              <TabsList>
+                <TabsTrigger value="all">All Content</TabsTrigger>
+                <TabsTrigger value="flagged" className="gap-2">
+                  <Flag className="h-4 w-4" />
+                  Flagged Only
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Posts Section */}
       <Card>
         <CardHeader>
@@ -124,27 +186,46 @@ const ContentModeration: React.FC = () => {
               </CardTitle>
               <CardDescription>Moderate and manage community posts</CardDescription>
             </div>
-            <Badge variant="secondary">{posts.length} posts</Badge>
+            <Badge variant="secondary">{filteredPosts.length} / {posts.length} posts</Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {posts.length === 0 ? (
+            {filteredPosts.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">No posts found</p>
             ) : (
-              posts.map((post) => (
+              filteredPosts.map((post) => {
+                const titleAnalysis = analyzeContent(post.title);
+                const descAnalysis = analyzeContent(post.description);
+                const hasIssues = titleAnalysis.severity !== 'none' || descAnalysis.severity !== 'none';
+                
+                return (
                 <motion.div
                   key={post.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                  className={`flex items-start gap-4 p-4 rounded-lg transition-colors ${
+                    hasIssues ? 'bg-destructive/10 border border-destructive/20' : 'bg-muted/50 hover:bg-muted/70'
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-sm mb-1 truncate">{post.title}</h4>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="font-semibold text-sm truncate">{post.title}</h4>
+                      {hasIssues && <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />}
+                    </div>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{post.description}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                       <span>{new Date(post.created_at).toLocaleDateString()}</span>
                       {post.is_anonymous && <Badge variant="outline" className="text-xs">Anonymous</Badge>}
+                      {titleAnalysis.severity !== 'none' && (
+                        <Badge variant="destructive" className="text-xs">Title: {titleAnalysis.severity}</Badge>
+                      )}
+                      {descAnalysis.severity !== 'none' && (
+                        <Badge variant="destructive" className="text-xs">Content: {descAnalysis.severity}</Badge>
+                      )}
+                      {titleAnalysis.warnings.length > 0 && (
+                        <span className="text-destructive">{titleAnalysis.warnings[0]}</span>
+                      )}
                     </div>
                   </div>
                   <Button
@@ -156,7 +237,8 @@ const ContentModeration: React.FC = () => {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </motion.div>
-              ))
+                );
+              })
             )}
           </div>
         </CardContent>
@@ -173,26 +255,41 @@ const ContentModeration: React.FC = () => {
               </CardTitle>
               <CardDescription>Moderate and manage user comments</CardDescription>
             </div>
-            <Badge variant="secondary">{comments.length} comments</Badge>
+            <Badge variant="secondary">{filteredComments.length} / {comments.length} comments</Badge>
           </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {comments.length === 0 ? (
+            {filteredComments.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">No comments found</p>
             ) : (
-              comments.map((comment) => (
+              filteredComments.map((comment) => {
+                const analysis = analyzeContent(comment.content);
+                const hasIssues = analysis.severity !== 'none';
+                
+                return (
                 <motion.div
                   key={comment.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                  className={`flex items-start gap-4 p-4 rounded-lg transition-colors ${
+                    hasIssues ? 'bg-destructive/10 border border-destructive/20' : 'bg-muted/50 hover:bg-muted/70'
+                  }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm line-clamp-3 mb-2">{comment.content}</p>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-2 mb-2">
+                      {hasIssues && <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0" />}
+                      <p className="text-sm line-clamp-3 flex-1">{comment.content}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
                       <span>{new Date(comment.created_at).toLocaleDateString()}</span>
                       {comment.is_anonymous && <Badge variant="outline" className="text-xs">Anonymous</Badge>}
+                      {analysis.severity !== 'none' && (
+                        <Badge variant="destructive" className="text-xs">{analysis.severity}</Badge>
+                      )}
+                      {analysis.warnings.length > 0 && (
+                        <span className="text-destructive">{analysis.warnings[0]}</span>
+                      )}
                     </div>
                   </div>
                   <Button
@@ -204,7 +301,8 @@ const ContentModeration: React.FC = () => {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </motion.div>
-              ))
+                );
+              })
             )}
           </div>
         </CardContent>
