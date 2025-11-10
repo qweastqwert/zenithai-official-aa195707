@@ -35,8 +35,20 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  const siteKey = import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY;
+
+  // Auto-verify if no sitekey is configured (development mode)
+  useEffect(() => {
+    if (!siteKey) {
+      console.warn('Turnstile site key not configured. Auto-verifying for development.');
+      onVerify('dev-bypass-token');
+    }
+  }, [siteKey, onVerify]);
 
   useEffect(() => {
+    if (!siteKey) return; // Skip if no sitekey
+    
     // Load Turnstile script
     const script = document.createElement('script');
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
@@ -50,12 +62,14 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
         window.turnstile.remove(widgetIdRef.current);
       }
     };
-  }, []);
+  }, [siteKey]);
 
   useEffect(() => {
+    if (!siteKey) return; // Skip if no sitekey
+    
     if (isLoaded && containerRef.current && window.turnstile) {
       widgetIdRef.current = window.turnstile.render(containerRef.current, {
-        sitekey: import.meta.env.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY || '',
+        sitekey: siteKey,
         callback: onVerify,
         'error-callback': onError,
         'expired-callback': onExpire,
@@ -63,7 +77,10 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
         size,
       });
     }
-  }, [isLoaded, onVerify, onError, onExpire, theme, size]);
+  }, [isLoaded, onVerify, onError, onExpire, theme, size, siteKey]);
+
+  // Don't render container if no sitekey
+  if (!siteKey) return null;
 
   return <div ref={containerRef} className="flex justify-center" />;
 };
