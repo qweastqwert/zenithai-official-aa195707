@@ -6,9 +6,9 @@ export const useJournalAutosave = (content: string, mood: string) => {
   const timeoutRef = useRef<NodeJS.Timeout>();
   const AUTOSAVE_KEY = 'zenith-journal-draft';
 
-  // Save draft with debouncing
+  // Save draft with debouncing (only save if there's actual content)
   useEffect(() => {
-    if (content || mood) {
+    if (content?.trim() || mood) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         const draft = { content, mood, timestamp: Date.now() };

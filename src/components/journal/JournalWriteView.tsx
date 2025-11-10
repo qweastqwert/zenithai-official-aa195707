@@ -28,9 +28,9 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       setContent(todaysEntry.content);
       setMood(todaysEntry.mood);
     } else {
-      // Load draft if no entry for today
+      // Load draft if no entry for today (only if draft has actual content)
       const draft = loadDraft();
-      if (draft.content || draft.mood) {
+      if (draft.content?.trim() || draft.mood) {
         setContent(draft.content);
         setMood(draft.mood);
         setHasUnsavedChanges(true);
@@ -41,7 +41,7 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
         });
       }
     }
-  }, [todaysEntry, loadDraft, toast]);
+  }, [todaysEntry]);
 
   // Track changes for unsaved indicator
   useEffect(() => {
