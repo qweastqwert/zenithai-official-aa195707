@@ -8,6 +8,9 @@ import { validateContentWithToast } from '@/utils/validateContent';
 import { motion } from 'framer-motion';
 import TurnstileWidget from '@/components/TurnstileWidget';
 import { Shield } from 'lucide-react';
+import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface CreatePostProps {
   onCancel: () => void;
@@ -19,15 +22,27 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { createPost } = useCommunityPosts();
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!turnstileToken) {
+      toast.error('Please complete the verification');
       return;
     }
     
     if (!title.trim() || !description.trim()) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    // Rate limiting check
+    const rateLimitKey = `post_create_${user?.id || 'anonymous'}`;
+    const rateLimitCheck = rateLimiter.checkLimit(rateLimitKey, RATE_LIMITS.POST_CREATE);
+    
+    if (!rateLimitCheck.isAllowed) {
+      toast.error(rateLimitCheck.message);
       return;
     }
 

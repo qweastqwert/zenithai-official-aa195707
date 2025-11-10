@@ -6,6 +6,8 @@ import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { validateContentWithToast } from '@/utils/validateContent';
+import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
+import { toast } from 'sonner';
 
 interface CommentSectionProps {
   postId: string;
@@ -20,6 +22,15 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+
+    // Rate limiting check
+    const rateLimitKey = `comment_create_${user?.id || 'anonymous'}`;
+    const rateLimitCheck = rateLimiter.checkLimit(rateLimitKey, RATE_LIMITS.COMMENT_CREATE);
+    
+    if (!rateLimitCheck.isAllowed) {
+      toast.error(rateLimitCheck.message);
+      return;
+    }
 
     // Validate and filter comment
     const validatedComment = validateContentWithToast(newComment.trim(), {

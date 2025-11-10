@@ -10,6 +10,7 @@ import { Loader2, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import TurnstileWidget from '@/components/TurnstileWidget';
+import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 
 interface AuthFormProps {
   onSuccess: () => void;
@@ -49,6 +50,20 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     
     if (!turnstileToken) {
       setError('Please complete the verification');
+      return;
+    }
+
+    // Rate limiting check
+    const rateLimitKey = `auth_attempt_${email}`;
+    const rateLimitCheck = rateLimiter.checkLimit(rateLimitKey, RATE_LIMITS.AUTH_ATTEMPT);
+    
+    if (!rateLimitCheck.isAllowed) {
+      setError(rateLimitCheck.message || 'Too many attempts');
+      toast({
+        title: "Rate Limit Exceeded",
+        description: rateLimitCheck.message,
+        variant: "destructive",
+      });
       return;
     }
     
