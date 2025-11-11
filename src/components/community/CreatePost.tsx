@@ -11,6 +11,7 @@ import { Shield } from 'lucide-react';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { useCommunityBans } from '@/hooks/useCommunityBans';
 
 interface CreatePostProps {
   onCancel: () => void;
@@ -23,6 +24,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { createPost } = useCommunityPosts();
   const { user } = useAuth();
+  const { isBanned, checkingBan } = useCommunityBans();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +36,12 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
     
     if (!title.trim() || !description.trim()) {
       toast.error('Please fill in all fields');
+      return;
+    }
+
+    // Check if user is banned
+    if (isBanned) {
+      toast.error('You are banned from posting in the community');
       return;
     }
 
@@ -70,6 +78,29 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
       onCancel();
     }
   };
+
+  if (!user) {
+    return null;
+  }
+
+  if (checkingBan) {
+    return <div className="text-center text-muted-foreground">Checking permissions...</div>;
+  }
+
+  if (isBanned) {
+    return (
+      <Card className="border-destructive/20">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-2">
+            <p className="text-destructive font-semibold">You are banned from the community</p>
+            <p className="text-sm text-muted-foreground">
+              You cannot create posts or comments at this time
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-background/50 backdrop-blur-sm border-border/50">

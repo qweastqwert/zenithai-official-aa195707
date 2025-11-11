@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Trash2, Calendar } from 'lucide-react';
+import ReportDialog from './ReportDialog';
 import { CommunityPost } from '@/hooks/useCommunityPosts';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
@@ -41,16 +42,23 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <span className="text-xs bg-muted px-2 py-1 rounded-full">Anonymous</span>
             </div>
           </div>
-          {canDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleDelete}
-              className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          <div className="flex items-center gap-1">
+            <ReportDialog
+              type="post"
+              contentId={post.id}
+              reportedUserId={post.user_id}
+            />
+            {canDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-0">

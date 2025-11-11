@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Trash2, Calendar } from 'lucide-react';
+import ReportDialog from './ReportDialog';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { validateContentWithToast } from '@/utils/validateContent';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 import { toast } from 'sonner';
+import { useCommunityBans } from '@/hooks/useCommunityBans';
 
 interface CommentSectionProps {
   postId: string;
@@ -18,10 +20,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { comments, createComment, deleteComment, loading } = useCommunityComments(postId);
   const { user } = useAuth();
+  const { isBanned, checkingBan } = useCommunityBans();
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+
+    // Check if user is banned
+    if (isBanned) {
+      toast.error('You are banned from commenting in the community');
+      return;
+    }
 
     // Rate limiting check
     const rateLimitKey = `comment_create_${user?.id || 'anonymous'}`;
@@ -60,7 +69,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   return (
     <div className="space-y-4">
       {/* New Comment Form */}
-      {user && (
+      {user && !isBanned && (
         <form onSubmit={handleSubmitComment} className="space-y-3">
           <Textarea
             placeholder="Share your thoughts or advice..."
@@ -87,6 +96,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
         </div>
       )}
 
+      {user && isBanned && (
+        <div className="text-center text-destructive py-4">
+          You are banned from commenting in the community
+        </div>
+      )}
+
       {/* Comments List */}
       <div className="space-y-3">
         {comments.length === 0 ? (
@@ -107,16 +122,23 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
                   </span>
                   <span className="bg-muted px-2 py-0.5 rounded-full text-xs">Anonymous</span>
                 </div>
-                {user?.id === comment.user_id && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteComment(comment.id)}
-                    className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                )}
+                <div className="flex items-center gap-1">
+                  <ReportDialog
+                    type="comment"
+                    contentId={comment.id}
+                    reportedUserId={comment.user_id}
+                  />
+                  {user?.id === comment.user_id && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteComment(comment.id)}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
               </div>
               <p className="text-foreground/90 text-sm whitespace-pre-wrap">
                 {comment.content}

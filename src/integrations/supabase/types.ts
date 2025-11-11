@@ -38,6 +38,42 @@ export type Database = {
         }
         Relationships: []
       }
+      community_bans: {
+        Row: {
+          ban_days: number
+          banned_by: string
+          banned_until: string
+          created_at: string
+          id: string
+          is_permanent: boolean
+          reason: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ban_days: number
+          banned_by: string
+          banned_until: string
+          created_at?: string
+          id?: string
+          is_permanent?: boolean
+          reason: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ban_days?: number
+          banned_by?: string
+          banned_until?: string
+          created_at?: string
+          id?: string
+          is_permanent?: boolean
+          reason?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       community_comments: {
         Row: {
           content: string
@@ -103,6 +139,51 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      community_reports: {
+        Row: {
+          content_id: string
+          created_at: string
+          details: string | null
+          id: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          report_type: Database["public"]["Enums"]["report_type"]
+          reported_user_id: string | null
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
+          updated_at: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: Database["public"]["Enums"]["report_reason"]
+          report_type: Database["public"]["Enums"]["report_type"]
+          reported_user_id?: string | null
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          updated_at?: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: Database["public"]["Enums"]["report_reason"]
+          report_type?: Database["public"]["Enums"]["report_type"]
+          reported_user_id?: string | null
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -407,9 +488,18 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      is_user_banned: { Args: { user_uuid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "user" | "therapist" | "admin"
+      report_reason:
+        | "spam"
+        | "harassment"
+        | "inappropriate_content"
+        | "misinformation"
+        | "other"
+      report_status: "pending" | "reviewed" | "dismissed" | "actioned"
+      report_type: "post" | "comment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -538,6 +628,15 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "therapist", "admin"],
+      report_reason: [
+        "spam",
+        "harassment",
+        "inappropriate_content",
+        "misinformation",
+        "other",
+      ],
+      report_status: ["pending", "reviewed", "dismissed", "actioned"],
+      report_type: ["post", "comment"],
     },
   },
 } as const
