@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Trash2, Calendar } from 'lucide-react';
 import ReportDialog from './ReportDialog';
+import CommentItem from './CommentItem';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
@@ -17,6 +20,7 @@ interface CommentSectionProps {
 
 const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [newComment, setNewComment] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { comments, createComment, deleteComment, loading } = useCommunityComments(postId);
   const { user } = useAuth();
@@ -49,9 +53,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     if (!validatedComment) return;
 
     setIsSubmitting(true);
-    const success = await createComment(validatedComment);
+    const success = await createComment(validatedComment, isAnonymous);
     if (success) {
       setNewComment('');
+      setIsAnonymous(true);
     }
     setIsSubmitting(false);
   };
@@ -78,6 +83,18 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             rows={3}
             className="bg-background/50 border-border/50 resize-none"
           />
+          
+          <div className="flex items-center justify-between p-2 bg-muted/30 rounded-lg border border-border">
+            <Label htmlFor="comment-anonymous" className="cursor-pointer text-sm">
+              Comment anonymously
+            </Label>
+            <Switch
+              id="comment-anonymous"
+              checked={isAnonymous}
+              onCheckedChange={setIsAnonymous}
+            />
+          </div>
+          
           <div className="flex justify-end">
             <Button
               type="submit"

@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -15,13 +16,15 @@ import {
 } from '@/components/ui/dialog';
 import { useCommunityReports } from '@/hooks/useCommunityReports';
 import { useCommunityBans } from '@/hooks/useCommunityBans';
-import { Flag, Ban, CheckCircle, XCircle, Clock, Shield } from 'lucide-react';
+import { useBanAppeals } from '@/hooks/useBanAppeals';
+import { Flag, Ban, CheckCircle, XCircle, Clock, Shield, FileText } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { motion } from 'framer-motion';
 
 const ReportsManagement: React.FC = () => {
   const { reports, loading: reportsLoading, updateReportStatus } = useCommunityReports();
   const { bans, loading: bansLoading, createBan, removeBan } = useCommunityBans();
+  const { appeals, loading: appealsLoading, updateAppealStatus } = useBanAppeals();
   const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [banReason, setBanReason] = useState('');
@@ -30,6 +33,8 @@ const ReportsManagement: React.FC = () => {
 
   const pendingReports = reports.filter(r => r.status === 'pending');
   const reviewedReports = reports.filter(r => r.status !== 'pending');
+  const pendingAppeals = appeals.filter(a => a.status === 'pending');
+  const reviewedAppeals = appeals.filter(a => a.status !== 'pending');
 
   const handleBanUser = (userId: string | null) => {
     if (!userId) return;
@@ -76,7 +81,7 @@ const ReportsManagement: React.FC = () => {
     );
   };
 
-  if (reportsLoading || bansLoading) {
+  if (reportsLoading || bansLoading || appealsLoading) {
     return <div className="text-center py-8">Loading...</div>;
   }
 
@@ -91,6 +96,10 @@ const ReportsManagement: React.FC = () => {
           <TabsTrigger value="bans" className="flex items-center gap-2">
             <Ban className="h-4 w-4" />
             Bans ({bans.length})
+          </TabsTrigger>
+          <TabsTrigger value="appeals" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Appeals ({pendingAppeals.length})
           </TabsTrigger>
         </TabsList>
 
@@ -256,6 +265,114 @@ const ReportsManagement: React.FC = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="appeals" className="space-y-4 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Ban Appeals
+              </CardTitle>
+              <CardDescription>
+                Review and respond to ban appeal requests
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {appeals.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No ban appeals
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-semibold">Pending Appeals</h3>
+                    {pendingAppeals.length === 0 ? (
+                      <div className="text-sm text-muted-foreground">No pending appeals</div>
+                    ) : (
+                      pendingAppeals.map((appeal) => (
+                        <div
+                          key={appeal.id}
+                          className="p-4 border border-yellow-500/20 rounded-lg space-y-3 bg-yellow-500/5"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500">
+                                  Pending Review
+                                </Badge>
+                                <p className="text-xs text-muted-foreground">
+                                  Submitted {formatDistanceToNow(new Date(appeal.created_at), { addSuffix: true })}
+                                </p>
+                              </div>
+                              <p className="text-sm font-medium">User ID: {appeal.user_id.slice(0, 8)}...</p>
+                            </div>
+                          </div>
+                          
+                          <div className="p-3 bg-muted/50 rounded border border-border">
+                            <p className="text-sm text-foreground whitespace-pre-wrap">{appeal.appeal_text}</p>
+                          </div>
+
+                          <div className="flex gap-2 flex-wrap">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updateAppealStatus(appeal.id, 'rejected')}
+                            >
+                              Reject Appeal
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={async () => {
+                                const success = await updateAppealStatus(appeal.id, 'approved');
+                                if (success) {
+                                  // Also remove the ban
+                                  await removeBan(appeal.ban_id);
+                                }
+                              }}
+                            >
+                              Approve & Unban
+                            </Button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {reviewedAppeals.length > 0 && (
+                    <div className="space-y-3 pt-4 border-t">
+                      <h3 className="text-sm font-semibold">Reviewed Appeals</h3>
+                      {reviewedAppeals.map((appeal) => (
+                        <div
+                          key={appeal.id}
+                          className="p-3 border border-border rounded-lg space-y-2 opacity-60"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${
+                                  appeal.status === 'approved'
+                                    ? 'bg-green-500/10 text-green-500'
+                                    : 'bg-red-500/10 text-red-500'
+                                }`}
+                              >
+                                {appeal.status}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(appeal.created_at), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Ban Dialog */}
@@ -291,12 +408,10 @@ const ReportsManagement: React.FC = () => {
               />
             </div>
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
+              <Switch
                 id="permanent"
                 checked={isPermanent}
-                onChange={(e) => setIsPermanent(e.target.checked)}
-                className="rounded"
+                onCheckedChange={setIsPermanent}
               />
               <Label htmlFor="permanent" className="cursor-pointer">
                 Permanent ban
