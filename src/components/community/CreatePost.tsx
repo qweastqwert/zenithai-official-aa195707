@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { validateContentWithToast } from '@/utils/validateContent';
 import { motion } from 'framer-motion';
 import TurnstileWidget from '@/components/TurnstileWidget';
+import BanNotice from './BanNotice';
 import { Shield } from 'lucide-react';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 import { useAuth } from '@/hooks/useAuth';
@@ -20,6 +23,7 @@ interface CreatePostProps {
 const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { createPost } = useCommunityPosts();
@@ -69,12 +73,13 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
     if (!validatedDescription) return;
 
     setIsSubmitting(true);
-    const success = await createPost(validatedTitle, validatedDescription);
+    const success = await createPost(validatedTitle, validatedDescription, isAnonymous);
     setIsSubmitting(false);
 
     if (success) {
       setTitle('');
       setDescription('');
+      setIsAnonymous(true);
       onCancel();
     }
   };
@@ -88,18 +93,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   }
 
   if (isBanned) {
-    return (
-      <Card className="border-destructive/20">
-        <CardContent className="pt-6">
-          <div className="text-center space-y-2">
-            <p className="text-destructive font-semibold">You are banned from the community</p>
-            <p className="text-sm text-muted-foreground">
-              You cannot create posts or comments at this time
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <BanNotice />;
   }
 
   return (
@@ -127,6 +121,18 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               className="bg-background/50 border-border/50 resize-none"
             />
           </div>
+          
+          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border">
+            <Label htmlFor="anonymous-toggle" className="cursor-pointer">
+              Post anonymously
+            </Label>
+            <Switch
+              id="anonymous-toggle"
+              checked={isAnonymous}
+              onCheckedChange={setIsAnonymous}
+            />
+          </div>
+          
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4" />
@@ -150,7 +156,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               type="submit"
               disabled={!title.trim() || !description.trim() || !turnstileToken || isSubmitting}
             >
-              {isSubmitting ? 'Posting...' : 'Post Anonymously'}
+              {isSubmitting ? 'Posting...' : (isAnonymous ? 'Post Anonymously' : 'Post as ' + (user?.email?.split('@')[0] || 'User'))}
             </Button>
           </div>
         </form>

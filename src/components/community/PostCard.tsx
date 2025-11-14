@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Trash2, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { MessageCircle, Trash2, Calendar, User } from 'lucide-react';
 import ReportDialog from './ReportDialog';
+import UserProfileDialog from './UserProfileDialog';
 import { CommunityPost } from '@/hooks/useCommunityPosts';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import CommentSection from './CommentSection';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -16,11 +19,29 @@ interface PostCardProps {
 
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [userName, setUserName] = useState<string>('');
   const { comments } = useCommunityComments(post.id);
   const { deletePost } = useCommunityPosts();
   const { user } = useAuth();
 
   const canDelete = user?.id === post.user_id;
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (!post.is_anonymous && post.user_id) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('user_id', post.user_id)
+          .single();
+        
+        if (data?.name) setUserName(data.name);
+      }
+    };
+
+    fetchUserName();
+  }, [post.is_anonymous, post.user_id]);
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
@@ -39,7 +60,19 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <span>
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
               </span>
-              <span className="text-xs bg-muted px-2 py-1 rounded-full">Anonymous</span>
+              {post.is_anonymous ? (
+                <Badge variant="outline" className="text-xs">Anonymous</Badge>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto p-0 hover:underline text-xs flex items-center gap-1"
+                  onClick={() => setProfileDialogOpen(true)}
+                >
+                  <User className="h-3 w-3" />
+                  {userName || 'User'}
+                </Button>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -82,6 +115,12 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           </div>
         )}
       </CardContent>
+      
+      <UserProfileDialog
+        open={profileDialogOpen}
+        onOpenChange={setProfileDialogOpen}
+        userId={post.user_id}
+      />
     </Card>
   );
 };

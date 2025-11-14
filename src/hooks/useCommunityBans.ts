@@ -146,6 +146,7 @@ export const useCommunityBans = () => {
     loading,
     isBanned,
     checkingBan,
+    currentBan: bans.find(b => b.user_id === user?.id),
     fetchBans,
     checkUserBan,
     createBan,
