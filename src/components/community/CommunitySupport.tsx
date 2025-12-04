@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Users, MessageCircle, UserPlus, Shield } from 'lucide-react';
+import { Plus, Search, Users, MessageCircle, UserPlus, Shield, Sparkles } from 'lucide-react';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -36,7 +36,7 @@ const CommunitySupport: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 p-4"
+      className="min-h-screen bg-gradient-to-br from-[hsl(var(--zenith-purple))/5] via-background to-[hsl(var(--zenith-primary))/10] p-4"
     >
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -45,32 +45,36 @@ const CommunitySupport: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="bg-background/80 backdrop-blur-sm border-border/50 mb-6">
-            <CardHeader>
-              <div className="flex items-center justify-between">
+          <Card className="bg-gradient-to-r from-[#7950f2]/10 to-[#b197fc]/10 backdrop-blur-sm border-[#7950f2]/30 mb-6 overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#7950f2]/5 to-transparent pointer-events-none" />
+            <CardHeader className="relative">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-3">
                   <motion.div 
-                    className="p-2 bg-primary/10 rounded-lg"
-                    whileHover={{ scale: 1.1 }}
+                    className="p-3 bg-gradient-to-br from-[#7950f2] to-[#b197fc] rounded-xl shadow-lg shadow-[#7950f2]/30"
+                    whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Users className="h-6 w-6 text-primary" />
+                    <Users className="h-6 w-6 text-white" />
                   </motion.div>
                   <div>
-                    <CardTitle className="text-2xl text-foreground">Community Support</CardTitle>
+                    <CardTitle className="text-2xl text-foreground flex items-center gap-2">
+                      Community Support
+                      <Sparkles className="h-5 w-5 text-[#7950f2]" />
+                    </CardTitle>
                     <p className="text-muted-foreground mt-1">
-                      Share experiences, ask for advice, and support each other anonymously
+                      Share experiences, ask for advice, and support each other
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   {isAdmin && (
                     <Button
                       onClick={() => setShowAdminDashboard(!showAdminDashboard)}
                       variant="outline"
-                      className="transition-all duration-200 hover:scale-105"
+                      className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
                     >
-                      <Shield className="h-4 w-4 mr-2" />
+                      <Shield className="h-4 w-4 mr-2 text-[#7950f2]" />
                       Admin
                     </Button>
                   )}
@@ -78,16 +82,16 @@ const CommunitySupport: React.FC = () => {
                     <Button
                       onClick={() => setShowTherapistApplication(!showTherapistApplication)}
                       variant="outline"
-                      className="transition-all duration-200 hover:scale-105"
+                      className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
                     >
-                      <UserPlus className="h-4 w-4 mr-2" />
+                      <UserPlus className="h-4 w-4 mr-2 text-[#7950f2]" />
                       Apply as Therapist
                     </Button>
                   )}
                   {user && (
                     <Button
                       onClick={() => setShowCreatePost(!showCreatePost)}
-                      className="bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-105"
+                      className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/30 transition-all duration-200 hover:scale-105"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       New Post
@@ -105,23 +109,32 @@ const CommunitySupport: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
-          <Card className="bg-background/80 backdrop-blur-sm border-border/50 mb-6">
+          <Card className="bg-card/80 backdrop-blur-sm border-[#7950f2]/20 mb-6">
             <CardContent className="pt-6">
               <form onSubmit={handleSearch} className="flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#7950f2]/60 h-4 w-4" />
                   <Input
                     placeholder="Search posts by title or content..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-background/50 border-border/50 transition-all duration-200 focus:scale-[1.02]"
+                    className="pl-10 bg-background/50 border-[#7950f2]/20 focus:border-[#7950f2]/50 transition-all duration-200 focus:scale-[1.02]"
                   />
                 </div>
-                <Button type="submit" variant="outline" className="transition-all duration-200 hover:scale-105">
+                <Button 
+                  type="submit" 
+                  variant="outline" 
+                  className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
+                >
                   Search
                 </Button>
                 {searchTerm && (
-                  <Button type="button" variant="ghost" onClick={clearSearch} className="transition-all duration-200 hover:scale-105">
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    onClick={clearSearch} 
+                    className="hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
+                  >
                     Clear
                   </Button>
                 )}
@@ -182,12 +195,12 @@ const CommunitySupport: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            <Card className="bg-muted/50 border-border/50 mb-6">
+            <Card className="bg-[#7950f2]/5 border-[#7950f2]/20 mb-6">
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <MessageCircle className="h-8 w-8 text-[#7950f2]/60 mx-auto mb-2" />
                   <p className="text-muted-foreground">
-                    Please log in to create posts and comment
+                    Please log in to create posts, comment, and vote
                   </p>
                 </div>
               </CardContent>
@@ -207,7 +220,7 @@ const CommunitySupport: React.FC = () => {
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full mb-4"
+                className="inline-block w-8 h-8 border-4 border-[#7950f2] border-t-transparent rounded-full mb-4"
               />
               <div className="text-muted-foreground">Loading posts...</div>
             </div>
@@ -217,7 +230,7 @@ const CommunitySupport: React.FC = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.3 }}
             >
-              <Card className="bg-background/80 backdrop-blur-sm border-border/50">
+              <Card className="bg-card/80 backdrop-blur-sm border-[#7950f2]/20">
                 <CardContent className="pt-6">
                   <div className="text-center py-8">
                     <motion.div
@@ -225,7 +238,7 @@ const CommunitySupport: React.FC = () => {
                       animate={{ scale: 1 }}
                       transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                      <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <Users className="h-12 w-12 text-[#7950f2]/40 mx-auto mb-4" />
                     </motion.div>
                     <h3 className="text-lg font-semibold text-foreground mb-2">
                       {searchTerm ? 'No posts found' : 'No posts yet'}
@@ -239,7 +252,7 @@ const CommunitySupport: React.FC = () => {
                     {!searchTerm && user && (
                       <Button
                         onClick={() => setShowCreatePost(true)}
-                        className="bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-105"
+                        className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/30 transition-all duration-200 hover:scale-105"
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Create First Post

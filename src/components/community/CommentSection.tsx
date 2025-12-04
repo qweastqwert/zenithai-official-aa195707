@@ -3,12 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Calendar } from 'lucide-react';
-import ReportDialog from './ReportDialog';
+import { MessageCircle } from 'lucide-react';
 import CommentItem from './CommentItem';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
-import { formatDistanceToNow } from 'date-fns';
 import { validateContentWithToast } from '@/utils/validateContent';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 import { toast } from 'sonner';
@@ -24,19 +22,17 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { comments, createComment, deleteComment, loading } = useCommunityComments(postId);
   const { user } = useAuth();
-  const { isBanned, checkingBan } = useCommunityBans();
+  const { isBanned } = useCommunityBans();
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    // Check if user is banned
     if (isBanned) {
       toast.error('You are banned from commenting in the community');
       return;
     }
 
-    // Rate limiting check
     const rateLimitKey = `comment_create_${user?.id || 'anonymous'}`;
     const rateLimitCheck = rateLimiter.checkLimit(rateLimitKey, RATE_LIMITS.COMMENT_CREATE);
     
@@ -45,7 +41,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       return;
     }
 
-    // Validate and filter comment
     const validatedComment = validateContentWithToast(newComment.trim(), {
       maxLength: 2000,
       fieldName: 'Comment',
@@ -68,7 +63,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   };
 
   if (loading) {
-    return <div className="text-muted-foreground">Loading comments...</div>;
+    return <div className="text-muted-foreground text-center py-4">Loading comments...</div>;
   }
 
   return (
@@ -81,10 +76,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             rows={3}
-            className="bg-background/50 border-border/50 resize-none"
+            className="bg-background/50 border-[#7950f2]/20 focus:border-[#7950f2]/50 resize-none"
           />
           
-          <div className="flex items-center justify-between p-2 bg-muted/30 rounded-lg border border-border">
+          <div className="flex items-center justify-between p-2 bg-[#7950f2]/5 rounded-lg border border-[#7950f2]/20">
             <Label htmlFor="comment-anonymous" className="cursor-pointer text-sm">
               Comment anonymously
             </Label>
@@ -100,6 +95,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               type="submit"
               size="sm"
               disabled={!newComment.trim() || isSubmitting}
+              className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/20"
             >
               {isSubmitting ? 'Posting...' : 'Comment'}
             </Button>
@@ -108,8 +104,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
       )}
 
       {!user && (
-        <div className="text-center text-muted-foreground py-4">
-          Please log in to comment
+        <div className="text-center text-muted-foreground py-4 flex items-center justify-center gap-2">
+          <MessageCircle className="h-4 w-4" />
+          Please log in to comment and vote
         </div>
       )}
 
@@ -127,40 +124,12 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
           </div>
         ) : (
           comments.map((comment) => (
-            <div
+            <CommentItem
               key={comment.id}
-              className="bg-muted/30 rounded-lg p-3 border border-border/30"
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  <span>
-                    {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-                  </span>
-                  <span className="bg-muted px-2 py-0.5 rounded-full text-xs">Anonymous</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <ReportDialog
-                    type="comment"
-                    contentId={comment.id}
-                    reportedUserId={comment.user_id}
-                  />
-                  {user?.id === comment.user_id && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteComment(comment.id)}
-                      className="h-6 w-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  )}
-                </div>
-              </div>
-              <p className="text-foreground/90 text-sm whitespace-pre-wrap">
-                {comment.content}
-              </p>
-            </div>
+              comment={comment}
+              canDelete={user?.id === comment.user_id}
+              onDelete={handleDeleteComment}
+            />
           ))
         )}
       </div>
