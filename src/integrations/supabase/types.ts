@@ -38,6 +38,74 @@ export type Database = {
         }
         Relationships: []
       }
+      ban_appeals: {
+        Row: {
+          appeal_text: string
+          ban_id: string
+          created_at: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appeal_text: string
+          ban_id: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appeal_text?: string
+          ban_id?: string
+          created_at?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      comment_votes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+          vote_type: number
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+          vote_type: number
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          vote_type?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_bans: {
         Row: {
           ban_days: number
@@ -307,6 +375,38 @@ export type Database = {
         }
         Relationships: []
       }
+      post_votes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+          vote_type: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+          vote_type: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+          vote_type?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: string
@@ -317,6 +417,7 @@ export type Database = {
           id: string
           name: string
           problems: string | null
+          reputation: number
           updated_at: string
           user_id: string
         }
@@ -329,6 +430,7 @@ export type Database = {
           id?: string
           name: string
           problems?: string | null
+          reputation?: number
           updated_at?: string
           user_id: string
         }
@@ -341,6 +443,7 @@ export type Database = {
           id?: string
           name?: string
           problems?: string | null
+          reputation?: number
           updated_at?: string
           user_id?: string
         }
@@ -489,6 +592,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       is_user_banned: { Args: { user_uuid: string }; Returns: boolean }
+      update_user_reputation: {
+        Args: { points: number; target_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "user" | "therapist" | "admin"

@@ -10,7 +10,7 @@ import { validateContentWithToast } from '@/utils/validateContent';
 import { motion } from 'framer-motion';
 import TurnstileWidget from '@/components/TurnstileWidget';
 import BanNotice from './BanNotice';
-import { Shield } from 'lucide-react';
+import { Shield, Send } from 'lucide-react';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -43,13 +43,11 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
       return;
     }
 
-    // Check if user is banned
     if (isBanned) {
       toast.error('You are banned from posting in the community');
       return;
     }
 
-    // Rate limiting check
     const rateLimitKey = `post_create_${user?.id || 'anonymous'}`;
     const rateLimitCheck = rateLimiter.checkLimit(rateLimitKey, RATE_LIMITS.POST_CREATE);
     
@@ -58,14 +56,12 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
       return;
     }
 
-    // Validate title
     const validatedTitle = validateContentWithToast(title.trim(), {
       maxLength: 200,
       fieldName: 'Title',
     });
     if (!validatedTitle) return;
 
-    // Validate description
     const validatedDescription = validateContentWithToast(description.trim(), {
       maxLength: 2000,
       fieldName: 'Description',
@@ -97,9 +93,13 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   }
 
   return (
-    <Card className="bg-background/50 backdrop-blur-sm border-border/50">
+    <Card className="bg-card/80 backdrop-blur-sm border-[#7950f2]/30 overflow-hidden">
+      <div className="h-1 bg-gradient-to-r from-[#7950f2] to-[#b197fc]" />
       <CardHeader>
-        <CardTitle className="text-foreground">Create New Post</CardTitle>
+        <CardTitle className="text-foreground flex items-center gap-2">
+          <Send className="h-5 w-5 text-[#7950f2]" />
+          Create New Post
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -109,7 +109,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
-              className="bg-background/50 border-border/50"
+              className="bg-background/50 border-[#7950f2]/20 focus:border-[#7950f2]/50"
             />
           </div>
           <div>
@@ -118,11 +118,11 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={6}
-              className="bg-background/50 border-border/50 resize-none"
+              className="bg-background/50 border-[#7950f2]/20 focus:border-[#7950f2]/50 resize-none"
             />
           </div>
           
-          <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border border-border">
+          <div className="flex items-center justify-between p-3 bg-[#7950f2]/5 rounded-lg border border-[#7950f2]/20">
             <Label htmlFor="anonymous-toggle" className="cursor-pointer">
               Post anonymously
             </Label>
@@ -135,7 +135,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
           
           <div className="space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4" />
+              <Shield className="h-4 w-4 text-[#7950f2]" />
               <span>Verify you're human to post</span>
             </div>
             <TurnstileWidget
@@ -149,12 +149,14 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               variant="outline"
               onClick={onCancel}
               disabled={isSubmitting}
+              className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!title.trim() || !description.trim() || !turnstileToken || isSubmitting}
+              className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/30"
             >
               {isSubmitting ? 'Posting...' : (isAnonymous ? 'Post Anonymously' : 'Post as ' + (user?.email?.split('@')[0] || 'User'))}
             </Button>
