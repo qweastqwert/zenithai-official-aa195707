@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 import TherapistApplicationForm from './TherapistApplicationForm';
 import AdminDashboard from '../admin/AdminDashboard';
+import TrendingPosts from './TrendingPosts';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CommunitySupport: React.FC = () => {
@@ -20,6 +21,18 @@ const CommunitySupport: React.FC = () => {
   const { posts, loading, fetchPosts } = useCommunityPosts();
   const { user } = useAuth();
   const { role, isAdmin, isTherapist } = useUserRole();
+  const postsRef = useRef<HTMLDivElement>(null);
+
+  const scrollToPost = (postId: string) => {
+    const postElement = document.getElementById(`post-${postId}`);
+    if (postElement) {
+      postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      postElement.classList.add('ring-2', 'ring-[#7950f2]', 'ring-offset-2');
+      setTimeout(() => {
+        postElement.classList.remove('ring-2', 'ring-[#7950f2]', 'ring-offset-2');
+      }, 2000);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,11 +116,21 @@ const CommunitySupport: React.FC = () => {
           </Card>
         </motion.div>
 
-        {/* Search */}
+        {/* Trending Posts */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
+          className="mb-6"
+        >
+          <TrendingPosts onPostClick={scrollToPost} />
+        </motion.div>
+
+        {/* Search */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.15 }}
         >
           <Card className="bg-card/80 backdrop-blur-sm border-[#7950f2]/20 mb-6">
             <CardContent className="pt-6">
@@ -210,6 +233,7 @@ const CommunitySupport: React.FC = () => {
 
         {/* Posts */}
         <motion.div
+          ref={postsRef}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.3 }}
@@ -267,10 +291,12 @@ const CommunitySupport: React.FC = () => {
               {posts.map((post, index) => (
                 <motion.div
                   key={post.id}
+                  id={`post-${post.id}`}
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -50 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="transition-all duration-300"
                 >
                   <PostCard post={post} />
                 </motion.div>
