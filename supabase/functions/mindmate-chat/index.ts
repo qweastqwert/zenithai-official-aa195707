@@ -55,9 +55,9 @@ serve(async (req) => {
       ? `\n\nIMPORTANT CONTEXT - User's MindArchive (key information from previous conversations):\n${memories.map(m => `- ${m.memory_text}${m.category ? ` [${m.category}]` : ''}`).join('\n')}`
       : '';
 
-    const openaiApiKey = Deno.env.get('OPENROUTER_API_KEY');
-    if (!openaiApiKey) {
-      throw new Error('OpenRouter API key not configured');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      throw new Error('Lovable API key not configured');
     }
 
     // Prepare messages with memory context and tool instructions added to system message
@@ -166,17 +166,15 @@ IMPORTANT:
       }
     ];
 
-    // Call OpenRouter API with tool support
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // Call Lovable AI Gateway with tool support
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://zenith-ai.lovable.app',
-        'X-Title': 'Zenith AI - MindMate',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-4-maverick:free',
+        model: 'google/gemini-2.5-flash',
         messages: enhancedMessages,
         max_tokens: maxTokens,
         temperature,
@@ -188,8 +186,14 @@ IMPORTANT:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error:', response.status, errorText);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      console.error('Lovable AI Gateway error:', response.status, errorText);
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again in a moment.');
+      }
+      if (response.status === 402) {
+        throw new Error('AI credits exhausted. Please add credits to continue.');
+      }
+      throw new Error(`AI Gateway error: ${response.status}`);
     }
 
     const data = await response.json();
