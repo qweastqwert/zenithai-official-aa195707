@@ -15,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import BreathingExerciseWidget from '@/components/widgets/BreathingExerciseWidget';
+import EmergencyHelpWidget from '@/components/widgets/EmergencyHelpWidget';
 
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
@@ -964,6 +966,10 @@ interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   id: string;
+  widget?: {
+    type: 'breathing_exercise' | 'emergency_help';
+    data: any;
+  };
 }
 
 interface MindMateProps {
@@ -1132,6 +1138,22 @@ Customize your therapeutic approach based on this information while maintaining 
       setAnimatingMessageId(assistantMessageId);
       setMessages((prev) => [...prev, assistantMessage]);
       
+      // Handle tool calls (widgets)
+      if (data.toolCalls && Array.isArray(data.toolCalls)) {
+        data.toolCalls.forEach((toolCall: any, index: number) => {
+          const widgetMessage: Message = {
+            role: 'assistant',
+            content: '',
+            id: `widget-${Date.now()}-${index}`,
+            widget: {
+              type: toolCall.type,
+              data: toolCall
+            }
+          };
+          setMessages((prev) => [...prev, widgetMessage]);
+        });
+      }
+      
       setTimeout(() => setAnimatingMessageId(null), 1000);
     } catch (error) {
       console.error('Error calling OpenRouter API:', error);
@@ -1208,16 +1230,34 @@ Customize your therapeutic approach based on this information while maintaining 
                 msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'
               }`}
             >
-              <div
-                className={`max-w-[80%] rounded-lg p-4 ${
-                  msg.role === 'user'
-                    ? 'text-white rounded-tr-none'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
-                }`}
-                style={msg.role === 'user' ? { backgroundColor: 'var(--zenith-primary)' } : {}}
-              >
-                <p className="whitespace-pre-wrap">{msg.content}</p>
-              </div>
+              {msg.widget ? (
+                <div className="max-w-[80%]">
+                  {msg.widget.type === 'breathing_exercise' && (
+                    <BreathingExerciseWidget
+                      cycles={msg.widget.data.cycles || 3}
+                      onSkip={() => {}}
+                      onComplete={() => {}}
+                    />
+                  )}
+                  {msg.widget.type === 'emergency_help' && (
+                    <EmergencyHelpWidget
+                      country={msg.widget.data.country || 'default'}
+                      onDismiss={() => {}}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div
+                  className={`max-w-[80%] rounded-lg p-4 ${
+                    msg.role === 'user'
+                      ? 'text-white rounded-tr-none'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
+                  }`}
+                  style={msg.role === 'user' ? { backgroundColor: 'var(--zenith-primary)' } : {}}
+                >
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         ))}
