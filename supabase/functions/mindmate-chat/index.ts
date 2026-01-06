@@ -134,14 +134,13 @@ IMPORTANT:
         type: "function",
         function: {
           name: "show_breathing_exercise",
-          description: "Display an interactive breathing exercise widget when the user shows signs of stress, anxiety, overwhelm, or needs calming. This helps them regulate their emotions through guided breathing.",
+          description: "Display an interactive breathing exercise widget. Customize based on user's stress level.",
           parameters: {
             type: "object",
             properties: {
-              cycles: {
-                type: "number",
-                description: "Number of breathing cycles to perform (default 3, range 1-5)"
-              }
+              cycles: { type: "number", description: "Number of cycles (1-5)" },
+              intensity: { type: "string", enum: ["light", "moderate", "deep"], description: "light for mild stress, moderate for general anxiety, deep for severe stress" },
+              customMessage: { type: "string", description: "Personalized message based on user's situation" }
             },
             required: []
           }
@@ -151,10 +150,13 @@ IMPORTANT:
         type: "function",
         function: {
           name: "show_grounding_exercise",
-          description: "Display a 5-4-3-2-1 grounding exercise widget when the user feels disconnected, dissociated, panicky, or overwhelmed. This sensory exercise helps bring them back to the present moment by focusing on their five senses.",
+          description: "Display 5-4-3-2-1 grounding exercise for disconnection, panic, or overwhelm.",
           parameters: {
             type: "object",
-            properties: {},
+            properties: {
+              intensity: { type: "string", enum: ["quick", "guided", "deep"], description: "quick for mild, guided for moderate, deep for severe dissociation" },
+              customIntro: { type: "string", description: "Personalized introduction based on user's state" }
+            },
             required: []
           }
         }
@@ -163,14 +165,14 @@ IMPORTANT:
         type: "function",
         function: {
           name: "show_mindfulness_prompt",
-          description: "Display a mindfulness reflection prompt when the user could benefit from a moment of introspection, gratitude, or present-moment awareness. Use for general wellness, mild stress, or when user seems unfocused.",
+          description: "Display mindfulness reflection prompt for introspection or present-moment awareness.",
           parameters: {
             type: "object",
             properties: {
-              prompt: {
-                type: "string",
-                description: "Optional custom mindfulness prompt to display. If not provided, a random prompt will be shown."
-              }
+              prompt: { type: "string", description: "Custom mindfulness prompt tailored to user" },
+              category: { type: "string", enum: ["gratitude", "awareness", "reflection", "calm"], description: "Category based on what user needs" },
+              intensity: { type: "string", enum: ["brief", "guided", "deep"], description: "Depth of reflection" },
+              customMessage: { type: "string", description: "Personalized context message" }
             },
             required: []
           }
@@ -180,15 +182,13 @@ IMPORTANT:
         type: "function",
         function: {
           name: "show_affirmations",
-          description: "Display positive affirmation cards tailored to the user's current emotional state. Choose category based on what they need most.",
+          description: "Display positive affirmation cards tailored to emotional state.",
           parameters: {
             type: "object",
             properties: {
-              category: {
-                type: "string",
-                enum: ["self-love", "anxiety", "motivation", "general"],
-                description: "Category of affirmations: 'self-love' for self-esteem issues, 'anxiety' for worry/fear, 'motivation' for feeling stuck/unmotivated, 'general' for overall positivity"
-              }
+              category: { type: "string", enum: ["self-love", "anxiety", "motivation", "general"], description: "Category based on user's needs" },
+              intensity: { type: "string", enum: ["single", "series", "deep"], description: "single for quick boost, series for moderate, deep for thorough" },
+              customAffirmation: { type: "string", description: "A personalized affirmation for the user's specific situation" }
             },
             required: ["category"]
           }
@@ -198,10 +198,13 @@ IMPORTANT:
         type: "function",
         function: {
           name: "show_muscle_relaxation",
-          description: "Display a progressive muscle relaxation exercise widget when the user has physical tension, stress stored in their body, trouble sleeping, or needs deep relaxation. This guides them through tensing and releasing muscle groups.",
+          description: "Display progressive muscle relaxation for physical tension or sleep issues.",
           parameters: {
             type: "object",
-            properties: {},
+            properties: {
+              intensity: { type: "string", enum: ["quick", "standard", "thorough"], description: "quick for mild tension, standard for moderate, thorough for severe" },
+              customIntro: { type: "string", description: "Personalized introduction for the user" }
+            },
             required: []
           }
         }
@@ -210,14 +213,11 @@ IMPORTANT:
         type: "function",
         function: {
           name: "show_emergency_help",
-          description: "CRITICAL: Display emergency helpline widget ONLY when you detect clear signs of suicidal ideation, self-harm intent, or severe crisis. Signs include: explicit mentions of wanting to die, self-harm plans, feeling hopeless/worthless, saying goodbye, or discussing suicide methods. Be cautious and supportive.",
+          description: "CRITICAL: Display emergency helpline widget for suicidal ideation or self-harm.",
           parameters: {
             type: "object",
             properties: {
-              country: {
-                type: "string",
-                description: "User's country code for appropriate helpline (US, UK, CA, AU, IN, or 'default')"
-              }
+              country: { type: "string", description: "User's country code (US, UK, CA, AU, IN, or 'default')" }
             },
             required: ["country"]
           }
@@ -282,37 +282,48 @@ IMPORTANT:
           } else if (toolCall.function.name === 'show_breathing_exercise') {
             toolCallsData.push({
               type: 'breathing_exercise',
-              cycles: args.cycles || 3
+              cycles: args.cycles || 3,
+              intensity: args.intensity || 'moderate',
+              customMessage: args.customMessage
             });
-            console.log('Breathing exercise triggered:', args.cycles || 3);
+            console.log('Breathing exercise triggered:', args);
           } else if (toolCall.function.name === 'show_grounding_exercise') {
             toolCallsData.push({
-              type: 'grounding_exercise'
+              type: 'grounding_exercise',
+              intensity: args.intensity || 'guided',
+              customIntro: args.customIntro
             });
-            console.log('Grounding exercise triggered');
+            console.log('Grounding exercise triggered:', args);
           } else if (toolCall.function.name === 'show_mindfulness_prompt') {
             toolCallsData.push({
               type: 'mindfulness_prompt',
-              prompt: args.prompt
+              prompt: args.prompt,
+              category: args.category || 'awareness',
+              intensity: args.intensity || 'guided',
+              customMessage: args.customMessage
             });
-            console.log('Mindfulness prompt triggered');
+            console.log('Mindfulness prompt triggered:', args);
           } else if (toolCall.function.name === 'show_affirmations') {
             toolCallsData.push({
               type: 'affirmations',
-              category: args.category || 'general'
+              category: args.category || 'general',
+              intensity: args.intensity || 'series',
+              customAffirmation: args.customAffirmation
             });
-            console.log('Affirmations triggered:', args.category);
+            console.log('Affirmations triggered:', args);
           } else if (toolCall.function.name === 'show_muscle_relaxation') {
             toolCallsData.push({
-              type: 'muscle_relaxation'
+              type: 'muscle_relaxation',
+              intensity: args.intensity || 'standard',
+              customIntro: args.customIntro
             });
-            console.log('Progressive muscle relaxation triggered');
+            console.log('Muscle relaxation triggered:', args);
           } else if (toolCall.function.name === 'show_emergency_help') {
             toolCallsData.push({
               type: 'emergency_help',
               country: args.country || 'default'
             });
-            console.log('Emergency help triggered:', args.country);
+            console.log('Emergency help triggered:', args);
           }
         } catch (e) {
           console.error('Error processing tool call:', e);
