@@ -26,8 +26,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    target: ['es2015', 'chrome49', 'firefox52', 'safari10'],
-    cssTarget: ['chrome49', 'firefox52', 'safari10'],
-  },
 }));

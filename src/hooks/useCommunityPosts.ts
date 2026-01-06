@@ -7,7 +7,7 @@ export interface CommunityPost {
   id: string;
   title: string;
   description: string;
-  user_id: string;
+  user_id: string | null; // null for anonymous posts (security: hidden from non-owners)
   created_at: string;
   updated_at: string;
   is_anonymous: boolean;
@@ -21,6 +21,7 @@ export const useCommunityPosts = () => {
   const fetchPosts = async (searchTerm?: string) => {
     try {
       setLoading(true);
+      
       let query = supabase
         .from('community_posts')
         .select('*')
@@ -33,7 +34,15 @@ export const useCommunityPosts = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setPosts(data || []);
+      
+      // For anonymous posts where we're not the owner, mask the user_id client-side
+      // This is a defense-in-depth measure (the view also does this server-side)
+      const safePosts = (data || []).map(post => ({
+        ...post,
+        user_id: post.is_anonymous && post.user_id !== user?.id ? null : post.user_id
+      })) as CommunityPost[];
+      
+      setPosts(safePosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
       toast.error('Failed to load posts');
