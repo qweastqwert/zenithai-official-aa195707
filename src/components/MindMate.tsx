@@ -17,6 +17,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import BreathingExerciseWidget from '@/components/widgets/BreathingExerciseWidget';
 import EmergencyHelpWidget from '@/components/widgets/EmergencyHelpWidget';
+import GroundingExerciseWidget from '@/components/widgets/GroundingExerciseWidget';
+import MindfulnessPromptWidget from '@/components/widgets/MindfulnessPromptWidget';
+import AffirmationWidget from '@/components/widgets/AffirmationWidget';
+import ProgressiveMuscleWidget from '@/components/widgets/ProgressiveMuscleWidget';
 
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
@@ -967,7 +971,7 @@ interface Message {
   content: string;
   id: string;
   widget?: {
-    type: 'breathing_exercise' | 'emergency_help';
+    type: 'breathing_exercise' | 'emergency_help' | 'grounding_exercise' | 'mindfulness_prompt' | 'affirmations' | 'muscle_relaxation';
     data: any;
   };
 }
@@ -1243,6 +1247,32 @@ Customize your therapeutic approach based on this information while maintaining 
                     <EmergencyHelpWidget
                       country={msg.widget.data.country || 'default'}
                       onDismiss={() => {}}
+                    />
+                  )}
+                  {msg.widget.type === 'grounding_exercise' && (
+                    <GroundingExerciseWidget
+                      onSkip={() => {}}
+                      onComplete={() => {}}
+                    />
+                  )}
+                  {msg.widget.type === 'mindfulness_prompt' && (
+                    <MindfulnessPromptWidget
+                      prompt={msg.widget.data.prompt}
+                      onSkip={() => {}}
+                      onComplete={() => {}}
+                    />
+                  )}
+                  {msg.widget.type === 'affirmations' && (
+                    <AffirmationWidget
+                      category={msg.widget.data.category || 'general'}
+                      onSkip={() => {}}
+                      onComplete={() => {}}
+                    />
+                  )}
+                  {msg.widget.type === 'muscle_relaxation' && (
+                    <ProgressiveMuscleWidget
+                      onSkip={() => {}}
+                      onComplete={() => {}}
                     />
                   )}
                 </div>

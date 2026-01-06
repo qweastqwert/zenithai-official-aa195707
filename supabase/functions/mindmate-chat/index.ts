@@ -150,6 +150,65 @@ IMPORTANT:
       {
         type: "function",
         function: {
+          name: "show_grounding_exercise",
+          description: "Display a 5-4-3-2-1 grounding exercise widget when the user feels disconnected, dissociated, panicky, or overwhelmed. This sensory exercise helps bring them back to the present moment by focusing on their five senses.",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "show_mindfulness_prompt",
+          description: "Display a mindfulness reflection prompt when the user could benefit from a moment of introspection, gratitude, or present-moment awareness. Use for general wellness, mild stress, or when user seems unfocused.",
+          parameters: {
+            type: "object",
+            properties: {
+              prompt: {
+                type: "string",
+                description: "Optional custom mindfulness prompt to display. If not provided, a random prompt will be shown."
+              }
+            },
+            required: []
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "show_affirmations",
+          description: "Display positive affirmation cards tailored to the user's current emotional state. Choose category based on what they need most.",
+          parameters: {
+            type: "object",
+            properties: {
+              category: {
+                type: "string",
+                enum: ["self-love", "anxiety", "motivation", "general"],
+                description: "Category of affirmations: 'self-love' for self-esteem issues, 'anxiety' for worry/fear, 'motivation' for feeling stuck/unmotivated, 'general' for overall positivity"
+              }
+            },
+            required: ["category"]
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
+          name: "show_muscle_relaxation",
+          description: "Display a progressive muscle relaxation exercise widget when the user has physical tension, stress stored in their body, trouble sleeping, or needs deep relaxation. This guides them through tensing and releasing muscle groups.",
+          parameters: {
+            type: "object",
+            properties: {},
+            required: []
+          }
+        }
+      },
+      {
+        type: "function",
+        function: {
           name: "show_emergency_help",
           description: "CRITICAL: Display emergency helpline widget ONLY when you detect clear signs of suicidal ideation, self-harm intent, or severe crisis. Signs include: explicit mentions of wanting to die, self-harm plans, feeling hopeless/worthless, saying goodbye, or discussing suicide methods. Be cautious and supportive.",
           parameters: {
@@ -226,6 +285,28 @@ IMPORTANT:
               cycles: args.cycles || 3
             });
             console.log('Breathing exercise triggered:', args.cycles || 3);
+          } else if (toolCall.function.name === 'show_grounding_exercise') {
+            toolCallsData.push({
+              type: 'grounding_exercise'
+            });
+            console.log('Grounding exercise triggered');
+          } else if (toolCall.function.name === 'show_mindfulness_prompt') {
+            toolCallsData.push({
+              type: 'mindfulness_prompt',
+              prompt: args.prompt
+            });
+            console.log('Mindfulness prompt triggered');
+          } else if (toolCall.function.name === 'show_affirmations') {
+            toolCallsData.push({
+              type: 'affirmations',
+              category: args.category || 'general'
+            });
+            console.log('Affirmations triggered:', args.category);
+          } else if (toolCall.function.name === 'show_muscle_relaxation') {
+            toolCallsData.push({
+              type: 'muscle_relaxation'
+            });
+            console.log('Progressive muscle relaxation triggered');
           } else if (toolCall.function.name === 'show_emergency_help') {
             toolCallsData.push({
               type: 'emergency_help',
