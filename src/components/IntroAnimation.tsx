@@ -15,39 +15,12 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
 
   const steps = [
     {
-      text: "You smile in Public.",
-      colors: "from-gray-600 via-gray-700 to-gray-800",
-      textColor: "text-gray-300",
-      bgColor: "bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900",
-      typingSpeed: 80,
-      pauseTime: 3000,
-      deleteSpeed: 30
-    },
-    {
-      text: "Cry at night, Scroll Endlessly",
-      colors: "from-slate-900 via-gray-900 to-black",
-      textColor: "text-gray-400",
-      bgColor: "bg-gradient-to-br from-black via-gray-900 to-slate-900",
-      typingSpeed: 90,
-      pauseTime: 3500,
-      deleteSpeed: 25
-    },
-    {
-      text: "Waiting for Someone or Something to Understand...",
-      colors: "from-purple-900 via-indigo-900 to-blue-900",
-      textColor: "text-purple-200",
-      bgColor: "bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900",
-      typingSpeed: 85,
-      pauseTime: 4500,
-      deleteSpeed: 20
-    },
-    {
       text: "Welcome to Zenith AI",
       colors: "from-white via-purple-50 to-yellow-50",
       textColor: "text-gray-800",
       bgColor: "bg-gradient-to-br from-white via-purple-50 to-yellow-50",
-      typingSpeed: 120,
-      pauseTime: 6000,
+      typingSpeed: 80,
+      pauseTime: 3000,
       deleteSpeed: 0
     }
   ];
@@ -143,24 +116,6 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           {/* Atmospheric effects */}
           <div className="absolute inset-0 pointer-events-none">
             {currentStep === 0 && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 sm:w-96 h-64 sm:h-96 bg-gray-500/10 rounded-full blur-3xl animate-pulse transition-all duration-1000"></div>
-            )}
-            
-            {currentStep === 1 && (
-              <>
-                <div className="absolute top-1/4 left-1/4 w-32 sm:w-48 h-32 sm:h-48 bg-gray-800/20 rounded-full blur-2xl animate-pulse transition-all duration-1000"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-48 sm:w-64 h-48 sm:h-64 bg-slate-700/15 rounded-full blur-3xl animate-pulse transition-all duration-1000" style={{ animationDelay: '1s' }}></div>
-              </>
-            )}
-            
-            {currentStep === 2 && (
-              <>
-                <div className="absolute top-1/3 left-1/3 w-48 sm:w-72 h-48 sm:h-72 bg-purple-600/20 rounded-full blur-3xl animate-pulse transition-all duration-1000"></div>
-                <div className="absolute bottom-1/3 right-1/3 w-56 sm:w-80 h-56 sm:h-80 bg-indigo-500/15 rounded-full blur-3xl animate-pulse transition-all duration-1000" style={{ animationDelay: '1.5s' }}></div>
-              </>
-            )}
-            
-            {currentStep === 3 && (
               <>
                 <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-yellow-200/30 rounded-full blur-3xl animate-pulse transition-all duration-1000"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-56 sm:w-80 h-56 sm:h-80 bg-purple-200/25 rounded-full blur-3xl animate-pulse transition-all duration-1000" style={{ animationDelay: '0.5s' }}></div>
@@ -170,7 +125,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
           </div>
           
           {/* Zenith AI logo appears in final step */}
-          {currentStep === 3 && (
+          {currentStep === 0 && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}

@@ -6,7 +6,7 @@ import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
-import MoodPrompt from '@/components/mood/MoodPrompt';
+import MoodPromptWidget from '@/components/mood/MoodPromptWidget';
 import { setCookie } from '@/utils/cookieUtils';
 
 interface MoodTrackerProps {
@@ -77,19 +77,23 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
     return null;
   }
 
+  const { isTablet } = useDeviceDetection();
+
   return (
     <AnimatePresence>
       {showPrompt && (
-        <MoodPrompt
+        <MoodPromptWidget
           selectedMood={selectedMood}
           onMoodSelect={setSelectedMood}
           onSubmit={handleMoodSubmit}
           onClose={handleClose}
           isMobile={isMobile}
+          isTablet={isTablet}
         />
       )}
     </AnimatePresence>
   );
 };
+
 
 export default MoodTracker;
