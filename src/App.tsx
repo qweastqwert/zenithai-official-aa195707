@@ -61,9 +61,9 @@ const AppContent = () => {
     window.addEventListener('show-mood-tracker', handleShowMoodTracker);
     window.addEventListener('show-journal', handleShowJournal);
 
-    // Check if user has seen intro before
+    // Check if user has seen intro before OR if user is already authenticated
     const hasSeenIntro = localStorage.getItem('zenith-intro-seen');
-    if (hasSeenIntro && isAuthenticated) {
+    if (hasSeenIntro || isAuthenticated) {
       setShowIntro(false);
     }
 
