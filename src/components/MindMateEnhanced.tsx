@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import BreathingExerciseWidget from '@/components/widgets/BreathingExerciseWidget';
 import EmergencyHelpWidget from '@/components/widgets/EmergencyHelpWidget';
+import MusicSuggestionWidget from '@/components/widgets/MusicSuggestionWidget';
 
 interface Message {
   id: string;
@@ -26,7 +27,7 @@ interface Message {
   role: 'user' | 'assistant' | 'system';
   timestamp: Date;
   widget?: {
-    type: 'breathing_exercise' | 'emergency_help';
+    type: 'breathing_exercise' | 'emergency_help' | 'music_suggestion';
     data: any;
   };
 }
@@ -390,6 +391,13 @@ Remember to:
                   {message.widget.type === 'emergency_help' && (
                     <EmergencyHelpWidget
                       country={message.widget.data.country}
+                      onDismiss={() => {}}
+                    />
+                  )}
+                  {message.widget.type === 'music_suggestion' && (
+                    <MusicSuggestionWidget
+                      mood={message.widget.data.mood}
+                      customMessage={message.widget.data.customMessage}
                       onDismiss={() => {}}
                     />
                   )}
