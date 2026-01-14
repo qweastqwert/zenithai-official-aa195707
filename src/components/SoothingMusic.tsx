@@ -10,7 +10,7 @@ const songs: Song[] = [
   {
     id: 1,
     title: "Golden Horizon",
-    url: "https://www.dropbox.com/scl/fi/q1zes3i9srzsfhppm3yap/Golden-Horizon.mp3?rlkey=ton12h5q3eism4t5ke9xggnbu&st=rwx1g6en&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Golden%20Horizon.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9Hb2xkZW4gSG9yaXpvbi5tcDMiLCJpYXQiOjE3NjgzODAxOTYsImV4cCI6NDg5MDQ0NDE5Nn0.09oThBeU355oAs8SFvHddtqm2D4DFaY8ethzKP7yZ5A",
     category: "Uplifting",
     mood: ["sad", "depressed", "low energy"],
     cover: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=300&fit=crop"
@@ -18,7 +18,7 @@ const songs: Song[] = [
   {
     id: 2,
     title: "Whispers of the Tide",
-    url: "https://www.dropbox.com/scl/fi/ihz7exkbhqkd26dkohd9o/Whispers-of-the-Tide.mp3?rlkey=0zvef2tsxktm87oon4do7r1l3&st=peem597y&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Whispers%20of%20the%20Tide.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9XaGlzcGVycyBvZiB0aGUgVGlkZS5tcDMiLCJpYXQiOjE3NjgzODAzODMsImV4cCI6NDg5MDQ0NDM4M30.bQftywgLjIyIr1cvmQ10kT1b_2ZLh9tzChyxKIIUkaA",
     category: "Calming",
     mood: ["stress", "anxiety", "overwhelmed"],
     cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&h=300&fit=crop"
@@ -26,7 +26,7 @@ const songs: Song[] = [
   {
     id: 3,
     title: "Lavender Lullaby",
-    url: "https://www.dropbox.com/scl/fi/na6biu47ywx3g6ewj0zf7/Lavender-Lullaby.mp3?rlkey=da46ix31u2a3jq14jiyuo5jc1&st=5rtyucur&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Lavender%20Lullaby.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9MYXZlbmRlciBMdWxsYWJ5Lm1wMyIsImlhdCI6MTc2ODM4MDMwNCwiZXhwIjo0ODkwNDQ0MzA0fQ.K15d3pCQZtMk4ax03zyeZWiWURcCRiRlVXMNLIIO1JU",
     category: "Sleep",
     mood: ["insomnia", "restless", "tired"],
     cover: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=300&fit=crop"
@@ -34,7 +34,7 @@ const songs: Song[] = [
   {
     id: 4,
     title: "Sunlit Meadow Dance",
-    url: "https://www.dropbox.com/scl/fi/9wlhnmr81j8kj3krvm17t/Sunlit-Meadow-Dance.mp3?rlkey=preyyoxcucr3oe5u9obd0a6nw&st=8r3nmtq6&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Sunlit%20Meadow%20Dance.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9TdW5saXQgTWVhZG93IERhbmNlLm1wMyIsImlhdCI6MTc2ODM4MDM1MSwiZXhwIjo0ODkwNDQ0MzUxfQ.mGgky273-hqXyW3-BLUObfSs-Ci1-MeoQ7yP2z5wdUA",
     category: "Energizing",
     mood: ["lethargic", "unmotivated", "dull"],
     cover: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=300&fit=crop"
@@ -42,7 +42,7 @@ const songs: Song[] = [
   {
     id: 5,
     title: "Silent Snowfall",
-    url: "https://www.dropbox.com/scl/fi/b4ksuq7hosbit5fwirctq/Silent-Snowfall.mp3?rlkey=ds890du77vtlz0x2hk6hitbqr&st=imo4koxd&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Silent%20Snowfall.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9TaWxlbnQgU25vd2ZhbGwubXAzIiwiaWF0IjoxNzY4MzgwMzI2LCJleHAiOjQ4OTA0NDQzMjZ9.WlBrCg-GkGmfB69DT5S6p40b_SmdvkptsO7GiszRMAg",
     category: "Meditation",
     mood: ["scattered", "unfocused", "chaotic"],
     cover: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=300&h=300&fit=crop"
@@ -50,7 +50,7 @@ const songs: Song[] = [
   {
     id: 6,
     title: "Emerald Canopy",
-    url: "https://www.dropbox.com/scl/fi/3x8c7l7vjnj9ddy8j0pcl/Emerald-Canopy.mp3?rlkey=t3rx2zkv0nwg93b2yf0ykwpla&st=mjowape5&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Emerald%20Canopy.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9FbWVyYWxkIENhbm9weS5tcDMiLCJpYXQiOjE3NjgzODAyNDUsImV4cCI6NDg5MDQ0NDI0NX0.2KPmA5kgvAE74g2DP3zFMVJqy55VQ6ESvsCTeDZdIdo",
     category: "Nature",
     mood: ["disconnected", "indoor blues", "nature craving"],
     cover: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=300&fit=crop"
@@ -58,7 +58,7 @@ const songs: Song[] = [
   {
     id: 7,
     title: "Coastal Breeze Dreams",
-    url: "https://www.dropbox.com/scl/fi/pdkt7nipa0cuxsvguo06r/Coastal-Breeze-Dreams.mp3?rlkey=whl7j5afxsnhf6189swsrik05&st=lii1rz8h&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Coastal%20Breeze%20Dreams.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9Db2FzdGFsIEJyZWV6ZSBEcmVhbXMubXAzIiwiaWF0IjoxNzY4MzgwMjgwLCJleHAiOjQ4OTA0NDQyODB9.Y2dQHnxlSqIV-vOopD2RoRV26TJvntCfmsvXeQZejnw",
     category: "Relaxation",
     mood: ["tension", "muscle pain", "physical stress"],
     cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&h=300&fit=crop"
@@ -66,7 +66,7 @@ const songs: Song[] = [
   {
     id: 8,
     title: "Floating Lanterns",
-    url: "https://www.dropbox.com/scl/fi/aamhq061o8o2xe6tyfr8u/Floating-Lanterns.mp3?rlkey=od7w4pyo5vzfp94odwcit43tt&st=pkby52jy&raw=1",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Floating%20Lanterns.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9GbG9hdGluZyBMYW50ZXJucy5tcDMiLCJpYXQiOjE3NjgzODAyMTcsImV4cCI6NDg5MDQ0NDIxN30.PphBXpA33tsp_E0TFA77tFkLp8--qEgySN5u3tR57OE",
     category: "Spiritual",
     mood: ["lost", "purposeless", "spiritual void"],
     cover: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=300&fit=crop"
