@@ -67,9 +67,15 @@ EMOTIONAL INTELLIGENCE & SUPPORT TOOLS:
 After EACH user message, analyze their emotional state:
 - Signs of stress/anxiety: tension, worry, overwhelm, racing thoughts, difficulty focusing
 - Signs of crisis: suicidal thoughts, self-harm mentions, hopelessness, saying goodbye, discussing methods
+- Signs of needing relief: tired, exhausted, need a break, wanting to relax, seeking calm
+- Signs of work/focus needs: studying, working, need to concentrate, preparing for tasks, deadlines
 
 When you detect stress/anxiety: Call show_breathing_exercise with appropriate cycles (1-5)
 When you detect severe crisis/suicidal ideation: IMMEDIATELY call show_emergency_help with user's country
+When you detect user needs relief/relaxation: Call suggest_music with mood='relaxation' or 'calm'
+When you detect user preparing for work/study: Call suggest_music with mood='focus'
+When user mentions being tired or needing energy: Call suggest_music with mood='energy'
+When user mentions sleep or bedtime: Call suggest_music with mood='sleep'
 
 TEXT FORMATTING RULES:
 Use these formatting patterns in your responses:
@@ -222,6 +228,28 @@ IMPORTANT:
             required: ["country"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "suggest_music",
+          description: "Suggest soothing music when user needs relief, relaxation, focus for work/study, calming down, energy boost, or help sleeping. Use this when detecting stress relief needs, work/study preparation, or requests for calming content.",
+          parameters: {
+            type: "object",
+            properties: {
+              mood: { 
+                type: "string", 
+                enum: ["relaxation", "focus", "calm", "energy", "sleep"],
+                description: "relaxation for stress relief, focus for work/study, calm for anxiety, energy for motivation, sleep for bedtime"
+              },
+              customMessage: { 
+                type: "string", 
+                description: "Personalized message explaining why this music might help based on user's situation" 
+              }
+            },
+            required: ["mood"]
+          }
+        }
       }
     ];
 
@@ -324,6 +352,13 @@ IMPORTANT:
               country: args.country || 'default'
             });
             console.log('Emergency help triggered:', args);
+          } else if (toolCall.function.name === 'suggest_music') {
+            toolCallsData.push({
+              type: 'music_suggestion',
+              mood: args.mood || 'calm',
+              customMessage: args.customMessage
+            });
+            console.log('Music suggestion triggered:', args);
           }
         } catch (e) {
           console.error('Error processing tool call:', e);
