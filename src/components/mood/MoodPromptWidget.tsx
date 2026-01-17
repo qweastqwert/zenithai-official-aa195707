@@ -114,9 +114,10 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
           stiffness: 300,
           mass: 0.8
         }}
-        className="fixed bottom-20 left-2 right-2 z-40"
+        className="fixed bottom-[72px] left-3 right-3 z-40 max-h-[60vh] overflow-y-auto"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <Card className="bg-background/98 backdrop-blur-xl border-2 border-primary/20 shadow-2xl rounded-2xl overflow-hidden">
+        <Card className="bg-background/98 backdrop-blur-xl border border-border/50 shadow-xl rounded-xl overflow-hidden">
           <motion.div
             initial={false}
             animate={isMinimized ? { height: "auto" } : { height: "auto" }}
@@ -147,7 +148,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
               </motion.div>
             ) : (
               <>
-                <CardHeader className="pb-2 pt-3 px-4">
+                <CardHeader className="pb-2 pt-3 px-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <AnimatePresence mode="wait">
@@ -172,21 +173,21 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                       >
                         <Heart className="h-5 w-5 text-primary" />
                       </motion.div>
-                      <CardTitle className="text-base text-foreground">
+                      <CardTitle className="text-sm font-semibold text-foreground">
                         {step === 'select' ? 'How are you feeling?' : 'Tell us more'}
                       </CardTitle>
                     </div>
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setIsMinimized(true)} className="h-7 w-7 p-0">
-                        <ChevronDown className="h-4 w-4" />
+                      <Button variant="ghost" size="sm" onClick={() => setIsMinimized(true)} className="h-6 w-6 p-0">
+                        <ChevronDown className="h-3 w-3" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={onClose} className="h-7 w-7 p-0">
-                        <X className="h-4 w-4" />
+                      <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
+                        <X className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="px-4 pb-4 pt-2">
+                <CardContent className="px-3 pb-3 pt-1">
                   <AnimatePresence mode="wait" custom={direction}>
                     {step === 'select' ? (
                       <motion.div
@@ -197,7 +198,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                         animate="center"
                         exit="exit"
                       >
-                        <MoodSelection selectedMood={selectedMood} onMoodSelect={handleMoodSelect} />
+                        <MoodSelection selectedMood={selectedMood} onMoodSelect={handleMoodSelect} compact />
                       </motion.div>
                     ) : (
                       <motion.div
@@ -212,6 +213,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                           selectedMood={selectedMood}
                           onSubmit={handleReasonSubmit}
                           onSkip={handleSkipReason}
+                          compact
                         />
                       </motion.div>
                     )}
