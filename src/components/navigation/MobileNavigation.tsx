@@ -1,20 +1,14 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { 
-  MessageCircle, 
-  Wind, 
-  Heart, 
-  Music, 
-  Settings,
   Home,
-  Users,
-  BookOpen,
   Brain,
+  BookOpen,
   Flower2,
+  Heart,
+  Moon,
   Trophy,
-  Moon
+  Settings
 } from 'lucide-react';
 
 interface MobileNavigationProps {
@@ -40,44 +34,47 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   ];
 
   return (
-    <Card className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm shadow-lg z-50 border-gray-200 dark:border-gray-700 dark:bg-gray-800/95 border-t border-l-0 border-r-0 border-b-0 rounded-t-lg rounded-b-none">
-      <div className="flex justify-around items-center py-2 px-1 safe-area-inset-bottom">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md shadow-lg z-50 border-t border-border/50">
+      <div 
+        className="flex justify-around items-center py-1.5 px-1"
+        style={{ paddingBottom: 'max(6px, env(safe-area-inset-bottom))' }}
+      >
         {navigationItems.map((item) => (
           <Button
             key={item.id}
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center space-y-1 h-auto py-2 px-1.5 min-w-0 flex-1 ${
+            className={`flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 min-w-0 flex-1 rounded-lg ${
               currentView === item.id 
-                ? 'text-zenith-primary bg-zenith-soft' 
-                : 'text-gray-600 dark:text-gray-400'
+                ? 'text-primary bg-primary/10' 
+                : 'text-muted-foreground'
             }`}
             onClick={() => onNavigate(item.id)}
           >
-            <item.icon className="h-5 w-5" />
-            <span className="text-xs font-medium truncate">{item.label}</span>
+            <item.icon className="h-4 w-4" />
+            <span className="text-[10px] font-medium">{item.label}</span>
           </Button>
         ))}
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center space-y-1 h-auto py-2 px-1.5 text-gray-600 dark:text-gray-400 min-w-0 flex-1"
+          className="flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 text-muted-foreground min-w-0 flex-1 rounded-lg"
           onClick={onAchievements}
         >
-          <Trophy className="h-5 w-5" />
-          <span className="text-xs font-medium truncate">Rewards</span>
+          <Trophy className="h-4 w-4" />
+          <span className="text-[10px] font-medium">Rewards</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center space-y-1 h-auto py-2 px-1.5 text-gray-600 dark:text-gray-400 min-w-0 flex-1"
+          className="flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 text-muted-foreground min-w-0 flex-1 rounded-lg"
           onClick={onSettings}
         >
-          <Settings className="h-5 w-5" />
-          <span className="text-xs font-medium truncate">Settings</span>
+          <Settings className="h-4 w-4" />
+          <span className="text-[10px] font-medium">Settings</span>
         </Button>
       </div>
-    </Card>
+    </div>
   );
 };
 

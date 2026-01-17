@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 interface MoodSelectionProps {
   selectedMood: string;
   onMoodSelect: (mood: string) => void;
+  compact?: boolean;
 }
 
-const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelect }) => {
+const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelect, compact = false }) => {
   const moods = [
     { id: 'ecstatic', emoji: '🤩', label: 'Ecstatic', color: '#10B981', description: 'Absolutely amazing!' },
     { id: 'joyful', emoji: '😊', label: 'Joyful', color: '#3B82F6', description: 'Feeling wonderful' },
@@ -25,13 +26,13 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
       opacity: 1,
       transition: {
         delayChildren: 0.1,
-        staggerChildren: 0.08
+        staggerChildren: 0.05
       }
     }
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8, y: 20 },
+    hidden: { opacity: 0, scale: 0.8, y: 10 },
     visible: {
       opacity: 1,
       scale: 1,
@@ -49,7 +50,10 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
+      className={compact 
+        ? "grid grid-cols-4 gap-2" 
+        : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
+      }
     >
       {moods.map((mood) => (
         <motion.div
@@ -64,37 +68,31 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
           <Button
             onClick={() => onMoodSelect(mood.id)}
             variant={selectedMood === mood.id ? "default" : "outline"}
-            className={`w-full h-24 md:h-28 flex flex-col items-center justify-center space-y-2 transition-all duration-300 relative overflow-hidden group ${
+            className={`w-full flex flex-col items-center justify-center transition-all duration-300 relative overflow-hidden group ${
+              compact 
+                ? 'h-14 space-y-0.5 p-1' 
+                : 'h-24 md:h-28 space-y-2'
+            } ${
               selectedMood === mood.id 
-                ? 'shadow-xl ring-4 ring-opacity-50' 
-                : 'hover:shadow-lg hover:border-opacity-70'
+                ? 'shadow-lg ring-2 ring-opacity-50' 
+                : 'hover:shadow-md hover:border-opacity-70'
             }`}
             style={selectedMood === mood.id ? { 
               backgroundColor: mood.color, 
               borderColor: mood.color,
-              boxShadow: `0 0 20px ${mood.color}40`
+              boxShadow: `0 0 15px ${mood.color}30`
             } : {}}
           >
-            {/* Animated background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
             <motion.span 
-              className="text-3xl md:text-4xl relative z-10"
-              animate={selectedMood === mood.id ? { rotate: [0, 10, -10, 0] } : {}}
+              className={compact ? "text-lg" : "text-3xl md:text-4xl"}
+              animate={selectedMood === mood.id ? { rotate: [0, 5, -5, 0] } : {}}
               transition={{ duration: 0.5, repeat: selectedMood === mood.id ? Infinity : 0, repeatDelay: 2 }}
             >
               {mood.emoji}
             </motion.span>
-            <span className="text-xs md:text-sm font-medium relative z-10">{mood.label}</span>
-            
-            {/* Shimmer effect */}
-            {selectedMood === mood.id && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                animate={{ x: ['-100%', '100%'] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
-              />
-            )}
+            <span className={`font-medium ${compact ? 'text-[10px]' : 'text-xs md:text-sm'}`}>
+              {compact ? mood.label.slice(0, 6) : mood.label}
+            </span>
           </Button>
         </motion.div>
       ))}

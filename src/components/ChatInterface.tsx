@@ -469,157 +469,146 @@ const ChatInterface = () => {
               key="menu-mobile"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="min-h-screen pb-20"
+              className="min-h-screen pb-16"
             >
               <MobileHeader
                 title={`Hey ${profile?.name}!`}
                 onSettings={() => setShowSettings(true)}
               />
               
-              <div className="p-3 space-y-3">
-                {/* Events Menu - Compact */}
-                <div className="flex justify-center mb-2">
+              <div className="px-4 py-3 space-y-4">
+                {/* Events Menu */}
+                <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
                 </div>
 
-                {/* Achievements Button - Compact */}
-                <Card 
-                  className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-800 shadow-md cursor-pointer"
+                {/* Achievements Quick Card */}
+                <motion.div
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => handleNavigation('achievements')}
+                  className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
                 >
-                  <CardContent className="p-3 flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                      <Trophy className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h2 className="text-base font-bold text-gray-900 dark:text-gray-100">Achievements</h2>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Track your wellness journey</p>
-                    </div>
-                    <Badge className="bg-yellow-500 text-white text-xs px-2 py-0.5">New!</Badge>
-                  </CardContent>
-                </Card>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shrink-0">
+                    <Trophy className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm text-foreground">Achievements</h3>
+                    <p className="text-xs text-muted-foreground">Track your wellness journey</p>
+                  </div>
+                  <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">New</Badge>
+                </motion.div>
 
-                {/* Main Features - Compact Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <Card 
-                    className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                {/* Main Features Grid - Better spacing */}
+                <div className="grid grid-cols-3 gap-3">
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleNavigation('mindmate')}
+                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
                   >
-                    <CardContent className="p-3 flex flex-col items-center text-center">
-                      <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center mb-2"
-                        style={{ 
-                          background: `linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary))` 
-                        }}
-                      >
-                        <Brain className="h-5 w-5 text-white" />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">MindMate</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">AI therapist</p>
-                    </CardContent>
-                  </Card>
+                    <div 
+                      className="w-11 h-11 rounded-full flex items-center justify-center mb-2"
+                      style={{ background: `linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary))` }}
+                    >
+                      <Brain className="h-5 w-5 text-white" />
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">MindMate</span>
+                    <span className="text-[10px] text-muted-foreground">AI therapist</span>
+                  </motion.div>
 
-                  <Card 
-                    className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleNavigation('characters')}
+                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
                   >
-                    <CardContent className="p-3 flex flex-col items-center text-center">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center mb-2">
-                        <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Characters</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">AI friends</p>
-                    </CardContent>
-                  </Card>
+                    <div className="w-11 h-11 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-2">
+                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Characters</span>
+                    <span className="text-[10px] text-muted-foreground">AI friends</span>
+                  </motion.div>
 
-                  <Card 
-                    className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleNavigation('journal')}
+                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
                   >
-                    <CardContent className="p-3 flex flex-col items-center text-center">
-                      <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/20 flex items-center justify-center mb-2">
-                        <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Journal</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Daily reflection</p>
-                    </CardContent>
-                  </Card>
+                    <div className="w-11 h-11 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-2">
+                      <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Journal</span>
+                    <span className="text-[10px] text-muted-foreground">Daily notes</span>
+                  </motion.div>
 
-                  <Card 
-                    className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleNavigation('meditation')}
+                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
                   >
-                    <CardContent className="p-3 flex flex-col items-center text-center">
-                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center mb-2">
-                        <Flower2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Meditate</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Find peace</p>
-                    </CardContent>
-                  </Card>
+                    <div className="w-11 h-11 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-2">
+                      <Flower2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Meditate</span>
+                    <span className="text-[10px] text-muted-foreground">Find peace</span>
+                  </motion.div>
 
-                  <Card 
-                    className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleNavigation('mood')}
+                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
                   >
-                    <CardContent className="p-3 flex flex-col items-center text-center">
-                      <div className="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-900/20 flex items-center justify-center mb-2">
-                        <Heart className="h-5 w-5 text-pink-600 dark:text-pink-400" />
-                      </div>
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1">Mood</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Track feelings</p>
-                    </CardContent>
-                  </Card>
+                    <div className="w-11 h-11 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-2">
+                      <Heart className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Mood</span>
+                    <span className="text-[10px] text-muted-foreground">Track feelings</span>
+                  </motion.div>
+
+                  <motion.div
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleNavigation('breathing')}
+                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                  >
+                    <div className="w-11 h-11 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center mb-2">
+                      <Wind className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <span className="text-xs font-semibold text-foreground">Breathing</span>
+                    <span className="text-[10px] text-muted-foreground">Relax & focus</span>
+                  </motion.div>
                 </div>
 
-                {/* Secondary Features - Compact */}
-                <Card 
-                  className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
-                  onClick={() => handleNavigation('breathing')}
-                >
-                  <CardContent className="p-3 flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                      <Wind className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                {/* Secondary features - compact list */}
+                <div className="space-y-2">
+                  <motion.div
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleNavigation('sleep')}
+                    className="bg-card rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                      <span className="text-base">🌙</span>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Breathing</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Relax & focus</p>
+                      <span className="text-sm font-medium text-foreground">Sleep Tracker</span>
+                      <p className="text-xs text-muted-foreground">Track sleep patterns</p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </motion.div>
 
-                <Card 
-                  className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
-                  onClick={() => handleNavigation('sleep')}
-                >
-                  <CardContent className="p-3 flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/20 flex items-center justify-center">
-                      <span className="text-sm">🌙</span>
+                  <motion.div
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleNavigation('community')}
+                    className="bg-card rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                      <span className="text-base">💬</span>
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Sleep Tracker</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Track sleep patterns</p>
+                      <span className="text-sm font-medium text-foreground">Community</span>
+                      <p className="text-xs text-muted-foreground">Share & get advice</p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </motion.div>
+                </div>
 
-                <Card 
-                  className="bg-white dark:bg-gray-800 shadow-md cursor-pointer"
-                  onClick={() => handleNavigation('community')}
-                >
-                  <CardContent className="p-3 flex items-center space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/20 flex items-center justify-center">
-                      <span className="text-sm">💬</span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Community</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">Share & get advice</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Music Menu - Compact */}
-                <div className="flex justify-center">
+                {/* Music Menu */}
+                <div className="flex justify-center pt-2">
                   <SongMenu />
                 </div>
               </div>
@@ -628,6 +617,7 @@ const ChatInterface = () => {
                 currentView="home"
                 onNavigate={handleNavigation}
                 onSettings={() => setShowSettings(true)}
+                onAchievements={() => setShowAchievements(true)}
               />
             </motion.div>
           )}

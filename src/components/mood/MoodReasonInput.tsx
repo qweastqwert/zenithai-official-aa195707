@@ -10,9 +10,10 @@ interface MoodReasonInputProps {
   selectedMood: string;
   onSubmit: (reason: string) => void;
   onSkip: () => void;
+  compact?: boolean;
 }
 
-const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmit, onSkip }) => {
+const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmit, onSkip, compact = false }) => {
   const [reason, setReason] = useState('');
 
   const handleSubmit = () => {
@@ -38,6 +39,51 @@ const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmi
     'troubled': '😢',
     'distressed': '😭'
   };
+
+  if (compact) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="space-y-3"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{moodEmojis[selectedMood]}</span>
+          <span className="text-sm font-medium text-foreground">
+            Feeling {moodLabels[selectedMood]}
+          </span>
+        </div>
+        
+        <Textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="What's contributing to this mood? (Optional)"
+          className="min-h-[60px] text-sm resize-none bg-background/50"
+          maxLength={500}
+        />
+
+        <div className="flex gap-2">
+          <Button
+            onClick={handleSubmit}
+            size="sm"
+            className="flex-1 bg-primary hover:bg-primary/90"
+          >
+            <Sparkles className="h-3 w-3 mr-1" />
+            Save
+          </Button>
+          <Button
+            onClick={onSkip}
+            size="sm"
+            variant="outline"
+            className="flex-1"
+          >
+            Skip
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
