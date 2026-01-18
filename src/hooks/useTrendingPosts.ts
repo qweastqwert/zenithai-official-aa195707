@@ -35,9 +35,9 @@ export const useTrendingPosts = (period: TrendingPeriod = 'week') => {
     try {
       setLoading(true);
       
-      // Get all posts
+      // Use the secure view that masks user_id for anonymous posts
       let postsQuery = supabase
-        .from('community_posts')
+        .from('community_posts_safe')
         .select('*');
       
       const timeFilter = getTimeFilter(period);

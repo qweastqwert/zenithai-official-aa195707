@@ -21,14 +21,23 @@ export const useCommunityComments = (postId: string) => {
   const fetchComments = async () => {
     try {
       setLoading(true);
+      // Use the secure view that masks user_id for anonymous comments server-side
       const { data, error } = await supabase
-        .from('community_comments')
+        .from('community_comments_safe')
         .select('*')
         .eq('post_id', postId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setComments(data || []);
+      
+      // The secure view already masks user_id for anonymous comments
+      // This is a defense-in-depth client-side check as well
+      const safeComments = (data || []).map(comment => ({
+        ...comment,
+        user_id: comment.is_anonymous && comment.user_id !== user?.id ? null : comment.user_id
+      })) as CommunityComment[];
+      
+      setComments(safeComments);
     } catch (error) {
       console.error('Error fetching comments:', error);
       toast.error('Failed to load comments');

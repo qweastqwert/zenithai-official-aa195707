@@ -104,6 +104,13 @@ export type Database = {
             referencedRelation: "community_comments"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "comment_votes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       community_bans: {
@@ -176,6 +183,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -405,6 +419,13 @@ export type Database = {
             referencedRelation: "community_posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -583,7 +604,81 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      community_comments_safe: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_anonymous: boolean | null
+          post_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_anonymous?: boolean | null
+          post_id?: string | null
+          updated_at?: string | null
+          user_id?: never
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_anonymous?: boolean | null
+          post_id?: string | null
+          updated_at?: string | null
+          user_id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts_safe: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_anonymous: boolean | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_anonymous?: boolean | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: never
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_anonymous?: boolean | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       cleanup_old_conversations: { Args: never; Returns: undefined }

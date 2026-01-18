@@ -22,8 +22,9 @@ export const useCommunityPosts = () => {
     try {
       setLoading(true);
       
+      // Use the secure view that masks user_id for anonymous posts server-side
       let query = supabase
-        .from('community_posts')
+        .from('community_posts_safe')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -35,8 +36,8 @@ export const useCommunityPosts = () => {
 
       if (error) throw error;
       
-      // For anonymous posts where we're not the owner, mask the user_id client-side
-      // This is a defense-in-depth measure (the view also does this server-side)
+      // The secure view already masks user_id for anonymous posts server-side
+      // This is a defense-in-depth client-side check as well
       const safePosts = (data || []).map(post => ({
         ...post,
         user_id: post.is_anonymous && post.user_id !== user?.id ? null : post.user_id

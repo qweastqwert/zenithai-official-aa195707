@@ -7,4 +7,4 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.characters-chat]
-verify_jwt = false
+verify_jwt = true

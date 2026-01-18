@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MessageCircle, Settings as SettingsIcon, Wind, Heart, Brain, Flower2, ArrowLeft, BookOpen, Trophy, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,11 @@ import MeditationTimer from '@/components/MeditationTimer';
 import Journal from '@/components/Journal';
 import MobileNavigation from '@/components/navigation/MobileNavigation';
 import MobileHeader from '@/components/navigation/MobileHeader';
+import PullToRefreshIndicator from '@/components/PullToRefreshIndicator';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useNavigate } from 'react-router-dom';
 import { getCookie } from '@/utils/cookieUtils';
 import EventsMenu from '@/components/events/EventsMenu';
@@ -30,6 +32,7 @@ import { useSyncData } from '@/hooks/useSyncData';
 import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
+import { toast } from 'sonner';
 
 const ChatInterface = () => {
   const [showIntro, setShowIntro] = useState(true);
@@ -48,7 +51,29 @@ const ChatInterface = () => {
   const { trackActivity } = useActivityTracker();
   const { getNewlyUnlocked } = useAchievements();
   const { shouldShowPrompt, recordPromptShown, recordPromptDismissed } = useMoodPromptFrequency();
-  const { isSyncing } = useSyncData();
+  const { isSyncing, syncData } = useSyncData();
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    try {
+      await syncData();
+      toast.success('Data synced successfully!');
+    } catch (error) {
+      console.error('Error syncing data:', error);
+      toast.error('Failed to sync data');
+    }
+  }, [syncData]);
+
+  const {
+    containerRef,
+    pullDistance,
+    isRefreshing,
+    progress,
+    shouldTrigger,
+  } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+  });
 
   // Use mobile interface for mobile devices, desktop for tablets in landscape and desktop
   const useMobileInterface = isMobile && !isDesktop;
@@ -476,7 +501,23 @@ const ChatInterface = () => {
                 onSettings={() => setShowSettings(true)}
               />
               
-              <div className="px-4 py-3 space-y-4">
+              {/* Pull-to-refresh container */}
+              <div 
+                ref={containerRef}
+                className="relative overflow-y-auto"
+                style={{ 
+                  transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
+                  transition: pullDistance === 0 ? 'transform 0.2s ease-out' : undefined
+                }}
+              >
+                <PullToRefreshIndicator
+                  pullDistance={pullDistance}
+                  isRefreshing={isRefreshing}
+                  progress={progress}
+                  shouldTrigger={shouldTrigger}
+                />
+                
+                <div className="px-4 py-3 space-y-4">
                 {/* Events Menu */}
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
@@ -612,7 +653,7 @@ const ChatInterface = () => {
                   <SongMenu />
                 </div>
               </div>
-
+              </div>
               <MobileNavigation
                 currentView="home"
                 onNavigate={handleNavigation}
