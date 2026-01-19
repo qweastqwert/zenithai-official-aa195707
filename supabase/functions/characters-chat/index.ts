@@ -69,7 +69,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'meta-llama/llama-4-maverick:free',
         messages: messages,
-        max_tokens: maxTokens || 800,
+        max_tokens: 2048,
         temperature: temperature || 0.8,
       }),
     });

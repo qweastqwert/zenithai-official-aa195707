@@ -34,7 +34,7 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    const { messages, maxTokens = 150, temperature = 0.7 } = await req.json();
+    const { messages, maxTokens = 2048, temperature = 0.7 } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Messages array is required');

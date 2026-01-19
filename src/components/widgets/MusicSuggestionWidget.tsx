@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Music, Play, Pause, X, Headphones, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useMusicPlayer } from '@/contexts/MusicContext';
+import { useMusicPlayer, Song } from '@/contexts/MusicContext';
 
 interface MusicSuggestionWidgetProps {
   mood: 'relaxation' | 'focus' | 'calm' | 'energy' | 'sleep';
@@ -12,32 +12,80 @@ interface MusicSuggestionWidgetProps {
   onDismiss?: () => void;
 }
 
-const moodSongs: Record<string, { title: string; category: string }[]> = {
-  relaxation: [
-    { title: 'Golden Horizon', category: 'Nature' },
-    { title: 'Coastal Breeze Dreams', category: 'Ocean' },
-    { title: 'Whispers of the Tide', category: 'Ocean' },
-  ],
-  focus: [
-    { title: 'Emerald Canopy', category: 'Nature' },
-    { title: 'Sunlit Meadow Dance', category: 'Ambient' },
-    { title: 'Golden Horizon', category: 'Nature' },
-  ],
-  calm: [
-    { title: 'Lavender Lullaby', category: 'Sleep' },
-    { title: 'Silent Snowfall', category: 'Ambient' },
-    { title: 'Floating Lanterns', category: 'Ambient' },
-  ],
-  energy: [
-    { title: 'Sunlit Meadow Dance', category: 'Ambient' },
-    { title: 'Emerald Canopy', category: 'Nature' },
-    { title: 'Golden Horizon', category: 'Nature' },
-  ],
-  sleep: [
-    { title: 'Lavender Lullaby', category: 'Sleep' },
-    { title: 'Silent Snowfall', category: 'Ambient' },
-    { title: 'Floating Lanterns', category: 'Ambient' },
-  ],
+// Full song data matching SoothingMusic.tsx
+const allSongs: Song[] = [
+  {
+    id: 1,
+    title: "Golden Horizon",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Golden%20Horizon.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9Hb2xkZW4gSG9yaXpvbi5tcDMiLCJpYXQiOjE3NjgzODAxOTYsImV4cCI6NDg5MDQ0NDE5Nn0.09oThBeU355oAs8SFvHddtqm2D4DFaY8ethzKP7yZ5A",
+    category: "Uplifting",
+    mood: ["sad", "depressed", "low energy"],
+    cover: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=300&fit=crop"
+  },
+  {
+    id: 2,
+    title: "Whispers of the Tide",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Whispers%20of%20the%20Tide.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9XaGlzcGVycyBvZiB0aGUgVGlkZS5tcDMiLCJpYXQiOjE3NjgzODAzODMsImV4cCI6NDg5MDQ0NDM4M30.bQftywgLjIyIr1cvmQ10kT1b_2ZLh9tzChyxKIIUkaA",
+    category: "Calming",
+    mood: ["stress", "anxiety", "overwhelmed"],
+    cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&h=300&fit=crop"
+  },
+  {
+    id: 3,
+    title: "Lavender Lullaby",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Lavender%20Lullaby.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9MYXZlbmRlciBMdWxsYWJ5Lm1wMyIsImlhdCI6MTc2ODM4MDMwNCwiZXhwIjo0ODkwNDQ0MzA0fQ.K15d3pCQZtMk4ax03zyeZWiWURcCRiRlVXMNLIIO1JU",
+    category: "Sleep",
+    mood: ["insomnia", "restless", "tired"],
+    cover: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&h=300&fit=crop"
+  },
+  {
+    id: 4,
+    title: "Sunlit Meadow Dance",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Sunlit%20Meadow%20Dance.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9TdW5saXQgTWVhZG93IERhbmNlLm1wMyIsImlhdCI6MTc2ODM4MDM1MSwiZXhwIjo0ODkwNDQ0MzUxfQ.mGgky273-hqXyW3-BLUObfSs-Ci1-MeoQ7yP2z5wdUA",
+    category: "Energizing",
+    mood: ["lethargic", "unmotivated", "dull"],
+    cover: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=300&fit=crop"
+  },
+  {
+    id: 5,
+    title: "Silent Snowfall",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Silent%20Snowfall.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9TaWxlbnQgU25vd2ZhbGwubXAzIiwiaWF0IjoxNzY4MzgwMzI2LCJleHAiOjQ4OTA0NDQzMjZ9.WlBrCg-GkGmfB69DT5S6p40b_SmdvkptsO7GiszRMAg",
+    category: "Meditation",
+    mood: ["scattered", "unfocused", "chaotic"],
+    cover: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?w=300&h=300&fit=crop"
+  },
+  {
+    id: 6,
+    title: "Emerald Canopy",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Emerald%20Canopy.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9FbWVyYWxkIENhbm9weS5tcDMiLCJpYXQiOjE3NjgzODAyNDUsImV4cCI6NDg5MDQ0NDI0NX0.2KPmA5kgvAE74g2DP3zFMVJqy55VQ6ESvsCTeDZdIdo",
+    category: "Nature",
+    mood: ["disconnected", "indoor blues", "nature craving"],
+    cover: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=300&h=300&fit=crop"
+  },
+  {
+    id: 7,
+    title: "Coastal Breeze Dreams",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Coastal%20Breeze%20Dreams.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9Db2FzdGFsIEJyZWV6ZSBEcmVhbXMubXAzIiwiaWF0IjoxNzY4MzgwMjgwLCJleHAiOjQ4OTA0NDQyODB9.Y2dQHnxlSqIV-vOopD2RoRV26TJvntCfmsvXeQZejnw",
+    category: "Relaxation",
+    mood: ["tension", "muscle pain", "physical stress"],
+    cover: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&h=300&fit=crop"
+  },
+  {
+    id: 8,
+    title: "Floating Lanterns",
+    url: "https://tipqgwdgplxlbwuvxyxa.supabase.co/storage/v1/object/sign/Songs/Floating%20Lanterns.mp3?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8wN2UzZGI3MC02NzcyLTQyMDktOWViZS02NTFjNjY4MDgzZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTb25ncy9GbG9hdGluZyBMYW50ZXJucy5tcDMiLCJpYXQiOjE3NjgzODAyMTcsImV4cCI6NDg5MDQ0NDIxN30.PphBXpA33tsp_E0TFA77tFkLp8--qEgySN5u3tR57OE",
+    category: "Spiritual",
+    mood: ["lost", "purposeless", "spiritual void"],
+    cover: "https://images.unsplash.com/photo-1470813740244-df37b8c1edcb?w=300&h=300&fit=crop"
+  }
+];
+
+const moodSongTitles: Record<string, string[]> = {
+  relaxation: ['Golden Horizon', 'Coastal Breeze Dreams', 'Whispers of the Tide'],
+  focus: ['Emerald Canopy', 'Sunlit Meadow Dance', 'Silent Snowfall'],
+  calm: ['Lavender Lullaby', 'Silent Snowfall', 'Floating Lanterns'],
+  energy: ['Sunlit Meadow Dance', 'Emerald Canopy', 'Golden Horizon'],
+  sleep: ['Lavender Lullaby', 'Silent Snowfall', 'Floating Lanterns'],
 };
 
 const moodIcons: Record<string, string> = {
@@ -64,24 +112,26 @@ const MusicSuggestionWidget: React.FC<MusicSuggestionWidgetProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [playingSong, setPlayingSong] = useState<string | null>(null);
-  const musicContext = useMusicPlayer();
+  const { playlist, setPlaylist, playSong, togglePlayPause, isPlaying, currentSong } = useMusicPlayer();
 
-  const songs = moodSongs[mood] || moodSongs.calm;
-  const displaySongs = suggestedSongs?.length 
-    ? songs.filter(s => suggestedSongs.includes(s.title))
-    : songs.slice(0, 3);
+  // Ensure playlist is set when widget mounts
+  useEffect(() => {
+    if (playlist.length === 0) {
+      setPlaylist(allSongs);
+    }
+  }, [playlist.length, setPlaylist]);
 
-  const handlePlaySong = (songTitle: string) => {
-    if (playingSong === songTitle) {
+  // Get songs for this mood
+  const moodTitles = moodSongTitles[mood] || moodSongTitles.calm;
+  const displaySongs = allSongs.filter(s => moodTitles.includes(s.title)).slice(0, 3);
+
+  const handlePlaySong = (song: Song) => {
+    if (currentSong?.id === song.id && isPlaying) {
+      togglePlayPause();
       setPlayingSong(null);
-      musicContext?.togglePlayPause();
     } else {
-      setPlayingSong(songTitle);
-      // Find the song in the playlist
-      const song = musicContext?.playlist?.find(s => s.title === songTitle);
-      if (song) {
-        musicContext?.playSong(song);
-      }
+      setPlayingSong(song.title);
+      playSong(song);
     }
   };
 
@@ -159,66 +209,69 @@ const MusicSuggestionWidget: React.FC<MusicSuggestionWidgetProps> = ({
 
             {/* Song List */}
             <div className="p-4 pt-2 space-y-2">
-              {displaySongs.map((song, index) => (
-                <motion.div
-                  key={song.title}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 * (index + 1) }}
-                >
-                  <button
-                    onClick={() => handlePlaySong(song.title)}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                      playingSong === song.title
-                        ? 'bg-primary/20 border-primary/30'
-                        : 'bg-background/60 hover:bg-background/80'
-                    } border border-border/50`}
+              {displaySongs.map((song, index) => {
+                const isCurrentlyPlaying = currentSong?.id === song.id && isPlaying;
+                return (
+                  <motion.div
+                    key={song.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 * (index + 1) }}
                   >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      playingSong === song.title 
-                        ? 'bg-primary text-primary-foreground' 
-                        : 'bg-primary/10 text-primary'
-                    }`}>
-                      {playingSong === song.title ? (
+                    <button
+                      onClick={() => handlePlaySong(song)}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
+                        isCurrentlyPlaying
+                          ? 'bg-primary/20 border-primary/30'
+                          : 'bg-background/60 hover:bg-background/80'
+                      } border border-border/50`}
+                    >
+                      <img 
+                        src={song.cover} 
+                        alt={song.title}
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                      <div className="flex-1 text-left">
+                        <p className="font-medium text-foreground text-sm">{song.title}</p>
+                        <p className="text-xs text-muted-foreground">{song.category}</p>
+                      </div>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        isCurrentlyPlaying 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-primary/10 text-primary'
+                      }`}>
+                        {isCurrentlyPlaying ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Play className="w-4 h-4 ml-0.5" />
+                        )}
+                      </div>
+                      {isCurrentlyPlaying && (
                         <motion.div
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 1, repeat: Infinity }}
+                          className="flex gap-0.5"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
                         >
-                          <Volume2 className="w-5 h-5" />
+                          {[1, 2, 3].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="w-1 bg-primary rounded-full"
+                              animate={{
+                                height: ['8px', '16px', '8px'],
+                              }}
+                              transition={{
+                                duration: 0.5,
+                                repeat: Infinity,
+                                delay: i * 0.1,
+                              }}
+                            />
+                          ))}
                         </motion.div>
-                      ) : (
-                        <Play className="w-5 h-5 ml-0.5" />
                       )}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-medium text-foreground text-sm">{song.title}</p>
-                      <p className="text-xs text-muted-foreground">{song.category}</p>
-                    </div>
-                    {playingSong === song.title && (
-                      <motion.div
-                        className="flex gap-0.5"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
-                        {[1, 2, 3].map((i) => (
-                          <motion.div
-                            key={i}
-                            className="w-1 bg-primary rounded-full"
-                            animate={{
-                              height: ['8px', '16px', '8px'],
-                            }}
-                            transition={{
-                              duration: 0.5,
-                              repeat: Infinity,
-                              delay: i * 0.1,
-                            }}
-                          />
-                        ))}
-                      </motion.div>
-                    )}
-                  </button>
-                </motion.div>
-              ))}
+                    </button>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Footer */}
