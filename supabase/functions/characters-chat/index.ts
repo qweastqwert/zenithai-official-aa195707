@@ -13,10 +13,8 @@ serve(async (req) => {
   }
 
   try {
-    // Validate authentication
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      console.error('No authorization header provided');
       return new Response(JSON.stringify({ 
         error: 'Authentication required',
         reply: "Please log in to chat with characters."
@@ -26,7 +24,6 @@ serve(async (req) => {
       });
     }
 
-    // Initialize Supabase client and verify user
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
@@ -36,7 +33,6 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     
     if (userError || !user) {
-      console.error('Invalid user token:', userError?.message);
       return new Response(JSON.stringify({ 
         error: 'Invalid authentication token',
         reply: "Your session has expired. Please log in again."
@@ -46,15 +42,11 @@ serve(async (req) => {
       });
     }
 
-    console.log('Authenticated user:', user.id);
-
-    const { messages, maxTokens, temperature } = await req.json();
-    console.log('Processing Characters chat request');
-    console.log('Messages count:', messages?.length);
+    const { messages, maxTokens, temperature, stream = false } = await req.json();
+    console.log('Characters chat request, streaming:', stream);
 
     const openrouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openrouterApiKey) {
-      console.error('OPENROUTER_API_KEY not configured');
       throw new Error('AI service not configured');
     }
 
@@ -71,6 +63,7 @@ serve(async (req) => {
         messages: messages,
         max_tokens: 2048,
         temperature: temperature || 0.8,
+        stream,
       }),
     });
 
@@ -80,23 +73,25 @@ serve(async (req) => {
       throw new Error(`AI service error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "I'm having trouble responding right now.";
-    
-    // Log usage to ai_usage table
+    // Log usage
     try {
-      const tokensUsed = data.usage?.total_tokens || 0;
       await supabaseClient.from('ai_usage').insert({
         user_id: user.id,
         feature: 'characters-chat',
-        tokens_used: tokensUsed
+        tokens_used: 0
       });
     } catch (usageError) {
       console.error('Error logging AI usage:', usageError);
-      // Don't fail the request if logging fails
     }
-    
-    console.log('Characters chat response generated successfully');
+
+    if (stream) {
+      return new Response(response.body, {
+        headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+      });
+    }
+
+    const data = await response.json();
+    const reply = data.choices?.[0]?.message?.content || "I'm having trouble responding right now.";
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
