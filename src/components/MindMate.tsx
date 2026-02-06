@@ -7,6 +7,7 @@ import { Send, ArrowLeft, MoreVertical, Brain, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { streamChat } from '@/utils/streamChat';
 import { UserProfile } from '@/hooks/useProfile';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -1134,38 +1135,69 @@ Customize your therapeutic approach based on this information while maintaining 
     
     const userMessageId = `user-${Date.now()}`;
     const userMessage: Message = { role: 'user', content: input, id: userMessageId };
+    const currentMessages = [...messages];
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
-    try {      
+    const assistantMessageId = `assistant-${Date.now()}`;
+    let assistantContent = '';
+
+    // Create empty assistant message for streaming
+    setMessages((prev) => [...prev, { role: 'assistant', content: '', id: assistantMessageId }]);
+    setAnimatingMessageId(assistantMessageId);
+
+    const chatMessages = [
+      { role: 'system', content: getSystemInstruction() },
+      ...currentMessages.map(m => ({ role: m.role, content: m.content })),
+      { role: userMessage.role, content: userMessage.content }
+    ];
+
+    await streamChat({
+      functionName: 'mindmate-chat',
+      body: {
+        messages: chatMessages,
+        maxTokens: isDeepThinkEnabled ? 2000 : 1000,
+        temperature: isDeepThinkEnabled ? 0.3 : 0.7,
+      },
+      onDelta: (text) => {
+        assistantContent += text;
+        setMessages((prev) =>
+          prev.map((m) => m.id === assistantMessageId ? { ...m, content: assistantContent } : m)
+        );
+      },
+      onDone: () => {
+        setIsLoading(false);
+        setTimeout(() => setAnimatingMessageId(null), 500);
+      },
+      onError: (error) => {
+        console.error('Streaming error:', error);
+        // Fallback to non-streaming
+        fallbackNonStreaming(chatMessages, assistantMessageId);
+      },
+    });
+  };
+
+  const fallbackNonStreaming = async (chatMessages: any[], assistantMessageId: string) => {
+    try {
       const response = await supabase.functions.invoke('mindmate-chat', {
         body: {
-          messages: [
-            { role: 'system', content: getSystemInstruction() },
-            ...messages.map(m => ({ role: m.role, content: m.content })),
-            { role: userMessage.role, content: userMessage.content }
-          ],
+          messages: chatMessages,
           maxTokens: isDeepThinkEnabled ? 2000 : 1000,
           temperature: isDeepThinkEnabled ? 0.3 : 0.7,
         }
       });
 
-      if (response.error) {
-        throw new Error(response.error);
-      }
+      if (response.error) throw new Error(response.error);
 
       const data = response.data;
-      const assistantMessageId = `assistant-${Date.now()}`;
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: data.reply || 'I apologize, but I had trouble generating a response.',
-        id: assistantMessageId
-      };
-      
-      setAnimatingMessageId(assistantMessageId);
-      setMessages((prev) => [...prev, assistantMessage]);
-      
+      setMessages((prev) =>
+        prev.map((m) => m.id === assistantMessageId
+          ? { ...m, content: data.reply || 'I apologize, but I had trouble generating a response.' }
+          : m
+        )
+      );
+
       // Handle tool calls (widgets)
       if (data.toolCalls && Array.isArray(data.toolCalls)) {
         data.toolCalls.forEach((toolCall: any, index: number) => {
@@ -1173,18 +1205,19 @@ Customize your therapeutic approach based on this information while maintaining 
             role: 'assistant',
             content: '',
             id: `widget-${Date.now()}-${index}`,
-            widget: {
-              type: toolCall.type,
-              data: toolCall
-            }
+            widget: { type: toolCall.type, data: toolCall }
           };
           setMessages((prev) => [...prev, widgetMessage]);
         });
       }
-      
-      setTimeout(() => setAnimatingMessageId(null), 1000);
     } catch (error) {
-      console.error('Error calling OpenRouter API:', error);
+      console.error('Fallback error:', error);
+      setMessages((prev) =>
+        prev.map((m) => m.id === assistantMessageId
+          ? { ...m, content: 'I apologize, but I had trouble generating a response. Please try again.' }
+          : m
+        )
+      );
       toast({
         title: "Error",
         description: "Failed to get a response. Please try again.",
@@ -1192,6 +1225,7 @@ Customize your therapeutic approach based on this information while maintaining 
       });
     } finally {
       setIsLoading(false);
+      setTimeout(() => setAnimatingMessageId(null), 500);
     }
   };
 

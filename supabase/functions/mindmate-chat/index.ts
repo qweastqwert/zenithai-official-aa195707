@@ -8,19 +8,16 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
     );
 
-    // Get user from the request headers
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('No authorization header');
@@ -34,14 +31,13 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    const { messages, maxTokens = 2048, temperature = 0.7 } = await req.json();
+    const { messages, maxTokens = 2048, temperature = 0.7, stream = false } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Messages array is required');
     }
 
-    console.log('Processing MindMate chat request for user:', user.id);
-    console.log('Messages count:', messages.length);
+    console.log('Processing MindMate chat request for user:', user.id, 'streaming:', stream);
 
     // Fetch user's memories from MindArchive
     const { data: memories } = await supabaseClient
@@ -50,7 +46,6 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    // Build memory context for AI
     const memoryContext = memories && memories.length > 0
       ? `\n\nIMPORTANT CONTEXT - User's MindArchive (key information from previous conversations):\n${memories.map(m => `- ${m.memory_text}${m.category ? ` [${m.category}]` : ''}`).join('\n')}`
       : '';
@@ -60,7 +55,6 @@ serve(async (req) => {
       throw new Error('OpenRouter API key not configured');
     }
 
-    // Prepare messages with memory context and tool instructions added to system message
     const toolInstructions = `
 
 EMOTIONAL INTELLIGENCE & SUPPORT TOOLS:
@@ -85,18 +79,6 @@ Use these formatting patterns in your responses:
 - Bullet list: Start line with "* " followed by item text
 - Numbered list: Use standard "1. ", "2. ", "3. " format
 
-Example formatting:
-*(Main Topic)*
-Here's some text.
-
-**(Subtopic)**
-* First point
-* Second point
-* Third point
-
-1. First step
-2. Second step
-
 IMPORTANT: 
 - Separate headings from lists with blank lines
 - Bullet lists use "* " (asterisk + space) at line start
@@ -105,15 +87,11 @@ IMPORTANT:
 
     const enhancedMessages = messages.map((msg: any, index: number) => {
       if (index === 0 && msg.role === 'system') {
-        return {
-          ...msg,
-          content: msg.content + memoryContext + toolInstructions
-        };
+        return { ...msg, content: msg.content + memoryContext + toolInstructions };
       }
       return msg;
     });
 
-    // Tools for emotional intelligence and support
     const tools = [
       {
         type: "function",
@@ -123,14 +101,8 @@ IMPORTANT:
           parameters: {
             type: "object",
             properties: {
-              memory_text: {
-                type: "string",
-                description: "The key information to remember about the user"
-              },
-              category: {
-                type: "string",
-                description: "Category of the memory (e.g., 'trigger', 'preference', 'challenge', 'goal', 'background')"
-              }
+              memory_text: { type: "string", description: "The key information to remember about the user" },
+              category: { type: "string", description: "Category of the memory (e.g., 'trigger', 'preference', 'challenge', 'goal', 'background')" }
             },
             required: ["memory_text", "category"]
           }
@@ -145,7 +117,7 @@ IMPORTANT:
             type: "object",
             properties: {
               cycles: { type: "number", description: "Number of cycles (1-5)" },
-              intensity: { type: "string", enum: ["light", "moderate", "deep"], description: "light for mild stress, moderate for general anxiety, deep for severe stress" },
+              intensity: { type: "string", enum: ["light", "moderate", "deep"] },
               customMessage: { type: "string", description: "Personalized message based on user's situation" }
             },
             required: []
@@ -160,8 +132,8 @@ IMPORTANT:
           parameters: {
             type: "object",
             properties: {
-              intensity: { type: "string", enum: ["quick", "guided", "deep"], description: "quick for mild, guided for moderate, deep for severe dissociation" },
-              customIntro: { type: "string", description: "Personalized introduction based on user's state" }
+              intensity: { type: "string", enum: ["quick", "guided", "deep"] },
+              customIntro: { type: "string" }
             },
             required: []
           }
@@ -175,10 +147,10 @@ IMPORTANT:
           parameters: {
             type: "object",
             properties: {
-              prompt: { type: "string", description: "Custom mindfulness prompt tailored to user" },
-              category: { type: "string", enum: ["gratitude", "awareness", "reflection", "calm"], description: "Category based on what user needs" },
-              intensity: { type: "string", enum: ["brief", "guided", "deep"], description: "Depth of reflection" },
-              customMessage: { type: "string", description: "Personalized context message" }
+              prompt: { type: "string" },
+              category: { type: "string", enum: ["gratitude", "awareness", "reflection", "calm"] },
+              intensity: { type: "string", enum: ["brief", "guided", "deep"] },
+              customMessage: { type: "string" }
             },
             required: []
           }
@@ -192,9 +164,9 @@ IMPORTANT:
           parameters: {
             type: "object",
             properties: {
-              category: { type: "string", enum: ["self-love", "anxiety", "motivation", "general"], description: "Category based on user's needs" },
-              intensity: { type: "string", enum: ["single", "series", "deep"], description: "single for quick boost, series for moderate, deep for thorough" },
-              customAffirmation: { type: "string", description: "A personalized affirmation for the user's specific situation" }
+              category: { type: "string", enum: ["self-love", "anxiety", "motivation", "general"] },
+              intensity: { type: "string", enum: ["single", "series", "deep"] },
+              customAffirmation: { type: "string" }
             },
             required: ["category"]
           }
@@ -208,8 +180,8 @@ IMPORTANT:
           parameters: {
             type: "object",
             properties: {
-              intensity: { type: "string", enum: ["quick", "standard", "thorough"], description: "quick for mild tension, standard for moderate, thorough for severe" },
-              customIntro: { type: "string", description: "Personalized introduction for the user" }
+              intensity: { type: "string", enum: ["quick", "standard", "thorough"] },
+              customIntro: { type: "string" }
             },
             required: []
           }
@@ -233,19 +205,12 @@ IMPORTANT:
         type: "function",
         function: {
           name: "suggest_music",
-          description: "Suggest soothing music when user needs relief, relaxation, focus for work/study, calming down, energy boost, or help sleeping. Use this when detecting stress relief needs, work/study preparation, or requests for calming content.",
+          description: "Suggest soothing music when user needs relief, relaxation, focus for work/study, calming down, energy boost, or help sleeping.",
           parameters: {
             type: "object",
             properties: {
-              mood: { 
-                type: "string", 
-                enum: ["relaxation", "focus", "calm", "energy", "sleep"],
-                description: "relaxation for stress relief, focus for work/study, calm for anxiety, energy for motivation, sleep for bedtime"
-              },
-              customMessage: { 
-                type: "string", 
-                description: "Personalized message explaining why this music might help based on user's situation" 
-              }
+              mood: { type: "string", enum: ["relaxation", "focus", "calm", "energy", "sleep"] },
+              customMessage: { type: "string" }
             },
             required: ["mood"]
           }
@@ -253,7 +218,85 @@ IMPORTANT:
       }
     ];
 
-    // Call OpenRouter API with tool support
+    // NON-STREAMING: use tools, return JSON
+    if (!stream) {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://zenith-ai.lovable.app',
+          'X-Title': 'Zenith AI - MindMate',
+        },
+        body: JSON.stringify({
+          model: 'qwen/qwen3-next-80b-a3b-instruct:free',
+          messages: enhancedMessages,
+          max_tokens: maxTokens,
+          temperature,
+          tools,
+          tool_choice: "auto",
+          stream: false,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('OpenRouter API error:', response.status, errorText);
+        throw new Error(`OpenRouter API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const choice = data.choices?.[0];
+      const reply = choice?.message?.content || 'I apologize, but I had trouble generating a response. Please try again.';
+      const tokensUsed = data.usage?.total_tokens || 0;
+
+      // Handle tool calls
+      const toolCalls = choice?.message?.tool_calls;
+      const toolCallsData: any[] = [];
+      
+      if (toolCalls && toolCalls.length > 0) {
+        for (const toolCall of toolCalls) {
+          try {
+            const args = JSON.parse(toolCall.function.arguments);
+            
+            if (toolCall.function.name === 'save_memory') {
+              const { error: memoryError } = await supabaseClient
+                .from('mind_archive')
+                .insert({ user_id: user.id, memory_text: args.memory_text, category: args.category });
+              if (memoryError) console.error('Error saving memory:', memoryError);
+              else console.log('Memory saved:', args.category);
+            } else {
+              const typeMap: Record<string, string> = {
+                'show_breathing_exercise': 'breathing_exercise',
+                'show_grounding_exercise': 'grounding_exercise',
+                'show_mindfulness_prompt': 'mindfulness_prompt',
+                'show_affirmations': 'affirmations',
+                'show_muscle_relaxation': 'muscle_relaxation',
+                'show_emergency_help': 'emergency_help',
+                'suggest_music': 'music_suggestion',
+              };
+              toolCallsData.push({ type: typeMap[toolCall.function.name] || toolCall.function.name, ...args });
+            }
+          } catch (e) {
+            console.error('Error processing tool call:', e);
+          }
+        }
+      }
+
+      // Log AI usage
+      await supabaseClient.from('ai_usage').insert({
+        user_id: user.id, feature: 'mindmate', tokens_used: tokensUsed,
+      }).then(({ error }) => { if (error) console.error('Error logging AI usage:', error); });
+
+      return new Response(JSON.stringify({ 
+        reply, tokensUsed,
+        toolCalls: toolCallsData.length > 0 ? toolCallsData : undefined
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // STREAMING: no tools, return SSE stream
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -267,126 +310,23 @@ IMPORTANT:
         messages: enhancedMessages,
         max_tokens: maxTokens,
         temperature,
-        tools,
-        tool_choice: "auto",
-        stream: false,
+        stream: true,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error:', response.status, errorText);
+      console.error('OpenRouter streaming error:', response.status, errorText);
       throw new Error(`OpenRouter API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    const choice = data.choices?.[0];
-    const reply = choice?.message?.content || 'I apologize, but I had trouble generating a response. Please try again.';
-    const tokensUsed = data.usage?.total_tokens || 0;
+    // Log usage estimate for streaming
+    await supabaseClient.from('ai_usage').insert({
+      user_id: user.id, feature: 'mindmate', tokens_used: 0,
+    }).then(({ error }) => { if (error) console.error('Error logging AI usage:', error); });
 
-    // Handle tool calls
-    const toolCalls = choice?.message?.tool_calls;
-    const toolCallsData: any[] = [];
-    
-    if (toolCalls && toolCalls.length > 0) {
-      for (const toolCall of toolCalls) {
-        try {
-          const args = JSON.parse(toolCall.function.arguments);
-          
-          if (toolCall.function.name === 'save_memory') {
-            const { error: memoryError } = await supabaseClient
-              .from('mind_archive')
-              .insert({
-                user_id: user.id,
-                memory_text: args.memory_text,
-                category: args.category
-              });
-            
-            if (memoryError) {
-              console.error('Error saving memory:', memoryError);
-            } else {
-              console.log('Memory saved successfully:', args.category);
-            }
-          } else if (toolCall.function.name === 'show_breathing_exercise') {
-            toolCallsData.push({
-              type: 'breathing_exercise',
-              cycles: args.cycles || 3,
-              intensity: args.intensity || 'moderate',
-              customMessage: args.customMessage
-            });
-            console.log('Breathing exercise triggered:', args);
-          } else if (toolCall.function.name === 'show_grounding_exercise') {
-            toolCallsData.push({
-              type: 'grounding_exercise',
-              intensity: args.intensity || 'guided',
-              customIntro: args.customIntro
-            });
-            console.log('Grounding exercise triggered:', args);
-          } else if (toolCall.function.name === 'show_mindfulness_prompt') {
-            toolCallsData.push({
-              type: 'mindfulness_prompt',
-              prompt: args.prompt,
-              category: args.category || 'awareness',
-              intensity: args.intensity || 'guided',
-              customMessage: args.customMessage
-            });
-            console.log('Mindfulness prompt triggered:', args);
-          } else if (toolCall.function.name === 'show_affirmations') {
-            toolCallsData.push({
-              type: 'affirmations',
-              category: args.category || 'general',
-              intensity: args.intensity || 'series',
-              customAffirmation: args.customAffirmation
-            });
-            console.log('Affirmations triggered:', args);
-          } else if (toolCall.function.name === 'show_muscle_relaxation') {
-            toolCallsData.push({
-              type: 'muscle_relaxation',
-              intensity: args.intensity || 'standard',
-              customIntro: args.customIntro
-            });
-            console.log('Muscle relaxation triggered:', args);
-          } else if (toolCall.function.name === 'show_emergency_help') {
-            toolCallsData.push({
-              type: 'emergency_help',
-              country: args.country || 'default'
-            });
-            console.log('Emergency help triggered:', args);
-          } else if (toolCall.function.name === 'suggest_music') {
-            toolCallsData.push({
-              type: 'music_suggestion',
-              mood: args.mood || 'calm',
-              customMessage: args.customMessage
-            });
-            console.log('Music suggestion triggered:', args);
-          }
-        } catch (e) {
-          console.error('Error processing tool call:', e);
-        }
-      }
-    }
-
-    // Log AI usage for analytics
-    const { error: logError } = await supabaseClient
-      .from('ai_usage')
-      .insert({
-        user_id: user.id,
-        feature: 'mindmate',
-        tokens_used: tokensUsed,
-      });
-
-    if (logError) {
-      console.error('Error logging AI usage:', logError);
-    }
-
-    console.log('MindMate response generated successfully, tokens used:', tokensUsed);
-
-    return new Response(JSON.stringify({ 
-      reply,
-      tokensUsed,
-      toolCalls: toolCallsData.length > 0 ? toolCallsData : undefined
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(response.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
     });
 
   } catch (error) {
