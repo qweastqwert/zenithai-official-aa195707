@@ -263,7 +263,7 @@ IMPORTANT:
         'X-Title': 'Zenith AI - MindMate',
       },
       body: JSON.stringify({
-        model: 'xiaomi/mimo-v2-flash:free',
+        model: 'qwen/qwen3-next-80b-a3b-instruct:free',
         messages: enhancedMessages,
         max_tokens: maxTokens,
         temperature,
