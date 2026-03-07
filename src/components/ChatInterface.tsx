@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { MessageCircle, Settings as SettingsIcon, Wind, Heart, Brain, Flower2, ArrowLeft, BookOpen, Trophy, Users } from 'lucide-react';
+import { MessageCircle, Settings as SettingsIcon, Wind, Heart, Brain, Flower2, ArrowLeft, BookOpen, Trophy, Users, Sparkles, PenLine, HeartPulse, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -517,7 +517,7 @@ const ChatInterface = () => {
                   shouldTrigger={shouldTrigger}
                 />
                 
-                <div className="px-4 py-3 space-y-4">
+                <div className="px-3 py-2 space-y-3">
                 {/* Events Menu */}
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
@@ -525,125 +525,146 @@ const ChatInterface = () => {
 
                 {/* Achievements Quick Card */}
                 <motion.div
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => handleNavigation('achievements')}
-                  className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
+                  className="rounded-2xl p-2.5 flex items-center gap-3 shadow-md cursor-pointer"
+                  style={{ background: 'linear-gradient(135deg, hsl(35 90% 55% / 0.15), hsl(25 85% 50% / 0.08))' }}
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shrink-0">
-                    <Trophy className="h-5 w-5 text-white" />
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
+                    style={{ background: 'linear-gradient(135deg, hsl(35 90% 55%), hsl(25 85% 48%))' }}>
+                    <Trophy className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm text-foreground">Achievements</h3>
-                    <p className="text-xs text-muted-foreground">Track your wellness journey</p>
+                    <h3 className="font-bold text-xs text-foreground">Achievements</h3>
+                    <p className="text-[10px] text-muted-foreground">Track your wellness journey</p>
                   </div>
-                  <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">New</Badge>
+                  <Badge className="bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full">New</Badge>
                 </motion.div>
 
-                {/* Main Features Grid - Better spacing */}
-                <div className="grid grid-cols-3 gap-3">
+                {/* Main Features Grid - Compact for small Android screens */}
+                <div className="grid grid-cols-3 gap-2.5">
                   <motion.div
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.03 }}
                     onClick={() => handleNavigation('mindmate')}
-                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                    className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
+                    style={{ background: 'linear-gradient(145deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05))' }}
                   >
-                    <div 
-                      className="w-11 h-11 rounded-full flex items-center justify-center mb-2"
-                      style={{ background: `linear-gradient(135deg, var(--zenith-primary), var(--zenith-secondary))` }}
-                    >
-                      <Brain className="h-5 w-5 text-white" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(270 70% 55%), hsl(280 80% 45%))' }}>
+                      <Sparkles className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-foreground">MindMate</span>
-                    <span className="text-[10px] text-muted-foreground">AI therapist</span>
+                    <span className="text-[11px] font-bold text-foreground leading-tight">MindMate</span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">AI therapist</span>
                   </motion.div>
 
                   <motion.div
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.03 }}
                     onClick={() => handleNavigation('characters')}
-                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                    className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
+                    style={{ background: 'linear-gradient(145deg, hsl(220 80% 60% / 0.15), hsl(220 80% 60% / 0.05))' }}
                   >
-                    <div className="w-11 h-11 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-2">
-                      <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(220 80% 55%), hsl(240 70% 50%))' }}>
+                      <MessageCircle className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-foreground">Characters</span>
-                    <span className="text-[10px] text-muted-foreground">AI friends</span>
+                    <span className="text-[11px] font-bold text-foreground leading-tight">Characters</span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">AI friends</span>
                   </motion.div>
 
                   <motion.div
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.03 }}
                     onClick={() => handleNavigation('journal')}
-                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                    className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
+                    style={{ background: 'linear-gradient(145deg, hsl(35 90% 55% / 0.15), hsl(35 90% 55% / 0.05))' }}
                   >
-                    <div className="w-11 h-11 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-2">
-                      <BookOpen className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(35 90% 55%), hsl(25 85% 50%))' }}>
+                      <PenLine className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-foreground">Journal</span>
-                    <span className="text-[10px] text-muted-foreground">Daily notes</span>
+                    <span className="text-[11px] font-bold text-foreground leading-tight">Journal</span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">Daily notes</span>
                   </motion.div>
 
                   <motion.div
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.03 }}
                     onClick={() => handleNavigation('meditation')}
-                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                    className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
+                    style={{ background: 'linear-gradient(145deg, hsl(280 70% 60% / 0.15), hsl(280 70% 60% / 0.05))' }}
                   >
-                    <div className="w-11 h-11 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-2">
-                      <Flower2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(280 70% 60%), hsl(300 60% 50%))' }}>
+                      <Flower2 className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-foreground">Meditate</span>
-                    <span className="text-[10px] text-muted-foreground">Find peace</span>
+                    <span className="text-[11px] font-bold text-foreground leading-tight">Meditate</span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">Find peace</span>
                   </motion.div>
 
                   <motion.div
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.03 }}
                     onClick={() => handleNavigation('mood')}
-                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                    className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
+                    style={{ background: 'linear-gradient(145deg, hsl(340 75% 55% / 0.15), hsl(340 75% 55% / 0.05))' }}
                   >
-                    <div className="w-11 h-11 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-2">
-                      <Heart className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(340 75% 55%), hsl(350 80% 48%))' }}>
+                      <HeartPulse className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-foreground">Mood</span>
-                    <span className="text-[10px] text-muted-foreground">Track feelings</span>
+                    <span className="text-[11px] font-bold text-foreground leading-tight">Mood</span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">Track feelings</span>
                   </motion.div>
 
                   <motion.div
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.93 }}
+                    whileHover={{ scale: 1.03 }}
                     onClick={() => handleNavigation('breathing')}
-                    className="bg-card rounded-xl p-3 flex flex-col items-center shadow-sm cursor-pointer"
+                    className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
+                    style={{ background: 'linear-gradient(145deg, hsl(185 70% 45% / 0.15), hsl(185 70% 45% / 0.05))' }}
                   >
-                    <div className="w-11 h-11 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center mb-2">
-                      <Wind className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1.5 shadow-lg"
+                      style={{ background: 'linear-gradient(135deg, hsl(185 70% 45%), hsl(195 75% 40%))' }}>
+                      <Wind className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-foreground">Breathing</span>
-                    <span className="text-[10px] text-muted-foreground">Relax & focus</span>
+                    <span className="text-[11px] font-bold text-foreground leading-tight">Breathing</span>
+                    <span className="text-[9px] text-muted-foreground leading-tight">Relax & focus</span>
                   </motion.div>
                 </div>
 
                 {/* Secondary features - compact list */}
                 <div className="space-y-2">
                   <motion.div
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => handleNavigation('sleep')}
-                    className="bg-card rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
+                    className="rounded-2xl p-2.5 flex items-center gap-3 shadow-md cursor-pointer"
+                    style={{ background: 'linear-gradient(135deg, hsl(230 60% 55% / 0.12), hsl(250 50% 50% / 0.06))' }}
                   >
-                    <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                      <span className="text-base">🌙</span>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
+                      style={{ background: 'linear-gradient(135deg, hsl(230 60% 55%), hsl(250 50% 45%))' }}>
+                      <Moon className="h-4 w-4 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <span className="text-sm font-medium text-foreground">Sleep Tracker</span>
-                      <p className="text-xs text-muted-foreground">Track sleep patterns</p>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-foreground">Sleep Tracker</span>
+                      <p className="text-[10px] text-muted-foreground">Track sleep patterns</p>
                     </div>
                   </motion.div>
 
                   <motion.div
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => handleNavigation('community')}
-                    className="bg-card rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
+                    className="rounded-2xl p-2.5 flex items-center gap-3 shadow-md cursor-pointer"
+                    style={{ background: 'linear-gradient(135deg, hsl(160 60% 45% / 0.12), hsl(170 55% 40% / 0.06))' }}
                   >
-                    <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                      <span className="text-base">💬</span>
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
+                      style={{ background: 'linear-gradient(135deg, hsl(160 60% 45%), hsl(170 55% 38%))' }}>
+                      <Users className="h-4 w-4 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <span className="text-sm font-medium text-foreground">Community</span>
-                      <p className="text-xs text-muted-foreground">Share & get advice</p>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-foreground">Community</span>
+                      <p className="text-[10px] text-muted-foreground">Share & get advice</p>
                     </div>
                   </motion.div>
                 </div>
