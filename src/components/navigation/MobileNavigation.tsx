@@ -34,17 +34,17 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md shadow-lg z-50 border-t border-border/50">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md shadow-lg z-50 border-t border-border/30">
       <div 
-        className="flex justify-around items-center py-1.5 px-1"
-        style={{ paddingBottom: 'max(6px, env(safe-area-inset-bottom))' }}
+        className="flex justify-around items-center py-1 px-0.5"
+        style={{ paddingBottom: 'max(4px, env(safe-area-inset-bottom))' }}
       >
         {navigationItems.map((item) => (
           <Button
             key={item.id}
             variant="ghost"
             size="sm"
-            className={`flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 min-w-0 flex-1 rounded-lg ${
+            className={`flex flex-col items-center gap-0 h-auto py-1 px-1.5 min-w-0 flex-1 rounded-xl ${
               currentView === item.id 
                 ? 'text-primary bg-primary/10' 
                 : 'text-muted-foreground'
@@ -52,26 +52,26 @@ const MobileNavigation: React.FC<MobileNavigationProps> = ({
             onClick={() => onNavigate(item.id)}
           >
             <item.icon className="h-4 w-4" />
-            <span className="text-[10px] font-medium">{item.label}</span>
+            <span className="text-[9px] font-medium leading-tight mt-0.5">{item.label}</span>
           </Button>
         ))}
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 text-muted-foreground min-w-0 flex-1 rounded-lg"
+          className="flex flex-col items-center gap-0 h-auto py-1 px-1.5 text-muted-foreground min-w-0 flex-1 rounded-xl"
           onClick={onAchievements}
         >
           <Trophy className="h-4 w-4" />
-          <span className="text-[10px] font-medium">Rewards</span>
+          <span className="text-[9px] font-medium leading-tight mt-0.5">Rewards</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center gap-0.5 h-auto py-1.5 px-2 text-muted-foreground min-w-0 flex-1 rounded-lg"
+          className="flex flex-col items-center gap-0 h-auto py-1 px-1.5 text-muted-foreground min-w-0 flex-1 rounded-xl"
           onClick={onSettings}
         >
           <Settings className="h-4 w-4" />
-          <span className="text-[10px] font-medium">Settings</span>
+          <span className="text-[9px] font-medium leading-tight mt-0.5">Settings</span>
         </Button>
       </div>
     </div>
