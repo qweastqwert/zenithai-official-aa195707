@@ -517,7 +517,7 @@ const ChatInterface = () => {
                   shouldTrigger={shouldTrigger}
                 />
                 
-                <div className="px-4 py-3 space-y-4">
+                <div className="px-3 py-2 space-y-3">
                 {/* Events Menu */}
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
@@ -525,18 +525,20 @@ const ChatInterface = () => {
 
                 {/* Achievements Quick Card */}
                 <motion.div
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => handleNavigation('achievements')}
-                  className="bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl p-3 flex items-center gap-3 shadow-sm cursor-pointer"
+                  className="rounded-2xl p-2.5 flex items-center gap-3 shadow-md cursor-pointer"
+                  style={{ background: 'linear-gradient(135deg, hsl(35 90% 55% / 0.15), hsl(25 85% 50% / 0.08))' }}
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shrink-0">
-                    <Trophy className="h-5 w-5 text-white" />
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
+                    style={{ background: 'linear-gradient(135deg, hsl(35 90% 55%), hsl(25 85% 48%))' }}>
+                    <Trophy className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm text-foreground">Achievements</h3>
-                    <p className="text-xs text-muted-foreground">Track your wellness journey</p>
+                    <h3 className="font-bold text-xs text-foreground">Achievements</h3>
+                    <p className="text-[10px] text-muted-foreground">Track your wellness journey</p>
                   </div>
-                  <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">New</Badge>
+                  <Badge className="bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full">New</Badge>
                 </motion.div>
 
                 {/* Main Features Grid - Compact for small Android screens */}
