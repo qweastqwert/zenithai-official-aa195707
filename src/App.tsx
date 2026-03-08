@@ -73,14 +73,13 @@ const AppContent = () => {
     };
   }, [isAuthenticated]);
 
-  // Check for newly unlocked achievements
+  // Check for newly unlocked achievements - only once on mount
   useEffect(() => {
     if (isAuthenticated) {
-      const checkForNewAchievements = () => {
+      const timer = setTimeout(() => {
         const newlyUnlocked = getNewlyUnlocked();
         const shownAchievements: string[] = JSON.parse(localStorage.getItem('zenith-shown-achievements') || '[]');
         
-        // Find the most recent achievement that hasn't been shown
         const achievementToShow = newlyUnlocked.find(achievement => 
           !shownAchievements.includes(achievement.id)
         );
@@ -90,14 +89,12 @@ const AppContent = () => {
           shownAchievements.push(achievementToShow.id);
           localStorage.setItem('zenith-shown-achievements', JSON.stringify(shownAchievements));
         }
-      };
-
-      // Check once on load, then stop polling aggressively
-      const timeout = setTimeout(checkForNewAchievements, 2000);
+      }, 3000);
       
-      return () => clearTimeout(timeout);
+      return () => clearTimeout(timer);
     }
-  }, [getNewlyUnlocked, isAuthenticated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
 
   // Handle intro completion
   const handleIntroComplete = () => {
