@@ -1,16 +1,17 @@
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 interface JournalHistoryViewProps {
-  journalHook: any; // Hook from either useJournal or useJournalSupabase
+  journalHook: any;
+  isMobile?: boolean;
 }
 
-const JournalHistoryView: React.FC<JournalHistoryViewProps> = ({ journalHook }) => {
+const JournalHistoryView: React.FC<JournalHistoryViewProps> = ({ journalHook, isMobile }) => {
   const { entries, deleteEntry } = journalHook;
   const { toast } = useToast();
 
@@ -22,7 +23,7 @@ const JournalHistoryView: React.FC<JournalHistoryViewProps> = ({ journalHook }) 
     });
   };
 
-  const moodEmojis = {
+  const moodEmojis: { [key: string]: string } = {
     'amazing': '🤩',
     'great': '😊',
     'good': '🙂',
@@ -38,55 +39,74 @@ const JournalHistoryView: React.FC<JournalHistoryViewProps> = ({ journalHook }) 
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
-      className="p-6 max-h-[calc(90vh-120px)] overflow-y-auto"
+      className={cn(
+        "space-y-4 overflow-y-auto",
+        isMobile ? "p-4 h-full pb-8" : "p-6 max-h-[calc(90vh-120px)]"
+      )}
     >
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-semibold">Your Journal History</h3>
-        <span className="text-sm text-gray-500">{entries.length} entries</span>
+      <div className="text-center mb-4">
+        <h3 className={cn("font-semibold", isMobile ? "text-lg" : "text-xl")}>
+          Journal History
+        </h3>
+        <p className="text-muted-foreground text-sm">
+          {entries.length} {entries.length === 1 ? 'entry' : 'entries'} recorded
+        </p>
       </div>
 
       {entries.length === 0 ? (
-        <div className="text-center py-12">
-          <Calendar className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-          <p className="text-gray-500">No journal entries yet. Start writing to see your history!</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-12"
+        >
+          <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <p className="text-muted-foreground">
+            No journal entries yet. Start writing to see your history here!
+          </p>
+        </motion.div>
       ) : (
-        <div className="space-y-4">
-          {entries.map((entry, index) => (
+        <div className="space-y-3">
+          {entries.map((entry: any, index: number) => (
             <motion.div
               key={entry.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              transition={{ delay: index * 0.05 }}
             >
-              <Card className="border-l-4" style={{ borderLeftColor: 'var(--zenith-primary)' }}>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className="font-medium">
-                        {new Date(entry.date).toLocaleDateString('en-US', { 
-                          weekday: 'long', 
-                          year: 'numeric', 
-                          month: 'long', 
-                          day: 'numeric' 
-                        })}
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        Mood: {moodEmojis[entry.mood as keyof typeof moodEmojis]} {entry.mood.replace('-', ' ')}
+              <Card className="overflow-hidden border-l-4 border-l-primary">
+                <CardContent className="p-0">
+                  <div className={cn(
+                    "flex items-start gap-3",
+                    isMobile ? "p-3" : "p-4"
+                  )}>
+                    <div className="text-2xl flex-shrink-0">{moodEmojis[entry.mood] || '📝'}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(entry.date).toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive flex-shrink-0"
+                          onClick={() => handleDeleteEntry(entry.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                      <p className={cn(
+                        "text-foreground whitespace-pre-wrap",
+                        isMobile ? "text-sm line-clamp-4" : "text-sm"
+                      )}>
+                        {entry.content}
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteEntry(entry.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                    {entry.content}
-                  </p>
                 </CardContent>
               </Card>
             </motion.div>
