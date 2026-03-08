@@ -101,8 +101,19 @@ export const useUICustomization = () => {
       'no-shadows', 'no-animations', 'glass-effect', 'luxury-mode',
       'bg-dots', 'bg-grid', 'bg-waves', 'bg-gradient',
       'bg-royal-velvet', 'bg-royal-marble', 'bg-royal-silk', 'bg-royal-gold', 'bg-royal-diamond',
-      'high-contrast', 'reduce-motion', 'focus-indicators'
+      'high-contrast', 'reduce-motion', 'focus-indicators',
+      'ui-scale-compact', 'ui-scale-default', 'ui-scale-comfortable', 'ui-scale-large'
     );
+    
+    // UI Scale
+    root.classList.add(`ui-scale-${settings.uiScale}`);
+    const scaleMap: Record<string, string> = {
+      compact: '0.88',
+      default: '1',
+      comfortable: '1.08',
+      large: '1.16'
+    };
+    root.style.setProperty('--ui-scale', scaleMap[settings.uiScale] || '1');
     
     // Typography
     root.classList.add(`text-${settings.fontSize}`);
