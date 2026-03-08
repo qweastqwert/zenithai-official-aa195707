@@ -91,7 +91,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
               {mood.emoji}
             </motion.span>
             <span className={`font-medium ${compact ? 'text-[10px] leading-tight' : 'text-xs md:text-sm'}`}>
-              {compact ? mood.label.slice(0, 7) : mood.label}
+              {mood.label}
             </span>
           </Button>
         </motion.div>
