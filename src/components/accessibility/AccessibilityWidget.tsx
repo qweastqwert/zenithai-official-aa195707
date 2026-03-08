@@ -62,9 +62,13 @@ const AccessibilityWidget = () => {
   useEffect(() => {
     const root = document.documentElement;
     
-    // Font size
+    // Font size - use CSS zoom for reliable scaling of all text including px-based
     root.style.setProperty('--a11y-font-scale', `${state.fontSize / 100}`);
-    root.style.fontSize = `${state.fontSize}%`;
+    if (state.fontSize !== 100) {
+      document.body.style.zoom = `${state.fontSize}%`;
+    } else {
+      document.body.style.zoom = '';
+    }
 
     // High contrast
     root.classList.toggle('a11y-high-contrast', state.highContrast);
