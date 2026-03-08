@@ -1,6 +1,7 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getCookie, setCookie } from '@/utils/cookieUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 export interface ActivityData {
   lastMindMateUse: string | null;
@@ -18,36 +19,117 @@ export interface ActivityData {
   featuresUnlocked: string[];
 }
 
-export const useActivityTracker = () => {
-  const [activities, setActivities] = useState<ActivityData>({
-    lastMindMateUse: null,
-    lastJournalUse: null,
-    lastMoodTrack: null,
-    lastMeditationUse: null,
-    lastBreathingUse: null,
-    lastSleepUse: null,
-    mindMateStreak: 0,
-    journalStreak: 0,
-    moodStreak: 0,
-    meditationStreak: 0,
-    sleepStreak: 0,
-    totalDaysUsed: 0,
-    featuresUnlocked: []
-  });
+const defaultActivities: ActivityData = {
+  lastMindMateUse: null,
+  lastJournalUse: null,
+  lastMoodTrack: null,
+  lastMeditationUse: null,
+  lastBreathingUse: null,
+  lastSleepUse: null,
+  mindMateStreak: 0,
+  journalStreak: 0,
+  moodStreak: 0,
+  meditationStreak: 0,
+  sleepStreak: 0,
+  totalDaysUsed: 0,
+  featuresUnlocked: []
+};
 
+export const useActivityTracker = () => {
+  const { user } = useAuth();
+  const [activities, setActivities] = useState<ActivityData>(defaultActivities);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load activity data from Supabase or cookies
   useEffect(() => {
-    // Load activity data from cookies
-    const savedData = getCookie('zenith-activity-data');
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        setActivities(parsed);
-        console.log('📊 Loaded activity data:', parsed);
-      } catch (error) {
-        console.log('Error parsing activity data:', error);
+    const loadActivityData = async () => {
+      if (user) {
+        // Try to load from Supabase first
+        const { data, error } = await supabase
+          .from('user_activity_data')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (data && !error) {
+          const loadedData: ActivityData = {
+            lastMindMateUse: data.last_mindmate_use,
+            lastJournalUse: data.last_journal_use,
+            lastMoodTrack: data.last_mood_track,
+            lastMeditationUse: data.last_meditation_use,
+            lastBreathingUse: data.last_breathing_use,
+            lastSleepUse: data.last_sleep_use,
+            mindMateStreak: data.mindmate_streak,
+            journalStreak: data.journal_streak,
+            moodStreak: data.mood_streak,
+            meditationStreak: data.meditation_streak,
+            sleepStreak: data.sleep_streak,
+            totalDaysUsed: data.total_days_used,
+            featuresUnlocked: data.features_unlocked || []
+          };
+          setActivities(loadedData);
+          console.log('📊 Loaded activity data from cloud:', loadedData);
+        } else {
+          // Fallback to cookie data and sync to cloud
+          const savedData = getCookie('zenith-activity-data');
+          if (savedData) {
+            try {
+              const parsed = JSON.parse(savedData);
+              setActivities(parsed);
+              // Sync cookie data to cloud
+              await syncToCloud(parsed, user.id);
+              console.log('📊 Migrated activity data from cookies to cloud');
+            } catch (error) {
+              console.log('Error parsing activity data:', error);
+            }
+          }
+        }
+      } else {
+        // Not logged in - use cookies
+        const savedData = getCookie('zenith-activity-data');
+        if (savedData) {
+          try {
+            const parsed = JSON.parse(savedData);
+            setActivities(parsed);
+            console.log('📊 Loaded activity data from cookies:', parsed);
+          } catch (error) {
+            console.log('Error parsing activity data:', error);
+          }
+        }
       }
+      setIsLoaded(true);
+    };
+
+    loadActivityData();
+  }, [user]);
+
+  // Sync to Supabase
+  const syncToCloud = async (data: ActivityData, userId: string) => {
+    const { error } = await supabase
+      .from('user_activity_data')
+      .upsert({
+        user_id: userId,
+        last_mindmate_use: data.lastMindMateUse,
+        last_journal_use: data.lastJournalUse,
+        last_mood_track: data.lastMoodTrack,
+        last_meditation_use: data.lastMeditationUse,
+        last_breathing_use: data.lastBreathingUse,
+        last_sleep_use: data.lastSleepUse,
+        mindmate_streak: data.mindMateStreak,
+        journal_streak: data.journalStreak,
+        mood_streak: data.moodStreak,
+        meditation_streak: data.meditationStreak,
+        sleep_streak: data.sleepStreak,
+        total_days_used: data.totalDaysUsed,
+        features_unlocked: data.featuresUnlocked
+      }, { onConflict: 'user_id' });
+
+    if (error) {
+      console.error('Error syncing activity data to cloud:', error);
+    } else {
+      console.log('☁️ Activity data synced to cloud');
     }
-  }, []);
+  };
 
   // Listen for activity tracking events
   useEffect(() => {
@@ -62,13 +144,21 @@ export const useActivityTracker = () => {
     return () => {
       window.removeEventListener('track-activity', handleActivityTracking as EventListener);
     };
-  }, [activities]);
+  }, [activities, user]);
 
-  const saveActivities = (newActivities: ActivityData) => {
+  const saveActivities = useCallback(async (newActivities: ActivityData) => {
     setActivities(newActivities);
+    
+    // Always save to cookies as backup
     setCookie('zenith-activity-data', JSON.stringify(newActivities), 365);
+    
+    // If user is logged in, sync to cloud
+    if (user) {
+      await syncToCloud(newActivities, user.id);
+    }
+    
     console.log('💾 Saved activity data:', newActivities);
-  };
+  }, [user]);
 
   const isConsecutiveDay = (lastDate: string | null): boolean => {
     if (!lastDate) return false;
@@ -77,7 +167,7 @@ export const useActivityTracker = () => {
     return lastDate === yesterday.toDateString();
   };
 
-  const trackActivity = (activityType: 'mindmate' | 'journal' | 'mood' | 'meditation' | 'breathing' | 'sleep' | 'community') => {
+  const trackActivity = useCallback((activityType: 'mindmate' | 'journal' | 'mood' | 'meditation' | 'breathing' | 'sleep' | 'community') => {
     const today = new Date().toDateString();
     const newActivities = { ...activities };
 
@@ -171,9 +261,9 @@ export const useActivityTracker = () => {
     }
 
     saveActivities(newActivities);
-  };
+  }, [activities, saveActivities]);
 
-  const getStats = () => {
+  const getStats = useCallback(() => {
     return {
       mindMateUsage: activities.mindMateStreak,
       journalUsage: activities.journalStreak,
@@ -189,11 +279,20 @@ export const useActivityTracker = () => {
         sleep: activities.sleepStreak
       }
     };
-  };
+  }, [activities]);
+
+  // Manual sync function for pull-to-refresh
+  const syncData = useCallback(async () => {
+    if (user) {
+      await syncToCloud(activities, user.id);
+    }
+  }, [user, activities]);
 
   return {
     activities,
     trackActivity,
-    getStats
+    getStats,
+    syncData,
+    isLoaded
   };
 };

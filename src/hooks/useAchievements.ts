@@ -1,6 +1,7 @@
-
-import { useMemo } from 'react';
+import { useMemo, useEffect, useCallback, useState } from 'react';
 import { useActivityTracker } from './useActivityTracker';
+import { useAuth } from './useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface Achievement {
   id: string;
@@ -15,16 +16,45 @@ export interface Achievement {
   reward?: string;
   isEasterEgg?: boolean;
   hidden?: boolean;
+  unlockedAt?: string;
+}
+
+interface CloudAchievement {
+  achievement_id: string;
+  unlocked_at: string;
+  progress: number;
 }
 
 export const useAchievements = () => {
   const { activities } = useActivityTracker();
+  const { user } = useAuth();
+  const [cloudAchievements, setCloudAchievements] = useState<CloudAchievement[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load achievements from cloud
+  useEffect(() => {
+    const loadCloudAchievements = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_achievements')
+          .select('achievement_id, unlocked_at, progress')
+          .eq('user_id', user.id);
+
+        if (data && !error) {
+          setCloudAchievements(data);
+          console.log('🏆 Loaded achievements from cloud:', data.length);
+        }
+      }
+      setIsLoaded(true);
+    };
+
+    loadCloudAchievements();
+  }, [user]);
 
   // Check for easter egg conditions
   const checkTimeBasedEasterEgg = () => {
     const now = new Date();
     const hours = now.getHours();
-    const minutes = now.getMinutes();
     // Night Owl: Using app between 2-4 AM
     return (hours >= 2 && hours < 4) && activities.totalDaysUsed > 0;
   };
@@ -43,6 +73,11 @@ export const useAchievements = () => {
     return activities.mindMateStreak >= 2 && activities.journalStreak >= 2;
   };
 
+  // Helper to check if achievement was already synced to cloud
+  const isCloudUnlocked = useCallback((achievementId: string) => {
+    return cloudAchievements.some(a => a.achievement_id === achievementId);
+  }, [cloudAchievements]);
+
   const achievements = useMemo<Achievement[]>(() => [
     // Streak Achievements
     {
@@ -52,7 +87,7 @@ export const useAchievements = () => {
       icon: '🧠',
       category: 'streak',
       rarity: 'common',
-      isUnlocked: activities.mindMateStreak >= 3,
+      isUnlocked: activities.mindMateStreak >= 3 || isCloudUnlocked('mindmate-3day'),
       progress: Math.min(activities.mindMateStreak, 3),
       maxProgress: 3,
       reward: 'Unlock premium conversation topics'
@@ -64,7 +99,7 @@ export const useAchievements = () => {
       icon: '🌟',
       category: 'streak',
       rarity: 'rare',
-      isUnlocked: activities.mindMateStreak >= 7,
+      isUnlocked: activities.mindMateStreak >= 7 || isCloudUnlocked('mindmate-7day'),
       progress: Math.min(activities.mindMateStreak, 7),
       maxProgress: 7,
       reward: 'Advanced AI insights enabled'
@@ -76,7 +111,7 @@ export const useAchievements = () => {
       icon: '👑',
       category: 'streak',
       rarity: 'legendary',
-      isUnlocked: activities.mindMateStreak >= 30,
+      isUnlocked: activities.mindMateStreak >= 30 || isCloudUnlocked('mindmate-30day'),
       progress: Math.min(activities.mindMateStreak, 30),
       maxProgress: 30,
       reward: 'Legendary status & exclusive features'
@@ -88,7 +123,7 @@ export const useAchievements = () => {
       icon: '✍️',
       category: 'streak',
       rarity: 'common',
-      isUnlocked: activities.journalStreak >= 5,
+      isUnlocked: activities.journalStreak >= 5 || isCloudUnlocked('journal-5day'),
       progress: Math.min(activities.journalStreak, 5),
       maxProgress: 5,
       reward: 'Journal prompts unlocked'
@@ -100,7 +135,7 @@ export const useAchievements = () => {
       icon: '📖',
       category: 'streak',
       rarity: 'epic',
-      isUnlocked: activities.journalStreak >= 14,
+      isUnlocked: activities.journalStreak >= 14 || isCloudUnlocked('journal-14day'),
       progress: Math.min(activities.journalStreak, 14),
       maxProgress: 14,
       reward: 'Advanced journaling templates'
@@ -112,7 +147,7 @@ export const useAchievements = () => {
       icon: '💝',
       category: 'streak',
       rarity: 'rare',
-      isUnlocked: activities.moodStreak >= 7,
+      isUnlocked: activities.moodStreak >= 7 || isCloudUnlocked('mood-7day'),
       progress: Math.min(activities.moodStreak, 7),
       maxProgress: 7,
       reward: 'Detailed mood analytics'
@@ -124,7 +159,7 @@ export const useAchievements = () => {
       icon: '🎭',
       category: 'streak',
       rarity: 'epic',
-      isUnlocked: activities.moodStreak >= 21,
+      isUnlocked: activities.moodStreak >= 21 || isCloudUnlocked('mood-21day'),
       progress: Math.min(activities.moodStreak, 21),
       maxProgress: 21,
       reward: 'Emotion pattern insights'
@@ -136,7 +171,7 @@ export const useAchievements = () => {
       icon: '🧘',
       category: 'wellness',
       rarity: 'common',
-      isUnlocked: activities.meditationStreak >= 3,
+      isUnlocked: activities.meditationStreak >= 3 || isCloudUnlocked('meditation-3day'),
       progress: Math.min(activities.meditationStreak, 3),
       maxProgress: 3,
       reward: 'Extended meditation sessions'
@@ -148,7 +183,7 @@ export const useAchievements = () => {
       icon: '☯️',
       category: 'wellness',
       rarity: 'rare',
-      isUnlocked: activities.meditationStreak >= 10,
+      isUnlocked: activities.meditationStreak >= 10 || isCloudUnlocked('meditation-10day'),
       progress: Math.min(activities.meditationStreak, 10),
       maxProgress: 10,
       reward: 'Advanced meditation techniques'
@@ -162,7 +197,7 @@ export const useAchievements = () => {
       icon: '🎉',
       category: 'milestone',
       rarity: 'common',
-      isUnlocked: activities.totalDaysUsed >= 7,
+      isUnlocked: activities.totalDaysUsed >= 7 || isCloudUnlocked('first-week'),
       progress: Math.min(activities.totalDaysUsed, 7),
       maxProgress: 7,
       reward: 'Special welcome badge'
@@ -174,7 +209,7 @@ export const useAchievements = () => {
       icon: '🏆',
       category: 'milestone',
       rarity: 'epic',
-      isUnlocked: activities.totalDaysUsed >= 30,
+      isUnlocked: activities.totalDaysUsed >= 30 || isCloudUnlocked('month-warrior'),
       progress: Math.min(activities.totalDaysUsed, 30),
       maxProgress: 30,
       reward: 'Champion status & exclusive features'
@@ -186,7 +221,7 @@ export const useAchievements = () => {
       icon: '💯',
       category: 'milestone',
       rarity: 'legendary',
-      isUnlocked: activities.totalDaysUsed >= 100,
+      isUnlocked: activities.totalDaysUsed >= 100 || isCloudUnlocked('hundred-days'),
       progress: Math.min(activities.totalDaysUsed, 100),
       maxProgress: 100,
       reward: 'Legendary centurion badge'
@@ -200,7 +235,7 @@ export const useAchievements = () => {
       icon: '🗺️',
       category: 'exploration',
       rarity: 'common',
-      isUnlocked: activities.featuresUnlocked.length >= 3,
+      isUnlocked: activities.featuresUnlocked.length >= 3 || isCloudUnlocked('feature-explorer'),
       progress: Math.min(activities.featuresUnlocked.length, 3),
       maxProgress: 3,
       reward: 'Explorer badge'
@@ -212,7 +247,7 @@ export const useAchievements = () => {
       icon: '🌟',
       category: 'exploration',
       rarity: 'legendary',
-      isUnlocked: activities.featuresUnlocked.length >= 5,
+      isUnlocked: activities.featuresUnlocked.length >= 5 || isCloudUnlocked('wellness-master'),
       progress: Math.min(activities.featuresUnlocked.length, 5),
       maxProgress: 5,
       reward: 'Master status & all premium features'
@@ -226,7 +261,7 @@ export const useAchievements = () => {
       icon: '💚',
       category: 'wellness',
       rarity: 'rare',
-      isUnlocked: activities.lastMindMateUse === activities.lastJournalUse && activities.lastMindMateUse !== null,
+      isUnlocked: (activities.lastMindMateUse === activities.lastJournalUse && activities.lastMindMateUse !== null) || isCloudUnlocked('self-care-advocate'),
       progress: (activities.lastMindMateUse === activities.lastJournalUse && activities.lastMindMateUse !== null) ? 1 : 0,
       maxProgress: 1,
       reward: 'Wellness combo bonus'
@@ -238,7 +273,7 @@ export const useAchievements = () => {
       icon: '🌸',
       category: 'wellness',
       rarity: 'epic',
-      isUnlocked: activities.lastMeditationUse === activities.lastMoodTrack && activities.lastMeditationUse !== null,
+      isUnlocked: (activities.lastMeditationUse === activities.lastMoodTrack && activities.lastMeditationUse !== null) || isCloudUnlocked('mindfulness-guru'),
       progress: (activities.lastMeditationUse === activities.lastMoodTrack && activities.lastMeditationUse !== null) ? 1 : 0,
       maxProgress: 1,
       reward: 'Guru status & advanced techniques'
@@ -250,7 +285,7 @@ export const useAchievements = () => {
       icon: '✨',
       category: 'wellness',
       rarity: 'legendary',
-      isUnlocked: checkSequentialEasterEgg(),
+      isUnlocked: checkSequentialEasterEgg() || isCloudUnlocked('wellness-perfectionist'),
       progress: checkSequentialEasterEgg() ? 1 : 0,
       maxProgress: 1,
       reward: 'Perfect day achievement & bonus features'
@@ -264,7 +299,7 @@ export const useAchievements = () => {
       icon: '⛰️',
       category: 'special',
       rarity: 'rare',
-      isUnlocked: Math.max(activities.mindMateStreak, activities.journalStreak, activities.moodStreak, activities.meditationStreak) >= 14,
+      isUnlocked: Math.max(activities.mindMateStreak, activities.journalStreak, activities.moodStreak, activities.meditationStreak) >= 14 || isCloudUnlocked('consistent-climber'),
       progress: Math.min(Math.max(activities.mindMateStreak, activities.journalStreak, activities.moodStreak, activities.meditationStreak), 14),
       maxProgress: 14,
       reward: 'Consistency master badge'
@@ -276,7 +311,7 @@ export const useAchievements = () => {
       icon: '🎨',
       category: 'special',
       rarity: 'epic',
-      isUnlocked: [activities.mindMateStreak, activities.journalStreak, activities.moodStreak, activities.meditationStreak].filter(streak => streak >= 5).length >= 3,
+      isUnlocked: [activities.mindMateStreak, activities.journalStreak, activities.moodStreak, activities.meditationStreak].filter(streak => streak >= 5).length >= 3 || isCloudUnlocked('renaissance-soul'),
       progress: [activities.mindMateStreak, activities.journalStreak, activities.moodStreak, activities.meditationStreak].filter(streak => streak >= 5).length,
       maxProgress: 3,
       reward: 'Renaissance achievement & creative bonuses'
@@ -290,12 +325,12 @@ export const useAchievements = () => {
       icon: '🦉',
       category: 'easter-egg',
       rarity: 'rare',
-      isUnlocked: checkTimeBasedEasterEgg(),
+      isUnlocked: checkTimeBasedEasterEgg() || isCloudUnlocked('night-owl'),
       progress: checkTimeBasedEasterEgg() ? 1 : 0,
       maxProgress: 1,
       reward: 'Night mode themes unlocked',
       isEasterEgg: true,
-      hidden: !checkTimeBasedEasterEgg()
+      hidden: !checkTimeBasedEasterEgg() && !isCloudUnlocked('night-owl')
     },
     {
       id: 'secret-keeper',
@@ -304,12 +339,12 @@ export const useAchievements = () => {
       icon: '🤫',
       category: 'easter-egg',
       rarity: 'epic',
-      isUnlocked: checkClickCountEasterEgg(),
+      isUnlocked: checkClickCountEasterEgg() || isCloudUnlocked('secret-keeper'),
       progress: checkClickCountEasterEgg() ? 1 : 0,
       maxProgress: 1,
       reward: 'Secret features unlocked',
       isEasterEgg: true,
-      hidden: !checkClickCountEasterEgg()
+      hidden: !checkClickCountEasterEgg() && !isCloudUnlocked('secret-keeper')
     },
     {
       id: 'time-traveler',
@@ -318,14 +353,47 @@ export const useAchievements = () => {
       icon: '🎂',
       category: 'easter-egg',
       rarity: 'legendary',
-      isUnlocked: new Date().getDate() === 1 && activities.totalDaysUsed > 0, // Simulated - triggers on 1st of any month
+      isUnlocked: (new Date().getDate() === 1 && activities.totalDaysUsed > 0) || isCloudUnlocked('time-traveler'),
       progress: (new Date().getDate() === 1 && activities.totalDaysUsed > 0) ? 1 : 0,
       maxProgress: 1,
       reward: 'Birthday surprise features',
       isEasterEgg: true,
-      hidden: !(new Date().getDate() === 1 && activities.totalDaysUsed > 0)
+      hidden: !(new Date().getDate() === 1 && activities.totalDaysUsed > 0) && !isCloudUnlocked('time-traveler')
     }
-  ], [activities]);
+  ], [activities, isCloudUnlocked]);
+
+  // Sync newly unlocked achievements to cloud
+  useEffect(() => {
+    const syncUnlockedAchievements = async () => {
+      if (!user || !isLoaded) return;
+
+      const newlyUnlocked = achievements.filter(
+        a => a.isUnlocked && !isCloudUnlocked(a.id)
+      );
+
+      for (const achievement of newlyUnlocked) {
+        const { error } = await supabase
+          .from('user_achievements')
+          .upsert({
+            user_id: user.id,
+            achievement_id: achievement.id,
+            progress: achievement.progress,
+            unlocked_at: new Date().toISOString()
+          }, { onConflict: 'user_id,achievement_id' });
+
+        if (!error) {
+          console.log(`🏆 Achievement synced to cloud: ${achievement.title}`);
+          // Update local state
+          setCloudAchievements(prev => [
+            ...prev,
+            { achievement_id: achievement.id, unlocked_at: new Date().toISOString(), progress: achievement.progress }
+          ]);
+        }
+      }
+    };
+
+    syncUnlockedAchievements();
+  }, [achievements, user, isLoaded, isCloudUnlocked]);
 
   const stats = useMemo(() => {
     const visibleAchievements = achievements.filter(a => !a.hidden);
@@ -352,14 +420,15 @@ export const useAchievements = () => {
   }, [achievements]);
 
   // Get newly unlocked achievements
-  const getNewlyUnlocked = () => {
+  const getNewlyUnlocked = useCallback(() => {
     return achievements.filter(a => a.isUnlocked && !a.hidden);
-  };
+  }, [achievements]);
 
   return {
     achievements: achievements.filter(a => !a.hidden),
     allAchievements: achievements,
     stats,
-    getNewlyUnlocked
+    getNewlyUnlocked,
+    isLoaded
   };
 };
