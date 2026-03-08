@@ -52,7 +52,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
       animate="visible"
       className={compact 
         ? "grid grid-cols-3 gap-2" 
-        : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
+        : "grid grid-cols-4 gap-3"
       }
     >
       {moods.map((mood) => (
