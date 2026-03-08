@@ -1,28 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Volume2, VolumeX } from 'lucide-react';
-import { useMusic } from '@/contexts/MusicContext';
+import { useMusicPlayer } from '@/contexts/MusicContext';
 
 const AudioSection = () => {
-  const { volume, setVolume, isMuted, setIsMuted } = useMusic();
-  const [localVolume, setLocalVolume] = useState([volume * 100]);
-
-  useEffect(() => {
-    setLocalVolume([volume * 100]);
-  }, [volume]);
+  const { volume, setVolume } = useMusicPlayer();
+  const [isMuted, setIsMuted] = useState(false);
+  const [savedVolume, setSavedVolume] = useState(volume);
+  
+  const displayVolume = isMuted ? 0 : volume;
 
   const handleVolumeChange = (values: number[]) => {
-    setLocalVolume(values);
-    setVolume(values[0] / 100);
-    if (values[0] > 0 && isMuted) {
+    const newVolume = values[0];
+    setVolume(newVolume);
+    if (newVolume > 0 && isMuted) {
       setIsMuted(false);
     }
   };
 
   const handleMuteToggle = (checked: boolean) => {
-    setIsMuted(!checked);
+    if (!checked) {
+      // Muting
+      setSavedVolume(volume);
+      setVolume(0);
+      setIsMuted(true);
+    } else {
+      // Unmuting
+      setVolume(savedVolume > 0 ? savedVolume : 50);
+      setIsMuted(false);
+    }
   };
 
   return (
@@ -35,7 +43,7 @@ const AudioSection = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isMuted ? (
+            {isMuted || volume === 0 ? (
               <VolumeX className="h-4 w-4 text-muted-foreground" />
             ) : (
               <Volume2 className="h-4 w-4 text-primary" />
@@ -44,11 +52,11 @@ const AudioSection = () => {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground w-8 text-right">
-              {Math.round(localVolume[0])}%
+              {Math.round(displayVolume)}%
             </span>
             <div className="w-28">
               <Slider
-                value={localVolume}
+                value={[displayVolume]}
                 onValueChange={handleVolumeChange}
                 max={100}
                 step={5}
@@ -65,7 +73,7 @@ const AudioSection = () => {
             <p className="text-xs text-muted-foreground">Play music and sound effects</p>
           </div>
           <Switch 
-            checked={!isMuted} 
+            checked={!isMuted && volume > 0} 
             onCheckedChange={handleMuteToggle} 
           />
         </div>
