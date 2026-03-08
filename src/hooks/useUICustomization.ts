@@ -7,6 +7,7 @@ export interface UICustomization {
   sidebarPosition: 'left' | 'right';
   headerStyle: 'floating' | 'fixed' | 'hidden';
   compactMode: boolean;
+  uiScale: 'compact' | 'default' | 'comfortable' | 'large';
   
   // Typography
   fontSize: 'xs' | 'sm' | 'base' | 'lg' | 'xl';
