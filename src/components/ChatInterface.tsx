@@ -80,6 +80,20 @@ const ChatInterface = () => {
   // Use mobile interface for mobile devices, desktop for tablets in landscape and desktop
   const useMobileInterface = isMobile && !isDesktop;
 
+  // Logo spin easter egg
+  const handleLogoClick = () => {
+    setLogoSpinning(true);
+    const newCount = logoClickCount + 1;
+    setLogoClickCount(newCount);
+    setTimeout(() => setLogoSpinning(false), 600);
+    if (newCount === 5) {
+      toast('🎉 You found a secret! You're awesome!', { duration: 3000 });
+      setLogoClickCount(0);
+    } else if (newCount === 3) {
+      toast('✨ Keep clicking...', { duration: 1500 });
+    }
+  };
+
   // Create the missing handleNavigateToMindMate function
   const handleNavigateToMindMate = (autoPrompt?: string) => {
     handleNavigation('mindmate', autoPrompt);
