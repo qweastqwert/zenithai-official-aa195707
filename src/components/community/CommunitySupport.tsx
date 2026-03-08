@@ -98,7 +98,7 @@ const CommunitySupport: React.FC = () => {
                       className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
                     >
                       <UserPlus className="h-4 w-4 mr-2 text-[#7950f2]" />
-                      Apply as Therapist
+                      Apply as Professional
                     </Button>
                   )}
                   {user && (
