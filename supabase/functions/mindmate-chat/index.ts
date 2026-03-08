@@ -229,7 +229,7 @@ IMPORTANT:
           'X-Title': 'Zenith AI - MindMate',
         },
         body: JSON.stringify({
-          model: 'qwen/qwen3-next-80b-a3b-instruct:free',
+          model: 'nvidia/nemotron-3-nano-30b-a3b:free',
           messages: enhancedMessages,
           max_tokens: maxTokens,
           temperature,
