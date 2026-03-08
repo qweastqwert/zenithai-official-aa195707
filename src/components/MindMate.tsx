@@ -1245,8 +1245,8 @@ Customize your therapeutic approach based on this information while maintaining 
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900">
       {/* Header */}
       <div className="p-4 flex items-center text-white" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-        <Link to="/" className="mr-4" title="Return to Royal Menu">
-          <Button variant="ghost" className="text-white hover:bg-black/20 p-2" aria-label="Return to Royal Menu">
+        <Link to="/chat" className="mr-4" title="Return to Dashboard">
+          <Button variant="ghost" className="text-white hover:bg-black/20 p-2" aria-label="Return to Dashboard">
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>

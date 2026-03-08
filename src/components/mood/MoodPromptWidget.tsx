@@ -114,7 +114,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
           stiffness: 300,
           mass: 0.8
         }}
-        className="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1.5rem)] max-w-sm max-h-[60vh] overflow-y-auto"
+        className="fixed bottom-[72px] left-1/2 -translate-x-1/2 z-40 w-[calc(100%-1.5rem)] max-w-[420px] max-h-[65vh] overflow-y-auto"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
       <Card className="bg-background/98 backdrop-blur-xl border border-border/50 shadow-xl rounded-xl overflow-hidden">
