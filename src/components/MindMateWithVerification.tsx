@@ -43,7 +43,7 @@ const MindMateWithVerification: React.FC<MindMateWithVerificationProps> = ({ pro
     );
   }
 
-  return <MindMate profile={profile} initialPrompt={autoPrompt} onBack={handleBack} />;
+  return <MindMate profile={profile} initialPrompt={autoPrompt} />;
 };
 
 export default MindMateWithVerification;
