@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Plus, Search, Users, MessageCircle, UserPlus, Shield, Sparkles } from 'lucide-react';
+import { Plus, Search, Users, MessageCircle, UserPlus, Shield, Sparkles, ArrowLeft } from 'lucide-react';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -14,6 +15,7 @@ import TrendingPosts from './TrendingPosts';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CommunitySupport: React.FC = () => {
+  const navigate = useNavigate();
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showTherapistApplication, setShowTherapistApplication] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
@@ -63,6 +65,14 @@ const CommunitySupport: React.FC = () => {
             <CardHeader className="relative">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/chat')}
+                    className="p-1.5 -ml-1.5 flex-shrink-0"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
                   <motion.div 
                     className="p-3 bg-gradient-to-br from-[#7950f2] to-[#b197fc] rounded-xl shadow-lg shadow-[#7950f2]/30"
                     whileHover={{ scale: 1.1, rotate: 5 }}
