@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -8,27 +7,47 @@ import { Label } from '@/components/ui/label';
 import { JournalEntry } from '@/hooks/useJournal';
 import { useToast } from '@/hooks/use-toast';
 import { useJournalAutosave } from '@/hooks/useJournalAutosave';
-import { Save, RotateCcw } from 'lucide-react';
+import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { Save, RotateCcw, Mic, MicOff, Square } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface JournalWriteViewProps {
   todaysEntry: JournalEntry | undefined;
-  journalHook: any; // Hook from either useJournal or useJournalSupabase
+  journalHook: any;
+  isMobile?: boolean;
 }
 
-const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journalHook }) => {
+const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journalHook, isMobile }) => {
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { saveEntry } = journalHook;
   const { toast } = useToast();
   const { loadDraft, clearDraft } = useJournalAutosave(content, mood);
+  
+  const { 
+    isListening, 
+    transcript, 
+    startListening, 
+    stopListening, 
+    isSupported: isSpeechSupported 
+  } = useSpeechRecognition();
+
+  // Append transcript to content when speech recognition produces results
+  useEffect(() => {
+    if (transcript) {
+      setContent(prev => {
+        const separator = prev && !prev.endsWith(' ') && !prev.endsWith('\n') ? ' ' : '';
+        return prev + separator + transcript;
+      });
+    }
+  }, [transcript]);
 
   useEffect(() => {
     if (todaysEntry) {
       setContent(todaysEntry.content);
       setMood(todaysEntry.mood);
     } else {
-      // Load draft if no entry for today (only if draft has actual content)
       const draft = loadDraft();
       if (draft.content?.trim() || draft.mood) {
         setContent(draft.content);
@@ -43,7 +62,6 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
     }
   }, [todaysEntry]);
 
-  // Track changes for unsaved indicator
   useEffect(() => {
     if (todaysEntry) {
       setHasUnsavedChanges(
@@ -64,8 +82,13 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       return;
     }
 
+    // Stop listening if recording
+    if (isListening) {
+      stopListening();
+    }
+
     await saveEntry(content, mood);
-    clearDraft(); // Clear the draft after successful save
+    clearDraft();
     setHasUnsavedChanges(false);
     
     toast({
@@ -80,6 +103,10 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
   };
 
   const handleDiscardDraft = () => {
+    if (isListening) {
+      stopListening();
+    }
+    
     if (todaysEntry) {
       setContent(todaysEntry.content);
       setMood(todaysEntry.mood);
@@ -95,22 +122,38 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
     });
   };
 
+  const toggleSpeechRecognition = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+      toast({
+        title: "Listening... 🎤",
+        description: "Speak your thoughts and they'll appear in the text box.",
+        duration: 2000,
+      });
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       transition={{ duration: 0.3 }}
-      className="p-6 space-y-6 max-h-[calc(90vh-120px)] overflow-y-auto"
+      className={cn(
+        "space-y-4 overflow-y-auto",
+        isMobile ? "p-4 h-full" : "p-6 max-h-[calc(90vh-120px)]"
+      )}
     >
       <div className="text-center">
-        <h3 className="text-xl font-semibold mb-2">
+        <h3 className={cn("font-semibold mb-1", isMobile ? "text-lg" : "text-xl")}>
           {todaysEntry ? "Update Today's Entry" : "How was your day?"}
           {hasUnsavedChanges && (
-            <span className="ml-2 text-sm text-orange-500">• Unsaved changes</span>
+            <span className="ml-2 text-sm text-orange-500">• Unsaved</span>
           )}
         </h3>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground text-sm">
           {new Date().toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -124,12 +167,12 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500"
+          className="bg-primary/10 p-3 rounded-lg border-l-4 border-primary"
         >
-          <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+          <p className="text-sm text-primary mb-1">
             You've already written an entry today! You can update it below.
           </p>
-          <div className="text-sm">
+          <div className="text-xs text-muted-foreground">
             <strong>Previous mood:</strong> {todaysEntry.mood.replace('-', ' ')}
           </div>
         </motion.div>
@@ -137,9 +180,9 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
 
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="mood" className="text-gray-700 dark:text-gray-300">How are you feeling today?</Label>
+          <Label htmlFor="mood" className="text-foreground">How are you feeling today?</Label>
           <Select value={mood} onValueChange={setMood}>
-            <SelectTrigger>
+            <SelectTrigger className={isMobile ? "h-12" : ""}>
               <SelectValue placeholder="Select your mood" />
             </SelectTrigger>
             <SelectContent>
@@ -155,21 +198,62 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="content" className="text-gray-700 dark:text-gray-300">Write your thoughts...</Label>
-          <Textarea
-            id="content"
-            placeholder="What happened today? How did you feel? What are you grateful for?"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="min-h-[200px] resize-none"
-          />
+          <div className="flex items-center justify-between">
+            <Label htmlFor="content" className="text-foreground">Write your thoughts...</Label>
+            {isSpeechSupported && (
+              <Button
+                type="button"
+                variant={isListening ? "destructive" : "outline"}
+                size="sm"
+                onClick={toggleSpeechRecognition}
+                className={cn(
+                  "gap-1.5 transition-all",
+                  isListening && "animate-pulse"
+                )}
+              >
+                {isListening ? (
+                  <>
+                    <Square className="h-3.5 w-3.5" />
+                    <span className="text-xs">Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-3.5 w-3.5" />
+                    <span className="text-xs">Speak</span>
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+          <div className="relative">
+            <Textarea
+              id="content"
+              placeholder="What happened today? How did you feel? What are you grateful for?"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              className={cn(
+                "resize-none",
+                isMobile ? "min-h-[180px]" : "min-h-[200px]",
+                isListening && "ring-2 ring-primary/50"
+              )}
+            />
+            {isListening && (
+              <div className="absolute bottom-2 right-2 flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                </span>
+                Listening...
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-2">
           <Button 
             onClick={handleSaveEntry}
             className="flex-1"
-            style={{ backgroundColor: 'var(--zenith-primary)' }}
+            size={isMobile ? "lg" : "default"}
           >
             <Save className="h-4 w-4 mr-2" />
             {todaysEntry ? 'Update Entry' : 'Save Entry'}
@@ -179,6 +263,7 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
             <Button 
               onClick={handleDiscardDraft}
               variant="outline"
+              size={isMobile ? "lg" : "default"}
               className="px-4"
             >
               <RotateCcw className="h-4 w-4" />
