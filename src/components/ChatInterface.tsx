@@ -45,7 +45,6 @@ const ChatInterface = () => {
   const [showSleepPrompt, setShowSleepPrompt] = useState(false);
   const [logoSpinning, setLogoSpinning] = useState(false);
   const [logoClickCount, setLogoClickCount] = useState(0);
-  const [showSleepPrompt, setShowSleepPrompt] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { hasProfile, profile } = useProfile();
   const { profile: sleepProfile, loading: sleepProfileLoading } = useSleepProfile();
