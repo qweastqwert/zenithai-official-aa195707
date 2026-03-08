@@ -681,6 +681,42 @@ export type Database = {
       }
     }
     Functions: {
+      admin_get_community_comments: {
+        Args: never
+        Returns: {
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          post_id: string
+          updated_at: string
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "community_comments"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      admin_get_community_posts: {
+        Args: never
+        Returns: {
+          created_at: string
+          description: string
+          id: string
+          is_anonymous: boolean
+          title: string
+          updated_at: string
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "community_posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       cleanup_old_conversations: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { user_uuid: string }
