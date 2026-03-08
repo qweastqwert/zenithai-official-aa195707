@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { useSleepLogs } from '@/hooks/useSleepLogs';
 import { SleepSetupForm } from './SleepSetupForm';
 import { SleepQualityPrompt } from './SleepQualityPrompt';
 import { SleepAnalytics } from './SleepAnalytics';
+import { NotificationService } from '@/services/notificationService';
 import { toast } from 'sonner';
 
 export const SleepTracker = () => {
@@ -20,6 +21,13 @@ export const SleepTracker = () => {
   const [showAnalytics, setShowAnalytics] = useState(false);
 
   const todaysLog = getTodaysLog();
+
+  // Sync sleep times to notification service
+  useEffect(() => {
+    if (profile?.sleep_time && profile?.wake_time) {
+      NotificationService.getInstance().updateSleepTimes(profile.sleep_time, profile.wake_time);
+    }
+  }, [profile?.sleep_time, profile?.wake_time]);
 
   const handleConfirmSleep = async () => {
     const result = await confirmSleep();

@@ -32,17 +32,15 @@ const CACHEABLE_PATTERNS = [
   /\.ico$/
 ];
 
-// Check if URL matches network-only patterns
 function isNetworkOnly(url) {
   return NETWORK_ONLY_PATTERNS.some(pattern => url.includes(pattern));
 }
 
-// Check if URL is cacheable
 function isCacheable(url) {
   return CACHEABLE_PATTERNS.some(pattern => pattern.test(url));
 }
 
-// Install event - cache static assets
+// Install event
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
@@ -55,7 +53,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event - clean old caches
+// Activate event
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -72,36 +70,24 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - smart caching strategy
+// Fetch event
 self.addEventListener('fetch', (event) => {
   const url = event.request.url;
   
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
 
-  // Network-only for API calls
   if (isNetworkOnly(url)) {
     event.respondWith(
       fetch(event.request).catch(() => {
         return new Response(
-          JSON.stringify({ 
-            error: 'Internet connection required',
-            offline: true 
-          }),
-          {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: { 'Content-Type': 'application/json' }
-          }
+          JSON.stringify({ error: 'Internet connection required', offline: true }),
+          { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'application/json' } }
         );
       })
     );
     return;
   }
 
-  // Stale-while-revalidate for cacheable assets
   if (isCacheable(url)) {
     event.respondWith(
       caches.open(DYNAMIC_CACHE).then((cache) => {
@@ -114,7 +100,6 @@ self.addEventListener('fetch', (event) => {
               return networkResponse;
             })
             .catch(() => cachedResponse);
-          
           return cachedResponse || fetchPromise;
         });
       })
@@ -122,12 +107,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for navigation/HTML
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cache successful navigation responses
           if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(DYNAMIC_CACHE).then((cache) => {
@@ -138,47 +121,85 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => {
           return caches.match(event.request)
-            .then((cachedResponse) => {
-              return cachedResponse || caches.match('/');
-            });
+            .then((cachedResponse) => cachedResponse || caches.match('/'));
         })
     );
     return;
   }
 
-  // Default: network with cache fallback
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        return response;
-      })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+    fetch(event.request).then((response) => response).catch(() => caches.match(event.request))
   );
 });
 
-// Background sync for offline actions
+// Push notification handler
+self.addEventListener('push', (event) => {
+  let data = { title: 'Zenith AI', body: 'Time for a wellness check-in!', tag: 'general' };
+  
+  if (event.data) {
+    try {
+      data = { ...data, ...event.data.json() };
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: '/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png',
+    badge: '/favicon.ico',
+    tag: data.tag || 'general',
+    vibrate: [100, 50, 100],
+    data: { url: data.url || '/' },
+    actions: data.actions || []
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const tag = event.notification.tag;
+  let targetUrl = '/chat';
+
+  if (tag === 'mood-reminder') {
+    targetUrl = '/mood-tracking';
+  } else if (tag === 'sleep-reminder' || tag === 'wake-reminder') {
+    targetUrl = '/sleep-tracking';
+  } else if (tag === 'journal-reminder') {
+    targetUrl = '/chat';
+  }
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(targetUrl);
+    })
+  );
+});
+
+// Background sync
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-data') {
-    event.waitUntil(
-      // Placeholder for future offline sync
-      Promise.resolve()
-    );
+    event.waitUntil(Promise.resolve());
   }
 });
 
-// Handle messages from main thread
+// Handle messages
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
-      caches.keys().then((names) => {
-        return Promise.all(names.map(name => caches.delete(name)));
-      })
+      caches.keys().then((names) => Promise.all(names.map(name => caches.delete(name))))
     );
   }
 });

@@ -7,7 +7,10 @@ export const useNotifications = () => {
     enableMoodReminders: true,
     moodReminderInterval: 4,
     enableJournalReminders: true,
-    journalReminderTime: '21:00'
+    journalReminderTime: '21:00',
+    enableSleepReminders: true,
+    sleepTime: '23:00',
+    wakeTime: '07:00'
   });
 
   const notificationService = NotificationService.getInstance();
