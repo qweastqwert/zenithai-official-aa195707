@@ -51,7 +51,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
       initial="hidden"
       animate="visible"
       className={compact 
-        ? "grid grid-cols-4 gap-2" 
+        ? "grid grid-cols-3 gap-2" 
         : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4"
       }
     >
@@ -70,7 +70,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
             variant={selectedMood === mood.id ? "default" : "outline"}
             className={`w-full flex flex-col items-center justify-center transition-all duration-300 relative overflow-hidden group ${
               compact 
-                ? 'h-14 space-y-0.5 p-1' 
+                ? 'h-14 space-y-0.5 p-1.5' 
                 : 'h-24 md:h-28 space-y-2'
             } ${
               selectedMood === mood.id 
@@ -84,14 +84,14 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
             } : {}}
           >
             <motion.span 
-              className={compact ? "text-lg" : "text-3xl md:text-4xl"}
+              className={compact ? "text-xl" : "text-3xl md:text-4xl"}
               animate={selectedMood === mood.id ? { rotate: [0, 5, -5, 0] } : {}}
               transition={{ duration: 0.5, repeat: selectedMood === mood.id ? Infinity : 0, repeatDelay: 2 }}
             >
               {mood.emoji}
             </motion.span>
-            <span className={`font-medium ${compact ? 'text-[10px]' : 'text-xs md:text-sm'}`}>
-              {compact ? mood.label.slice(0, 6) : mood.label}
+            <span className={`font-medium ${compact ? 'text-[10px] leading-tight' : 'text-xs md:text-sm'}`}>
+              {compact ? mood.label.slice(0, 7) : mood.label}
             </span>
           </Button>
         </motion.div>

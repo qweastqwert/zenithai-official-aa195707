@@ -125,6 +125,25 @@ const UICustomizationSection = () => {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                  <Label>UI Size / Scale</Label>
+                  <p className="text-xs text-muted-foreground">Adjust overall interface size for comfort</p>
+                  <Select 
+                    value={customization.uiScale} 
+                    onValueChange={(value: 'compact' | 'default' | 'comfortable' | 'large') => updateCustomization({ uiScale: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="compact">Compact (88%)</SelectItem>
+                      <SelectItem value="default">Default (100%)</SelectItem>
+                      <SelectItem value="comfortable">Comfortable (108%)</SelectItem>
+                      <SelectItem value="large">Large (116%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
               <div className="flex items-center justify-between">
                 <Label>Compact Mode</Label>
                 <Switch 

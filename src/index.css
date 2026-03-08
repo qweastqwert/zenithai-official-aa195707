@@ -50,6 +50,7 @@
     --custom-border: #e0e0e0;
     --transition-duration: 0.6s;
     --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    --ui-scale: 1;
   }
  
   .dark {
@@ -391,6 +392,22 @@
 .reduce-motion * {
   animation: none !important;
   transition: none !important;
+}
+
+/* UI Scale */
+.ui-scale-compact main,
+.ui-scale-comfortable main,
+.ui-scale-large main {
+  zoom: var(--ui-scale, 1);
+}
+
+@supports not (zoom: 1) {
+  .ui-scale-compact main,
+  .ui-scale-comfortable main,
+  .ui-scale-large main {
+    transform: scale(var(--ui-scale, 1));
+    transform-origin: top center;
+  }
 }
 
 /* Focus Indicators */
