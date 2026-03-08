@@ -103,7 +103,7 @@ const AccessibilityWidget = () => {
     root.setAttribute('data-screen-reader-optimized', state.screenReader ? 'true' : 'false');
 
     return () => {
-      root.style.fontSize = '';
+      document.body.style.zoom = '';
       root.style.filter = '';
     };
   }, [state]);
