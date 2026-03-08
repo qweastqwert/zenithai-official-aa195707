@@ -43,6 +43,9 @@ const ChatInterface = () => {
   const [showAchievements, setShowAchievements] = useState(false);
   const [newAchievement, setNewAchievement] = useState<any>(null);
   const [showSleepPrompt, setShowSleepPrompt] = useState(false);
+  const [logoSpinning, setLogoSpinning] = useState(false);
+  const [logoClickCount, setLogoClickCount] = useState(0);
+  const [showSleepPrompt, setShowSleepPrompt] = useState(false);
   const { isAuthenticated, user } = useAuth();
   const { hasProfile, profile } = useProfile();
   const { profile: sleepProfile, loading: sleepProfileLoading } = useSleepProfile();
