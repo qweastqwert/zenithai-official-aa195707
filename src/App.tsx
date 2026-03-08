@@ -32,6 +32,7 @@ import MoodTracker from "./components/MoodTracker";
 import Journal from "./components/Journal";
 import IntroAnimation from "./components/IntroAnimation";
 import AuthForm from "./components/auth/AuthForm";
+import AccessibilityWidget from "./components/accessibility/AccessibilityWidget";
 import OnboardingForm from "./components/OnboardingForm";
 
 const queryClient = new QueryClient();
@@ -151,6 +152,7 @@ const AppContent = () => {
       </BrowserRouter>
 
       <MusicMinibar />
+      <AccessibilityWidget />
       <PWAInstallDialog />
 
       {/* Achievement Notification */}
