@@ -3,6 +3,7 @@ import './polyfills';
 
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
+import '@fontsource/opendyslexic/400.css';
 import './index.css'
 
 // Fallback for older browsers without createRoot
