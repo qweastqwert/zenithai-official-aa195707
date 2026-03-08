@@ -773,10 +773,14 @@ const ChatInterface = () => {
           >
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-4">
-                <img 
+                <motion.img 
                   src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
                   alt="Zenith AI Logo" 
-                  className="w-12 h-12 md:w-16 md:h-16"
+                  className={`w-12 h-12 md:w-16 md:h-16 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
+                  onClick={handleLogoClick}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                 />
                 <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-zenith-darkpurple dark:text-zenith-purple text-center sm:text-left">
                   Hey {profile?.name}! Ready for Elite Mental Wellness<span style={{ color: 'var(--zenith-primary)' }}>?</span>
