@@ -740,3 +740,51 @@
   color: hsl(var(--primary)) !important;
 }
 
+/* Color-blind correction filters */
+.a11y-cb-protanopia {
+  filter: url(#cb-protanopia) !important;
+}
+.a11y-cb-deuteranopia {
+  filter: url(#cb-deuteranopia) !important;
+}
+.a11y-cb-tritanopia {
+  filter: url(#cb-tritanopia) !important;
+}
+.a11y-cb-achromatopsia {
+  filter: url(#cb-achromatopsia) !important;
+}
+
+/* Focus highlight */
+.a11y-focus-highlight *:focus {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 2px !important;
+}
+.a11y-focus-highlight *:focus:not(:focus-visible) {
+  outline: none !important;
+}
+.a11y-focus-highlight *:focus-visible {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px hsl(var(--primary) / 0.15) !important;
+}
+
+/* Custom line height */
+.a11y-custom-line-height,
+.a11y-custom-line-height p,
+.a11y-custom-line-height span,
+.a11y-custom-line-height li,
+.a11y-custom-line-height div {
+  line-height: var(--a11y-line-height, 1) !important;
+}
+
+/* Slow cursor transitions */
+.a11y-slow-cursor * {
+  scroll-behavior: smooth !important;
+}
+
+/* Skip navigation */
+.a11y-skip-nav [id="main-content"] {
+  scroll-margin-top: 2rem;
+}
+
+
