@@ -9,19 +9,11 @@ interface UseSpeechRecognitionReturn {
   error: string | null;
 }
 
-// Extend Window interface for speech recognition
-declare global {
-  interface Window {
-    SpeechRecognition: typeof SpeechRecognition;
-    webkitSpeechRecognition: typeof SpeechRecognition;
-  }
-}
-
 export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const isSupported = typeof window !== 'undefined' && 
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
@@ -29,7 +21,7 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
   useEffect(() => {
     if (!isSupported) return;
 
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognitionAPI();
     
     const recognition = recognitionRef.current;
@@ -37,7 +29,7 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     recognition.interimResults = true;
     recognition.lang = 'en-US';
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: any) => {
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -50,10 +42,10 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
         }
       }
 
-      setTranscript(prev => prev + finalTranscript + interimTranscript);
+      setTranscript(finalTranscript + interimTranscript);
     };
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    recognition.onerror = (event: any) => {
       setError(event.error);
       setIsListening(false);
     };
@@ -77,7 +69,6 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     try {
       recognitionRef.current.start();
     } catch (e) {
-      // Recognition might already be running
       console.error('Speech recognition error:', e);
     }
   }, [isSupported]);
