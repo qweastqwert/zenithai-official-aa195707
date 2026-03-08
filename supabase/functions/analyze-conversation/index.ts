@@ -99,7 +99,7 @@ ${conversationText}`;
         'X-Title': 'Zenith AI - Memory Analysis',
       },
       body: JSON.stringify({
-        model: 'meta-llama/llama-4-maverick:free',
+        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
         messages: [
           { role: 'user', content: analysisPrompt }
         ],

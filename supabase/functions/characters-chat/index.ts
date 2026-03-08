@@ -59,7 +59,7 @@ serve(async (req) => {
         'X-Title': 'Zenith AI - Characters Chat',
       },
       body: JSON.stringify({
-        model: 'qwen/qwen3-next-80b-a3b-instruct:free',
+        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
         messages: messages,
         max_tokens: 2048,
         temperature: temperature || 0.8,
