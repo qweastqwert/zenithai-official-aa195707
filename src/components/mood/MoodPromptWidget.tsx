@@ -117,7 +117,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
         className="fixed bottom-[72px] left-3 right-3 z-40 max-h-[60vh] overflow-y-auto"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
-        <Card className="bg-background/98 backdrop-blur-xl border border-border/50 shadow-xl rounded-xl overflow-hidden">
+      <Card className="bg-background/98 backdrop-blur-xl border border-border/50 shadow-xl rounded-xl overflow-hidden">
           <motion.div
             initial={false}
             animate={isMinimized ? { height: "auto" } : { height: "auto" }}
@@ -136,11 +136,11 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                     </motion.div>
                     <span className="text-sm font-medium text-foreground">How are you feeling?</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => setIsMinimized(false)} className="h-7 w-7 p-0">
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setIsMinimized(false)} className="h-8 w-8 p-0">
                       <ChevronUp className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={onClose} className="h-7 w-7 p-0">
+                    <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -150,7 +150,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
               <>
                 <CardHeader className="pb-2 pt-3 px-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 min-w-0 flex-1">
                       <AnimatePresence mode="wait">
                         {step === 'reason' && (
                           <motion.div
@@ -158,13 +158,14 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -10 }}
                           >
-                            <Button variant="ghost" size="sm" onClick={handleBack} className="h-7 w-7 p-0">
+                            <Button variant="ghost" size="sm" onClick={handleBack} className="h-7 w-7 p-0 flex-shrink-0">
                               <ArrowLeft className="h-4 w-4" />
                             </Button>
                           </motion.div>
                         )}
                       </AnimatePresence>
                       <motion.div
+                        className="flex-shrink-0"
                         animate={{ 
                           rotate: [0, 5, -5, 0],
                           scale: [1, 1.1, 1]
@@ -173,16 +174,16 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                       >
                         <Heart className="h-5 w-5 text-primary" />
                       </motion.div>
-                      <CardTitle className="text-sm font-semibold text-foreground">
+                      <CardTitle className="text-sm font-semibold text-foreground truncate">
                         {step === 'select' ? 'How are you feeling?' : 'Tell us more'}
                       </CardTitle>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setIsMinimized(true)} className="h-6 w-6 p-0">
-                        <ChevronDown className="h-3 w-3" />
+                    <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
+                      <Button variant="ghost" size="sm" onClick={() => setIsMinimized(true)} className="h-7 w-7 p-0">
+                        <ChevronDown className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
-                        <X className="h-3 w-3" />
+                      <Button variant="ghost" size="sm" onClick={onClose} className="h-7 w-7 p-0">
+                        <X className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
