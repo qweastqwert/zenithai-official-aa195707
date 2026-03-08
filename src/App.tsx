@@ -152,6 +152,7 @@ const AppContent = () => {
       </BrowserRouter>
 
       <MusicMinibar />
+      <AccessibilityWidget />
       <PWAInstallDialog />
 
       {/* Achievement Notification */}
