@@ -22,6 +22,13 @@ export const SleepTracker = () => {
 
   const todaysLog = getTodaysLog();
 
+  // Sync sleep times to notification service
+  useEffect(() => {
+    if (profile?.sleep_time && profile?.wake_time) {
+      NotificationService.getInstance().updateSleepTimes(profile.sleep_time, profile.wake_time);
+    }
+  }, [profile?.sleep_time, profile?.wake_time]);
+
   const handleConfirmSleep = async () => {
     const result = await confirmSleep();
     if (result?.success) {
