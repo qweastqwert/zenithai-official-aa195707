@@ -492,10 +492,14 @@ const ChatInterface = () => {
                 transition={{ delay: 0.5 }}
                 className="flex flex-col items-center"
               >
-                <img 
+                <motion.img 
                   src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
                   alt="Zenith AI Logo" 
-                  className="w-16 h-16 mb-3"
+                  className={`w-16 h-16 mb-3 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
+                  onClick={handleLogoClick}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                 />
                 <h1 className="text-2xl font-bold text-zenith-darkpurple dark:text-zenith-purple mb-2">
                   Zenith AI
