@@ -45,6 +45,7 @@ export const useUICustomization = () => {
     sidebarPosition: 'left',
     headerStyle: 'fixed',
     compactMode: false,
+    uiScale: 'default',
     fontSize: 'base',
     fontFamily: 'inter',
     lineHeight: 'normal',
