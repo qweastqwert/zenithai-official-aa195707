@@ -142,26 +142,54 @@
   }
 }
 
+/* Classy interaction utilities */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -8px hsl(var(--primary) / 0.15);
+}
+.hover-lift:active {
+  transform: translateY(-1px);
+}
+
+.glass-card {
+  backdrop-filter: blur(12px);
+  background: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.5);
+}
+
+.story-link * {
+  @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+}
+
+.hover-scale {
+  @apply transition-transform duration-200 hover:scale-105;
+}
+
 /* Custom Classes */
 .zenith-button-primary {
   background-color: var(--zenith-primary);
   color: white;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .zenith-button-primary:hover {
   background-color: var(--zenith-secondary);
+  transform: translateY(-1px);
 }
 
 .zenith-button-secondary {
   background-color: var(--zenith-soft);
   color: var(--zenith-primary);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .zenith-button-secondary:hover {
   background-color: var(--zenith-primary);
   color: white;
+  transform: translateY(-1px);
 }
 
 /* Achievement Notification */

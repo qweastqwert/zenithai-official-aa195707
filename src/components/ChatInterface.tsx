@@ -43,6 +43,8 @@ const ChatInterface = () => {
   const [showAchievements, setShowAchievements] = useState(false);
   const [newAchievement, setNewAchievement] = useState<any>(null);
   const [showSleepPrompt, setShowSleepPrompt] = useState(false);
+  const [logoSpinning, setLogoSpinning] = useState(false);
+  const [logoClickCount, setLogoClickCount] = useState(0);
   const { isAuthenticated, user } = useAuth();
   const { hasProfile, profile } = useProfile();
   const { profile: sleepProfile, loading: sleepProfileLoading } = useSleepProfile();
@@ -77,6 +79,20 @@ const ChatInterface = () => {
 
   // Use mobile interface for mobile devices, desktop for tablets in landscape and desktop
   const useMobileInterface = isMobile && !isDesktop;
+
+  // Logo spin easter egg
+  const handleLogoClick = () => {
+    setLogoSpinning(true);
+    const newCount = logoClickCount + 1;
+    setLogoClickCount(newCount);
+    setTimeout(() => setLogoSpinning(false), 600);
+    if (newCount === 5) {
+      toast('🎉 You found a secret! You are awesome!', { duration: 3000 });
+      setLogoClickCount(0);
+    } else if (newCount === 3) {
+      toast('✨ Keep clicking...', { duration: 1500 });
+    }
+  };
 
   // Create the missing handleNavigateToMindMate function
   const handleNavigateToMindMate = (autoPrompt?: string) => {
@@ -476,10 +492,14 @@ const ChatInterface = () => {
                 transition={{ delay: 0.5 }}
                 className="flex flex-col items-center"
               >
-                <img 
+                <motion.img 
                   src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
                   alt="Zenith AI Logo" 
-                  className="w-16 h-16 mb-3"
+                  className={`w-16 h-16 mb-3 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
+                  onClick={handleLogoClick}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                 />
                 <h1 className="text-2xl font-bold text-zenith-darkpurple dark:text-zenith-purple mb-2">
                   Zenith AI
@@ -544,8 +564,9 @@ const ChatInterface = () => {
                 {/* Main Features Grid - Compact for small Android screens */}
                 <div className="grid grid-cols-3 gap-2.5">
                   <motion.div
-                    whileTap={{ scale: 0.93 }}
-                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                     onClick={() => handleNavigation('mindmate')}
                     className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
                     style={{ background: 'linear-gradient(145deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05))' }}
@@ -722,10 +743,14 @@ const ChatInterface = () => {
               transition={{ delay: 0.5 }}
               className="flex flex-col items-center mb-4"
             >
-              <img 
+              <motion.img 
                 src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
                 alt="Zenith AI Logo" 
-                className="w-20 h-20 md:w-24 md:h-24 mb-4"
+                className={`w-20 h-20 md:w-24 md:h-24 mb-4 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
+                onClick={handleLogoClick}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               />
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-zenith-darkpurple dark:text-zenith-purple">
                 Zenith AI
@@ -749,10 +774,14 @@ const ChatInterface = () => {
           >
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-4">
-                <img 
+                <motion.img 
                   src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
                   alt="Zenith AI Logo" 
-                  className="w-12 h-12 md:w-16 md:h-16"
+                  className={`w-12 h-12 md:w-16 md:h-16 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
+                  onClick={handleLogoClick}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 17 }}
                 />
                 <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold text-zenith-darkpurple dark:text-zenith-purple text-center sm:text-left">
                   Hey {profile?.name}! Ready for Elite Mental Wellness<span style={{ color: 'var(--zenith-primary)' }}>?</span>
