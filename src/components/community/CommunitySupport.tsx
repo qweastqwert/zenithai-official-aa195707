@@ -65,6 +65,14 @@ const CommunitySupport: React.FC = () => {
             <CardHeader className="relative">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/chat')}
+                    className="p-1.5 -ml-1.5 flex-shrink-0"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
                   <motion.div 
                     className="p-3 bg-gradient-to-br from-[#7950f2] to-[#b197fc] rounded-xl shadow-lg shadow-[#7950f2]/30"
                     whileHover={{ scale: 1.1, rotate: 5 }}
