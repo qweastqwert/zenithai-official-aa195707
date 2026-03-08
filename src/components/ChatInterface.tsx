@@ -87,7 +87,7 @@ const ChatInterface = () => {
     setLogoClickCount(newCount);
     setTimeout(() => setLogoSpinning(false), 600);
     if (newCount === 5) {
-      toast('🎉 You found a secret! You're awesome!', { duration: 3000 });
+      toast('🎉 You found a secret! You are awesome!', { duration: 3000 });
       setLogoClickCount(0);
     } else if (newCount === 3) {
       toast('✨ Keep clicking...', { duration: 1500 });
