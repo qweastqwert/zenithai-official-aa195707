@@ -14,15 +14,16 @@ export interface Resource {
 }
 
 export const categories = [
-  { value: 'all', label: 'All Resources' },
+  { value: 'all', label: 'All' },
   { value: 'anxiety', label: 'Anxiety' },
-  { value: 'meditation', label: 'Meditation' },
-  { value: 'sleep', label: 'Sleep' },
+  { value: 'depression', label: 'Depression' },
   { value: 'stress', label: 'Stress' },
+  { value: 'sleep', label: 'Sleep' },
   { value: 'mindfulness', label: 'Mindfulness' },
+  { value: 'meditation', label: 'Meditation' },
   { value: 'self-care', label: 'Self-Care' },
   { value: 'relationships', label: 'Relationships' },
-  { value: 'productivity', label: 'Productivity' },
+  { value: 'grief', label: 'Grief' },
 ];
 
 export const resources: Resource[] = [
