@@ -578,6 +578,96 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          created_at: string
+          id: string
+          progress: number
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          created_at?: string
+          id?: string
+          progress?: number
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          created_at?: string
+          id?: string
+          progress?: number
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_activity_data: {
+        Row: {
+          created_at: string
+          features_unlocked: string[]
+          id: string
+          journal_streak: number
+          last_breathing_use: string | null
+          last_journal_use: string | null
+          last_meditation_use: string | null
+          last_mindmate_use: string | null
+          last_mood_track: string | null
+          last_sleep_use: string | null
+          meditation_streak: number
+          mindmate_streak: number
+          mood_streak: number
+          sleep_streak: number
+          total_days_used: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          features_unlocked?: string[]
+          id?: string
+          journal_streak?: number
+          last_breathing_use?: string | null
+          last_journal_use?: string | null
+          last_meditation_use?: string | null
+          last_mindmate_use?: string | null
+          last_mood_track?: string | null
+          last_sleep_use?: string | null
+          meditation_streak?: number
+          mindmate_streak?: number
+          mood_streak?: number
+          sleep_streak?: number
+          total_days_used?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          features_unlocked?: string[]
+          id?: string
+          journal_streak?: number
+          last_breathing_use?: string | null
+          last_journal_use?: string | null
+          last_meditation_use?: string | null
+          last_mindmate_use?: string | null
+          last_mood_track?: string | null
+          last_sleep_use?: string | null
+          meditation_streak?: number
+          mindmate_streak?: number
+          mood_streak?: number
+          sleep_streak?: number
+          total_days_used?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
