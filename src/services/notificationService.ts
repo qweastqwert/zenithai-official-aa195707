@@ -90,7 +90,6 @@ export class NotificationService {
           icon: '/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png',
           badge: '/favicon.ico',
           tag,
-          vibrate: [100, 50, 100],
         });
       }).catch(() => {
         // Fallback to regular notification
