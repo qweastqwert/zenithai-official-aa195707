@@ -15,6 +15,7 @@ import TrendingPosts from './TrendingPosts';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CommunitySupport: React.FC = () => {
+  const navigate = useNavigate();
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showTherapistApplication, setShowTherapistApplication] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
