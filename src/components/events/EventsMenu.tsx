@@ -1,31 +1,68 @@
-
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Calendar, Target, ArrowRight, Sparkles, Sun, Heart } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, Target, ArrowRight, Sparkles, Sun, Heart, Moon, Shield, Globe, Smile, Gift, MessageCircle, HeartHandshake, Crown, Ribbon, UserCheck, HeartPulse } from 'lucide-react';
 import TransformationChallenge from './TransformationChallenge';
+import { getActiveEvents, type WellnessEvent } from '@/data/eventsData';
+
+const iconMap: Record<string, React.ElementType> = {
+  Sparkles, Sun, Heart, Moon, Shield, Globe, Smile, Gift, MessageCircle,
+  HeartHandshake, Crown, Ribbon, UserCheck, HeartPulse,
+};
 
 interface EventsMenuProps {
   onNavigateToMindMate: (prompt?: string) => void;
 }
 
+const EventCard: React.FC<{ event: WellnessEvent; onActivity: (prompt: string) => void }> = ({ event, onActivity }) => {
+  const Icon = iconMap[event.icon] || Sparkles;
+  return (
+    <Card className={`${event.borderColor} bg-gradient-to-r ${event.gradient}`}>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Icon className="h-5 w-5" />
+          {event.title}
+          {event.day && <Badge variant="outline" className="ml-auto text-xs">{event.day}/{event.month + 1}</Badge>}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">{event.description}</p>
+        <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+          {event.facts.map((f, i) => <li key={i}>{f}</li>)}
+        </ul>
+        <p className="text-sm font-medium text-primary">{event.message}</p>
+        <div className="border-t pt-3 space-y-2">
+          <h4 className="font-semibold text-sm flex items-center gap-2"><Target className="h-4 w-4" /> Activities & Challenges</h4>
+          {event.activities.map((activity, i) => (
+            <Card key={i} className="bg-background/80">
+              <CardContent className="p-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h5 className="font-medium text-sm">{activity.title}</h5>
+                  <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
+                </div>
+                <Button size="sm" onClick={() => onActivity(activity.prompt)} className="shrink-0 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  Start <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 const EventsMenu: React.FC<EventsMenuProps> = ({ onNavigateToMindMate }) => {
   const [showEvents, setShowEvents] = useState(false);
   const [showChallenge, setShowChallenge] = useState(false);
 
-  // Check current date for special events
-  const currentDate = useMemo(() => new Date(), []);
-  const currentMonth = currentDate.getMonth(); // 0-indexed (January = 0)
-  const currentDay = currentDate.getDate();
-  
-  const isJanuary = currentMonth === 0;
-  const isBlueMonday = isJanuary && currentDay === 19;
-  const isParentMentalHealthDay = currentMonth === 0 && currentDay === 30;
+  const activeEvents = useMemo(() => getActiveEvents(new Date()), []);
 
-  const handleActivityStart = (activity: string) => {
+  const handleActivityStart = (prompt: string) => {
     setShowEvents(false);
-    onNavigateToMindMate(activity);
+    onNavigateToMindMate(prompt);
   };
 
   return (
@@ -37,6 +74,9 @@ const EventsMenu: React.FC<EventsMenuProps> = ({ onNavigateToMindMate }) => {
       >
         <Calendar className="h-4 w-4" />
         Events
+        {activeEvents.length > 0 && (
+          <Badge className="ml-1 bg-white/20 text-white text-xs px-1.5">{activeEvents.length}</Badge>
+        )}
       </Button>
 
       <Dialog open={showEvents} onOpenChange={setShowEvents}>
@@ -44,279 +84,42 @@ const EventsMenu: React.FC<EventsMenuProps> = ({ onNavigateToMindMate }) => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Current Events
+              Current Events & Awareness Days
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
-            {/* January - Mental Wellness Month */}
-            {isJanuary && (
-              <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-teal-700 dark:text-teal-300">
-                    <Sparkles className="h-5 w-5" />
-                    January - Mental Wellness Month
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-700 dark:text-gray-300 space-y-3">
-                    <p className="font-semibold">Why January matters for mental health:</p>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>Post-holiday blues affect many people as routines resume</li>
-                      <li>Winter months can trigger Seasonal Affective Disorder (SAD)</li>
-                      <li>New Year resolutions create pressure and stress</li>
-                      <li>It's the perfect time to establish healthy mental wellness habits</li>
-                    </ul>
-                    <p className="text-teal-600 dark:text-teal-400 font-medium">
-                      Start the year with intention. Your mental wellness journey begins with small, consistent steps.
-                    </p>
-                  </div>
-                  
-                  <div className="border-t pt-4">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <Target className="h-4 w-4" />
-                      AI-Powered Activities
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <Card className="bg-white dark:bg-gray-800 border-teal-200 dark:border-teal-700">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="font-medium text-teal-700 dark:text-teal-300">
-                                Mindful Intentions Setting
-                              </h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Set meaningful goals with AI guidance for sustainable mental wellness
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => handleActivityStart("Help me set mindful intentions for mental wellness this January. Guide me through creating sustainable goals that focus on emotional well-being rather than just achievements.")}
-                              className="bg-teal-600 hover:bg-teal-700 text-white"
-                            >
-                              Start
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-white dark:bg-gray-800 border-cyan-200 dark:border-cyan-700">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="font-medium text-cyan-700 dark:text-cyan-300">
-                                Winter Wellness Check-in
-                              </h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                AI-guided self-assessment to understand your current mental state
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => handleActivityStart("I'd like to do a comprehensive winter wellness check-in. Help me assess my current mental state, identify any seasonal challenges I'm facing, and create a personalized plan for maintaining good mental health during winter.")}
-                              className="bg-cyan-600 hover:bg-cyan-700 text-white"
-                            >
-                              Start
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+            {activeEvents.length > 0 ? (
+              activeEvents.map((event) => (
+                <EventCard key={event.id} event={event} onActivity={handleActivityStart} />
+              ))
+            ) : (
+              <Card className="bg-muted/50">
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No specific awareness events today, but your wellness journey never stops!</p>
                 </CardContent>
               </Card>
             )}
 
-            {/* Blue Monday - January 19th */}
-            {isBlueMonday && (
-              <Card className="border-blue-300 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                    <Sun className="h-5 w-5" />
-                    Blue Monday - Beat the Blues Day
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-700 dark:text-gray-300 space-y-3">
-                    <p className="font-semibold">Today is "Blue Monday" - known as one of the most challenging days of the year.</p>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>Post-holiday blues combined with cold weather and short days</li>
-                      <li>Failed New Year resolutions can add to feelings of disappointment</li>
-                      <li>Financial stress from holiday spending often peaks</li>
-                      <li>But remember: You have the power to make today bright! 💙</li>
-                    </ul>
-                    <p className="text-blue-600 dark:text-blue-400 font-medium">
-                      Let's turn Blue Monday into a day of self-compassion and positive action!
-                    </p>
-                  </div>
-                  
-                  <div className="border-t pt-4">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <Target className="h-4 w-4" />
-                      Beat the Blues Activities
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <Card className="bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-700">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="font-medium text-blue-700 dark:text-blue-300">
-                                Mood Boost Session
-                              </h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Personalized activities to lift your spirits today
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => handleActivityStart("It's Blue Monday and I could use some support. Help me with activities and exercises to boost my mood today. I want to turn this day into something positive.")}
-                              className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                              Start
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-white dark:bg-gray-800 border-indigo-200 dark:border-indigo-700">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="font-medium text-indigo-700 dark:text-indigo-300">
-                                Gratitude & Joy Finder
-                              </h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Discover sources of joy and practice gratitude
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => handleActivityStart("Guide me through a gratitude and joy-finding exercise to combat the Blue Monday blues. Help me identify positive things in my life and find sources of joy even on difficult days.")}
-                              className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                            >
-                              Start
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Parent Mental Health Day - January 30th */}
-            {isParentMentalHealthDay && (
-              <Card className="border-rose-200 bg-gradient-to-r from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-rose-700 dark:text-rose-300">
-                    <Heart className="h-5 w-5" />
-                    Parent Mental Health Day
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-700 dark:text-gray-300 space-y-3">
-                    <p className="font-semibold">Today we recognize the mental health challenges parents face:</p>
-                    <ul className="list-disc pl-5 space-y-2">
-                      <li>Parenting stress affects 1 in 3 parents significantly</li>
-                      <li>Many parents struggle silently with anxiety and depression</li>
-                      <li>Taking care of your mental health makes you a better parent</li>
-                      <li>You deserve support and understanding too! 💕</li>
-                    </ul>
-                    <p className="text-rose-600 dark:text-rose-400 font-medium">
-                      Whether you're a parent or supporting one, mental health matters for everyone in the family.
-                    </p>
-                  </div>
-                  
-                  <div className="border-t pt-4">
-                    <h4 className="font-semibold mb-3 flex items-center gap-2">
-                      <Target className="h-4 w-4" />
-                      Support Activities
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <Card className="bg-white dark:bg-gray-800 border-rose-200 dark:border-rose-700">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="font-medium text-rose-700 dark:text-rose-300">
-                                Parent Stress Relief
-                              </h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Tailored stress management for busy parents
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => handleActivityStart("I'm a parent and today is Parent Mental Health Day. Help me with stress relief techniques specifically designed for parents. I need quick, practical strategies I can use even with a busy family schedule.")}
-                              className="bg-rose-600 hover:bg-rose-700 text-white"
-                            >
-                              Start
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="bg-white dark:bg-gray-800 border-pink-200 dark:border-pink-700">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <h5 className="font-medium text-pink-700 dark:text-pink-300">
-                                Family Mental Wellness
-                              </h5>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                Tips for supporting the whole family's mental health
-                              </p>
-                            </div>
-                            <Button
-                              onClick={() => handleActivityStart("Help me understand how to support my family's mental health better. I want to create a positive environment for everyone while also taking care of my own mental wellness as a parent.")}
-                              className="bg-pink-600 hover:bg-pink-700 text-white"
-                            >
-                              Start
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Transformation Challenge - Available always */}
-            <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-                  <Target className="h-5 w-5" />
+            {/* Transformation Challenge - Always */}
+            <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="h-5 w-5 text-primary" />
                   Transformation Challenge
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Card className="bg-white dark:bg-gray-800 border-purple-200 dark:border-purple-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h5 className="font-medium text-purple-700 dark:text-purple-300">
-                          Personal Growth Journey
-                        </h5>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          Set a personal goal and get AI-powered guidance to transform your mental wellness
-                        </p>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setShowEvents(false);
-                          setShowChallenge(true);
-                        }}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
-                      >
-                        Start Challenge
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
+                <Card className="bg-background/80">
+                  <CardContent className="p-3 flex items-center justify-between gap-3">
+                    <div>
+                      <h5 className="font-medium text-sm">Personal Growth Journey</h5>
+                      <p className="text-xs text-muted-foreground">Set a goal and get AI-powered guidance</p>
                     </div>
+                    <Button size="sm" onClick={() => { setShowEvents(false); setShowChallenge(true); }} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                      Start <ArrowRight className="h-3 w-3 ml-1" />
+                    </Button>
                   </CardContent>
                 </Card>
               </CardContent>
@@ -325,11 +128,7 @@ const EventsMenu: React.FC<EventsMenuProps> = ({ onNavigateToMindMate }) => {
         </DialogContent>
       </Dialog>
 
-      <TransformationChallenge
-        isOpen={showChallenge}
-        onClose={() => setShowChallenge(false)}
-        onStartChallenge={onNavigateToMindMate}
-      />
+      <TransformationChallenge isOpen={showChallenge} onClose={() => setShowChallenge(false)} onStartChallenge={onNavigateToMindMate} />
     </>
   );
 };
