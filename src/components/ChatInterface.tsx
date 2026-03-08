@@ -564,8 +564,9 @@ const ChatInterface = () => {
                 {/* Main Features Grid - Compact for small Android screens */}
                 <div className="grid grid-cols-3 gap-2.5">
                   <motion.div
-                    whileTap={{ scale: 0.93 }}
-                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.04, y: -2 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                     onClick={() => handleNavigation('mindmate')}
                     className="relative overflow-hidden rounded-2xl p-2.5 pb-2 flex flex-col items-center cursor-pointer shadow-md"
                     style={{ background: 'linear-gradient(145deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05))' }}
