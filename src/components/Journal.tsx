@@ -36,12 +36,12 @@ const Journal: React.FC<JournalProps> = ({ onClose }) => {
         exit={{ opacity: 0, scale: 0.9 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-          <CardHeader className="flex flex-row items-center justify-between border-b">
+        <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden bg-card border-border shadow-xl">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border">
             <div className="flex items-center space-x-4">
-              <BookOpen className="h-6 w-6" style={{ color: 'var(--zenith-primary)' }} />
-              <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">
-                Daily Journal {user && <span className="text-sm font-normal text-gray-500">(Synced)</span>}
+              <BookOpen className="h-6 w-6 text-primary" />
+              <CardTitle className="text-2xl text-foreground">
+                Daily Journal {user && <span className="text-sm font-normal text-muted-foreground">(Synced)</span>}
               </CardTitle>
               <div className="flex space-x-2">
                 <Button
