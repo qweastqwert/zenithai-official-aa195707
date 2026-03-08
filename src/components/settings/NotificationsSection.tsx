@@ -1,13 +1,12 @@
-
 import React from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Bell, Clock, BookOpen, Heart } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Bell, Clock, BookOpen, Heart, AlertCircle } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useToast } from '@/hooks/use-toast';
-import { NotificationService } from '@/services/notificationService';
 
 const NotificationsSection = () => {
   const { settings, updateSettings, requestPermission } = useNotifications();
@@ -23,103 +22,97 @@ const NotificationsSection = () => {
     } else {
       toast({
         title: "Permission Denied",
-        description: "Please enable notifications in your browser settings to receive reminders.",
+        description: "Please enable notifications in your browser settings.",
         variant: "destructive",
       });
     }
   };
 
-  const handleJournalTimeClick = () => {
-    const notificationService = NotificationService.getInstance();
-    notificationService.incrementJournalTestClick();
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center space-x-2">
         <Bell className="h-5 w-5" style={{ color: 'var(--zenith-primary)' }} />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Reminders</h3>
       </div>
 
       <div className="space-y-4">
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div className="flex items-center justify-between mb-2">
-            <span className="font-medium text-blue-900 dark:text-blue-100">Enable Browser Notifications</span>
-            <Button onClick={handlePermissionRequest} size="sm" variant="outline">
-              Request Permission
+        {/* Permission Request */}
+        <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <span className="font-medium text-sm">Browser Notifications</span>
+                <p className="text-xs text-muted-foreground">
+                  Get reminded to check in with yourself
+                </p>
+              </div>
+            </div>
+            <Button onClick={handlePermissionRequest} size="sm" variant="outline" className="flex-shrink-0">
+              Enable
             </Button>
           </div>
-          <p className="text-sm text-blue-700 dark:text-blue-300">
-            Allow notifications to receive wellness reminders and mood check prompts.
-          </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center space-x-3 p-3 border rounded-lg">
-            <Heart className="h-5 w-5 text-pink-500" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">Mood Check Reminders</span>
-                <Switch 
-                  checked={settings.enableMoodReminders} 
-                  onCheckedChange={(checked) => updateSettings({ enableMoodReminders: checked })}
-                />
-              </div>
-              {settings.enableMoodReminders && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Every</span>
-                  <Select 
-                    value={settings.moodReminderInterval.toString()} 
-                    onValueChange={(value) => updateSettings({ moodReminderInterval: parseInt(value) })}
-                  >
-                    <SelectTrigger className="w-20">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2">2</SelectItem>
-                      <SelectItem value="4">4</SelectItem>
-                      <SelectItem value="6">6</SelectItem>
-                      <SelectItem value="8">8</SelectItem>
-                      <SelectItem value="12">12</SelectItem>
-                      <SelectItem value="1245">1245</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">hours</span>
-                  {settings.moodReminderInterval === 1245 && (
-                    <span className="text-xs text-orange-600 dark:text-orange-400">(Test mode - 1 min)</span>
-                  )}
-                </div>
-              )}
+        {/* Mood Reminders */}
+        <div className="p-3 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4 text-pink-500" />
+              <Label className="text-sm font-medium">Mood Check-ins</Label>
             </div>
+            <Switch 
+              checked={settings.enableMoodReminders} 
+              onCheckedChange={(checked) => updateSettings({ enableMoodReminders: checked })}
+            />
           </div>
+          
+          {settings.enableMoodReminders && (
+            <div className="flex items-center gap-2 pl-6">
+              <span className="text-xs text-muted-foreground">Remind me every</span>
+              <Select 
+                value={settings.moodReminderInterval.toString()} 
+                onValueChange={(value) => updateSettings({ moodReminderInterval: parseInt(value) })}
+              >
+                <SelectTrigger className="w-20 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="4">4 hours</SelectItem>
+                  <SelectItem value="6">6 hours</SelectItem>
+                  <SelectItem value="8">8 hours</SelectItem>
+                  <SelectItem value="12">12 hours</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
 
-          <div className="flex items-center space-x-3 p-3 border rounded-lg">
-            <BookOpen className="h-5 w-5 text-purple-500" />
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">Journal Reminders</span>
-                <Switch 
-                  checked={settings.enableJournalReminders} 
-                  onCheckedChange={(checked) => updateSettings({ enableJournalReminders: checked })}
-                />
-              </div>
-              {settings.enableJournalReminders && (
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">Daily at</span>
-                  <Input
-                    type="time"
-                    value={settings.journalReminderTime}
-                    onChange={(e) => updateSettings({ journalReminderTime: e.target.value })}
-                    onClick={handleJournalTimeClick}
-                    className="w-24 cursor-pointer"
-                    title="Click 10 times for test notification"
-                  />
-                  <span className="text-xs text-gray-500">(Click 10x for test)</span>
-                </div>
-              )}
+        {/* Journal Reminders */}
+        <div className="p-3 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-purple-500" />
+              <Label className="text-sm font-medium">Daily Journal Reminder</Label>
             </div>
+            <Switch 
+              checked={settings.enableJournalReminders} 
+              onCheckedChange={(checked) => updateSettings({ enableJournalReminders: checked })}
+            />
           </div>
+          
+          {settings.enableJournalReminders && (
+            <div className="flex items-center gap-2 pl-6">
+              <Clock className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Remind me at</span>
+              <Input
+                type="time"
+                value={settings.journalReminderTime}
+                onChange={(e) => updateSettings({ journalReminderTime: e.target.value })}
+                className="w-24 h-8 text-xs"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
