@@ -78,24 +78,24 @@ const AppContent = () => {
     if (isAuthenticated) {
       const checkForNewAchievements = () => {
         const newlyUnlocked = getNewlyUnlocked();
-        const lastShownAchievement = localStorage.getItem('zenith-last-shown-achievement');
+        const shownAchievements: string[] = JSON.parse(localStorage.getItem('zenith-shown-achievements') || '[]');
         
         // Find the most recent achievement that hasn't been shown
         const achievementToShow = newlyUnlocked.find(achievement => 
-          achievement.id !== lastShownAchievement
+          !shownAchievements.includes(achievement.id)
         );
         
         if (achievementToShow) {
           setCurrentAchievement(achievementToShow);
-          localStorage.setItem('zenith-last-shown-achievement', achievementToShow.id);
+          shownAchievements.push(achievementToShow.id);
+          localStorage.setItem('zenith-shown-achievements', JSON.stringify(shownAchievements));
         }
       };
 
-      // Check immediately and then every 5 seconds
-      checkForNewAchievements();
-      const interval = setInterval(checkForNewAchievements, 5000);
+      // Check once on load, then stop polling aggressively
+      const timeout = setTimeout(checkForNewAchievements, 2000);
       
-      return () => clearInterval(interval);
+      return () => clearTimeout(timeout);
     }
   }, [getNewlyUnlocked, isAuthenticated]);
 
