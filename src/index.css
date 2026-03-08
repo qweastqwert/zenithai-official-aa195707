@@ -394,6 +394,22 @@
   transition: none !important;
 }
 
+/* UI Scale */
+.ui-scale-compact main,
+.ui-scale-comfortable main,
+.ui-scale-large main {
+  zoom: var(--ui-scale, 1);
+}
+
+@supports not (zoom: 1) {
+  .ui-scale-compact main,
+  .ui-scale-comfortable main,
+  .ui-scale-large main {
+    transform: scale(var(--ui-scale, 1));
+    transform-origin: top center;
+  }
+}
+
 /* Focus Indicators */
 .focus-indicators *:focus {
   outline: 2px solid var(--zenith-primary);
