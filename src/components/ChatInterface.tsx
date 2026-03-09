@@ -546,6 +546,9 @@ const ChatInterface = () => {
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
                 </div>
 
+                {/* Daily Schedule Widget */}
+                <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
+
                 {/* Achievements Quick Card */}
                 <motion.div
                   whileTap={{ scale: 0.97 }}
