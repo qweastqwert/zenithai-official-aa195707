@@ -32,6 +32,7 @@ import { useSyncData } from '@/hooks/useSyncData';
 import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
+import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
