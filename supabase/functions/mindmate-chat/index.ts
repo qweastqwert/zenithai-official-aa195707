@@ -352,6 +352,8 @@ IMPORTANT:
                 .insert({ user_id: user.id, memory_text: args.memory_text, category: args.category });
               if (memoryError) console.error('Error saving memory:', memoryError);
               else console.log('Memory saved:', args.category);
+            } else if (toolCall.function.name === 'add_schedule_events') {
+              toolCallsData.push({ type: 'schedule_events', events: args.events, date: args.date });
             } else {
               const typeMap: Record<string, string> = {
                 'show_breathing_exercise': 'breathing_exercise',
