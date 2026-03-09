@@ -998,6 +998,8 @@ const MindMate = ({ profile, initialPrompt }: MindMateProps) => {
   const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
   const [isDeepThinkEnabled, setIsDeepThinkEnabled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [scheduleProposals, setScheduleProposals] = useState<any[] | null>(null);
+  const [scheduleDate, setScheduleDate] = useState<string | undefined>();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
