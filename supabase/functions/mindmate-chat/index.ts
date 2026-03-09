@@ -145,7 +145,7 @@ IMPORTANT:
 
     const enhancedMessages = messages.map((msg: any, index: number) => {
       if (index === 0 && msg.role === 'system') {
-        return { ...msg, content: msg.content + memoryContext + toolInstructions };
+        return { ...msg, content: msg.content + memoryContext + moodContext + scheduleContext + sleepContext + profileContext + toolInstructions };
       }
       return msg;
     });
