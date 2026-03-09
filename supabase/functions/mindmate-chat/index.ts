@@ -273,6 +273,35 @@ IMPORTANT:
             required: ["mood"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "add_schedule_events",
+          description: "Propose schedule events to add to the user's daily schedule. Use when user asks to plan their day, add tasks, or organize their routine. Events will be shown to the user for confirmation before being added.",
+          parameters: {
+            type: "object",
+            properties: {
+              events: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", description: "Event title" },
+                    description: { type: "string", description: "Brief description" },
+                    start_time: { type: "string", description: "Start time in HH:MM 24h format" },
+                    end_time: { type: "string", description: "End time in HH:MM 24h format (optional)" },
+                    category: { type: "string", enum: ["task", "wellness", "exercise", "meal", "study", "mindmate"], description: "Event category" }
+                  },
+                  required: ["title", "start_time", "category"]
+                },
+                description: "Array of events to propose"
+              },
+              date: { type: "string", description: "Date for events in YYYY-MM-DD format. Defaults to today." }
+            },
+            required: ["events"]
+          }
+        }
       }
     ];
 
