@@ -214,6 +214,8 @@ const ChatInterface = () => {
       navigate('/soothing-music');
     } else if (destination === 'achievements') {
       setShowAchievements(true);
+    } else if (destination === 'schedule') {
+      navigate('/daily-schedule');
     }
   };
 
