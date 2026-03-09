@@ -1203,13 +1203,19 @@ Customize your therapeutic approach based on this information while maintaining 
       // Handle tool calls (widgets)
       if (data.toolCalls && Array.isArray(data.toolCalls)) {
         data.toolCalls.forEach((toolCall: any, index: number) => {
-          const widgetMessage: Message = {
-            role: 'assistant',
-            content: '',
-            id: `widget-${Date.now()}-${index}`,
-            widget: { type: toolCall.type, data: toolCall }
-          };
-          setMessages((prev) => [...prev, widgetMessage]);
+          if (toolCall.type === 'schedule_events') {
+            // Show schedule confirmation dialog
+            setScheduleProposals(toolCall.events || []);
+            setScheduleDate(toolCall.date);
+          } else {
+            const widgetMessage: Message = {
+              role: 'assistant',
+              content: '',
+              id: `widget-${Date.now()}-${index}`,
+              widget: { type: toolCall.type, data: toolCall }
+            };
+            setMessages((prev) => [...prev, widgetMessage]);
+          }
         });
       }
     } catch (error) {
