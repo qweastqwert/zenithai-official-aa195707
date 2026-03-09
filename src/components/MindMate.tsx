@@ -973,7 +973,7 @@ interface Message {
   content: string;
   id: string;
   widget?: {
-    type: 'breathing_exercise' | 'emergency_help' | 'grounding_exercise' | 'mindfulness_prompt' | 'affirmations' | 'muscle_relaxation';
+    type: 'breathing_exercise' | 'emergency_help' | 'grounding_exercise' | 'mindfulness_prompt' | 'affirmations' | 'muscle_relaxation' | 'schedule_events';
     data: any;
   };
 }
