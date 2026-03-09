@@ -23,7 +23,7 @@ import MindfulnessPromptWidget from '@/components/widgets/MindfulnessPromptWidge
 import AffirmationWidget from '@/components/widgets/AffirmationWidget';
 import ProgressiveMuscleWidget from '@/components/widgets/ProgressiveMuscleWidget';
 import FormattedMessage from '@/components/chat/FormattedMessage';
-
+import { ScheduleConfirmDialog } from '@/components/schedule/ScheduleConfirmDialog';
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
 Stress is the body and mind's response to any demand or challenge, whether physical, mental, emotional, or environmental. While stress often gets a negative reputation, it's important to recognize it as a natural part of being human. In moderation, stress can motivate us, enhance performance, and help us meet goals (what researchers call eustress). However, when stress becomes intense, chronic, or overwhelming, it can severely impact physical health, emotional wellbeing, cognitive functioning, and overall quality of life.
