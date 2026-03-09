@@ -24,6 +24,7 @@ import ArticleView from "./pages/ArticleView";
 import BreathingExercisesPage from "./pages/BreathingExercises";
 import SoothingMusicPage from "./pages/SoothingMusic";
 import SleepTrackingPage from "./pages/SleepTracking";
+import DailySchedulePage from "./pages/DailySchedule";
 import CommunityPage from "./pages/Community";
 import AdminPage from "./pages/Admin";
 import NotFound from "./pages/NotFound";
