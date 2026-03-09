@@ -50,6 +50,53 @@ serve(async (req) => {
       ? `\n\nIMPORTANT CONTEXT - User's MindArchive (key information from previous conversations):\n${memories.map(m => `- ${m.memory_text}${m.category ? ` [${m.category}]` : ''}`).join('\n')}`
       : '';
 
+    // Fetch recent mood entries for context
+    const { data: moodEntries } = await supabaseClient
+      .from('mood_entries')
+      .select('mood, reason, date, time')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const moodContext = moodEntries && moodEntries.length > 0
+      ? `\n\nUSER'S RECENT MOOD DATA (use this for better understanding and tailored responses):\n${moodEntries.map(m => `- ${m.date} ${m.time}: Mood "${m.mood}"${m.reason ? ` - Reason: "${m.reason}"` : ''}`).join('\n')}`
+      : '';
+
+    // Fetch today's schedule events
+    const today = new Date().toISOString().split('T')[0];
+    const { data: scheduleEvents } = await supabaseClient
+      .from('schedule_events')
+      .select('title, start_time, end_time, category, is_completed')
+      .eq('user_id', user.id)
+      .eq('event_date', today)
+      .order('start_time', { ascending: true });
+
+    const scheduleContext = scheduleEvents && scheduleEvents.length > 0
+      ? `\n\nUSER'S TODAY SCHEDULE (${today}):\n${scheduleEvents.map(e => `- ${e.start_time}${e.end_time ? `-${e.end_time}` : ''}: ${e.title} [${e.category}]${e.is_completed ? ' ✓ done' : ''}`).join('\n')}`
+      : `\n\nUSER'S TODAY SCHEDULE: No events scheduled yet for today.`;
+
+    // Fetch user's sleep profile
+    const { data: sleepProfile } = await supabaseClient
+      .from('sleep_profiles')
+      .select('sleep_time, wake_time')
+      .eq('user_id', user.id)
+      .single();
+
+    const sleepContext = sleepProfile
+      ? `\n\nUSER'S SLEEP SCHEDULE: Bedtime ${sleepProfile.sleep_time}, Wake time ${sleepProfile.wake_time}`
+      : '';
+
+    // Fetch user profile for onboarding info
+    const { data: userProfile } = await supabaseClient
+      .from('profiles')
+      .select('name, age, gender, hobbies, problems')
+      .eq('user_id', user.id)
+      .single();
+
+    const profileContext = userProfile
+      ? `\n\nUSER PROFILE: Name: ${userProfile.name}, Age: ${userProfile.age}, Hobbies: ${userProfile.hobbies || 'N/A'}, Challenges: ${userProfile.problems || 'N/A'}`
+      : '';
+
     const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openRouterApiKey) {
       throw new Error('OpenRouter API key not configured');
