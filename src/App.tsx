@@ -144,6 +144,7 @@ const AppContent = () => {
             <Route path="/breathing-exercises" element={<BreathingExercisesPage />} />
             <Route path="/soothing-music" element={<SoothingMusicPage />} />
             <Route path="/sleep-tracking" element={<SleepTrackingPage />} />
+            <Route path="/daily-schedule" element={<DailySchedulePage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/chat" element={<ChatInterface />} />

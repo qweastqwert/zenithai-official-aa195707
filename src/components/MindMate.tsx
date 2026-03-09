@@ -1414,6 +1414,15 @@ Customize your therapeutic approach based on this information while maintaining 
           MindMate is designed to provide support, not replace professional mental health care
         </p>
       </div>
+      {/* Schedule Confirm Dialog */}
+      {scheduleProposals && (
+        <ScheduleConfirmDialog
+          isOpen={true}
+          onClose={() => { setScheduleProposals(null); setScheduleDate(undefined); }}
+          proposals={scheduleProposals}
+          date={scheduleDate}
+        />
+      )}
     </div>
   );
 };
