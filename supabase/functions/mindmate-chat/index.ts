@@ -50,6 +50,53 @@ serve(async (req) => {
       ? `\n\nIMPORTANT CONTEXT - User's MindArchive (key information from previous conversations):\n${memories.map(m => `- ${m.memory_text}${m.category ? ` [${m.category}]` : ''}`).join('\n')}`
       : '';
 
+    // Fetch recent mood entries for context
+    const { data: moodEntries } = await supabaseClient
+      .from('mood_entries')
+      .select('mood, reason, date, time')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    const moodContext = moodEntries && moodEntries.length > 0
+      ? `\n\nUSER'S RECENT MOOD DATA (use this for better understanding and tailored responses):\n${moodEntries.map(m => `- ${m.date} ${m.time}: Mood "${m.mood}"${m.reason ? ` - Reason: "${m.reason}"` : ''}`).join('\n')}`
+      : '';
+
+    // Fetch today's schedule events
+    const today = new Date().toISOString().split('T')[0];
+    const { data: scheduleEvents } = await supabaseClient
+      .from('schedule_events')
+      .select('title, start_time, end_time, category, is_completed')
+      .eq('user_id', user.id)
+      .eq('event_date', today)
+      .order('start_time', { ascending: true });
+
+    const scheduleContext = scheduleEvents && scheduleEvents.length > 0
+      ? `\n\nUSER'S TODAY SCHEDULE (${today}):\n${scheduleEvents.map(e => `- ${e.start_time}${e.end_time ? `-${e.end_time}` : ''}: ${e.title} [${e.category}]${e.is_completed ? ' ✓ done' : ''}`).join('\n')}`
+      : `\n\nUSER'S TODAY SCHEDULE: No events scheduled yet for today.`;
+
+    // Fetch user's sleep profile
+    const { data: sleepProfile } = await supabaseClient
+      .from('sleep_profiles')
+      .select('sleep_time, wake_time')
+      .eq('user_id', user.id)
+      .single();
+
+    const sleepContext = sleepProfile
+      ? `\n\nUSER'S SLEEP SCHEDULE: Bedtime ${sleepProfile.sleep_time}, Wake time ${sleepProfile.wake_time}`
+      : '';
+
+    // Fetch user profile for onboarding info
+    const { data: userProfile } = await supabaseClient
+      .from('profiles')
+      .select('name, age, gender, hobbies, problems')
+      .eq('user_id', user.id)
+      .single();
+
+    const profileContext = userProfile
+      ? `\n\nUSER PROFILE: Name: ${userProfile.name}, Age: ${userProfile.age}, Hobbies: ${userProfile.hobbies || 'N/A'}, Challenges: ${userProfile.problems || 'N/A'}`
+      : '';
+
     const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
     if (!openRouterApiKey) {
       throw new Error('OpenRouter API key not configured');
@@ -71,6 +118,17 @@ When you detect user preparing for work/study: Call suggest_music with mood='foc
 When user mentions being tired or needing energy: Call suggest_music with mood='energy'
 When user mentions sleep or bedtime: Call suggest_music with mood='sleep'
 
+DAILY SCHEDULE PLANNING:
+You have access to the user's daily schedule, mood logs, sleep times, and profile info.
+When users ask you to plan their day, suggest activities, or manage their schedule:
+- Use the add_schedule_events tool to propose events
+- Consider their sleep schedule (don't suggest events during sleep hours)
+- Consider their recent mood - if they've been stressed, include wellness breaks
+- Consider their hobbies and challenges from their profile
+- Always suggest realistic, balanced schedules with breaks
+- Include wellness activities like meditation, breathing exercises, or journaling
+- Ask for confirmation before adding - the tool will show a confirmation dialog
+
 TEXT FORMATTING RULES:
 Use these formatting patterns in your responses:
 - Heading 1: *(text)* - wrap with single asterisk
@@ -87,7 +145,7 @@ IMPORTANT:
 
     const enhancedMessages = messages.map((msg: any, index: number) => {
       if (index === 0 && msg.role === 'system') {
-        return { ...msg, content: msg.content + memoryContext + toolInstructions };
+        return { ...msg, content: msg.content + memoryContext + moodContext + scheduleContext + sleepContext + profileContext + toolInstructions };
       }
       return msg;
     });
@@ -215,6 +273,35 @@ IMPORTANT:
             required: ["mood"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "add_schedule_events",
+          description: "Propose schedule events to add to the user's daily schedule. Use when user asks to plan their day, add tasks, or organize their routine. Events will be shown to the user for confirmation before being added.",
+          parameters: {
+            type: "object",
+            properties: {
+              events: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string", description: "Event title" },
+                    description: { type: "string", description: "Brief description" },
+                    start_time: { type: "string", description: "Start time in HH:MM 24h format" },
+                    end_time: { type: "string", description: "End time in HH:MM 24h format (optional)" },
+                    category: { type: "string", enum: ["task", "wellness", "exercise", "meal", "study", "mindmate"], description: "Event category" }
+                  },
+                  required: ["title", "start_time", "category"]
+                },
+                description: "Array of events to propose"
+              },
+              date: { type: "string", description: "Date for events in YYYY-MM-DD format. Defaults to today." }
+            },
+            required: ["events"]
+          }
+        }
       }
     ];
 
@@ -265,6 +352,8 @@ IMPORTANT:
                 .insert({ user_id: user.id, memory_text: args.memory_text, category: args.category });
               if (memoryError) console.error('Error saving memory:', memoryError);
               else console.log('Memory saved:', args.category);
+            } else if (toolCall.function.name === 'add_schedule_events') {
+              toolCallsData.push({ type: 'schedule_events', events: args.events, date: args.date });
             } else {
               const typeMap: Record<string, string> = {
                 'show_breathing_exercise': 'breathing_exercise',

@@ -23,7 +23,7 @@ import MindfulnessPromptWidget from '@/components/widgets/MindfulnessPromptWidge
 import AffirmationWidget from '@/components/widgets/AffirmationWidget';
 import ProgressiveMuscleWidget from '@/components/widgets/ProgressiveMuscleWidget';
 import FormattedMessage from '@/components/chat/FormattedMessage';
-
+import { ScheduleConfirmDialog } from '@/components/schedule/ScheduleConfirmDialog';
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
 Stress is the body and mind's response to any demand or challenge, whether physical, mental, emotional, or environmental. While stress often gets a negative reputation, it's important to recognize it as a natural part of being human. In moderation, stress can motivate us, enhance performance, and help us meet goals (what researchers call eustress). However, when stress becomes intense, chronic, or overwhelming, it can severely impact physical health, emotional wellbeing, cognitive functioning, and overall quality of life.
@@ -973,7 +973,7 @@ interface Message {
   content: string;
   id: string;
   widget?: {
-    type: 'breathing_exercise' | 'emergency_help' | 'grounding_exercise' | 'mindfulness_prompt' | 'affirmations' | 'muscle_relaxation';
+    type: 'breathing_exercise' | 'emergency_help' | 'grounding_exercise' | 'mindfulness_prompt' | 'affirmations' | 'muscle_relaxation' | 'schedule_events';
     data: any;
   };
 }
@@ -998,6 +998,8 @@ const MindMate = ({ profile, initialPrompt }: MindMateProps) => {
   const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
   const [isDeepThinkEnabled, setIsDeepThinkEnabled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [scheduleProposals, setScheduleProposals] = useState<any[] | null>(null);
+  const [scheduleDate, setScheduleDate] = useState<string | undefined>();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1201,13 +1203,19 @@ Customize your therapeutic approach based on this information while maintaining 
       // Handle tool calls (widgets)
       if (data.toolCalls && Array.isArray(data.toolCalls)) {
         data.toolCalls.forEach((toolCall: any, index: number) => {
-          const widgetMessage: Message = {
-            role: 'assistant',
-            content: '',
-            id: `widget-${Date.now()}-${index}`,
-            widget: { type: toolCall.type, data: toolCall }
-          };
-          setMessages((prev) => [...prev, widgetMessage]);
+          if (toolCall.type === 'schedule_events') {
+            // Show schedule confirmation dialog
+            setScheduleProposals(toolCall.events || []);
+            setScheduleDate(toolCall.date);
+          } else {
+            const widgetMessage: Message = {
+              role: 'assistant',
+              content: '',
+              id: `widget-${Date.now()}-${index}`,
+              widget: { type: toolCall.type, data: toolCall }
+            };
+            setMessages((prev) => [...prev, widgetMessage]);
+          }
         });
       }
     } catch (error) {
@@ -1406,6 +1414,15 @@ Customize your therapeutic approach based on this information while maintaining 
           MindMate is designed to provide support, not replace professional mental health care
         </p>
       </div>
+      {/* Schedule Confirm Dialog */}
+      {scheduleProposals && (
+        <ScheduleConfirmDialog
+          isOpen={true}
+          onClose={() => { setScheduleProposals(null); setScheduleDate(undefined); }}
+          proposals={scheduleProposals}
+          date={scheduleDate}
+        />
+      )}
     </div>
   );
 };

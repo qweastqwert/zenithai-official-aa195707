@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { MessageCircle, Settings as SettingsIcon, Wind, Heart, Brain, Flower2, ArrowLeft, BookOpen, Trophy, Users, Sparkles, PenLine, HeartPulse, Moon } from 'lucide-react';
+import { MessageCircle, Settings as SettingsIcon, Wind, Heart, Brain, Flower2, ArrowLeft, BookOpen, Trophy, Users, Sparkles, PenLine, HeartPulse, Moon, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +32,7 @@ import { useSyncData } from '@/hooks/useSyncData';
 import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
+import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
@@ -213,6 +214,8 @@ const ChatInterface = () => {
       navigate('/soothing-music');
     } else if (destination === 'achievements') {
       setShowAchievements(true);
+    } else if (destination === 'schedule') {
+      navigate('/daily-schedule');
     }
   };
 
@@ -543,6 +546,9 @@ const ChatInterface = () => {
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
                 </div>
 
+                {/* Daily Schedule Widget */}
+                <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
+
                 {/* Achievements Quick Card */}
                 <motion.div
                   whileTap={{ scale: 0.97 }}
@@ -803,6 +809,23 @@ const ChatInterface = () => {
             {user && <AnalyticsDashboard />}
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {/* Daily Schedule Card */}
+              <motion.div
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card 
+                  className="bg-gradient-to-br from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 border-sky-200 dark:border-sky-800 cursor-pointer hover:shadow-lg transition-all duration-200"
+                  onClick={() => handleNavigation('schedule')}
+                >
+                  <CardContent className="p-6 text-center">
+                    <div className="text-4xl mb-3">📅</div>
+                    <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-gray-100">Daily Schedule</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Plan your day and manage tasks</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
               {/* Sleep Tracker Card */}
               <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}

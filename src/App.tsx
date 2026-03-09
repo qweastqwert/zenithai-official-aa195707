@@ -24,6 +24,7 @@ import ArticleView from "./pages/ArticleView";
 import BreathingExercisesPage from "./pages/BreathingExercises";
 import SoothingMusicPage from "./pages/SoothingMusic";
 import SleepTrackingPage from "./pages/SleepTracking";
+import DailySchedulePage from "./pages/DailySchedule";
 import CommunityPage from "./pages/Community";
 import AdminPage from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -143,6 +144,7 @@ const AppContent = () => {
             <Route path="/breathing-exercises" element={<BreathingExercisesPage />} />
             <Route path="/soothing-music" element={<SoothingMusicPage />} />
             <Route path="/sleep-tracking" element={<SleepTrackingPage />} />
+            <Route path="/daily-schedule" element={<DailySchedulePage />} />
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/chat" element={<ChatInterface />} />
