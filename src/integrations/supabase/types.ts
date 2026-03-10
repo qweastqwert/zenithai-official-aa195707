@@ -470,6 +470,60 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_events: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string
+          description: string | null
+          end_time: string | null
+          id: string
+          is_active: boolean
+          recurrence_date: number | null
+          recurrence_day: number | null
+          recurrence_month: number | null
+          recurrence_type: string
+          start_time: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          is_active?: boolean
+          recurrence_date?: number | null
+          recurrence_day?: number | null
+          recurrence_month?: number | null
+          recurrence_type?: string
+          start_time?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          end_time?: string | null
+          id?: string
+          is_active?: boolean
+          recurrence_date?: number | null
+          recurrence_day?: number | null
+          recurrence_month?: number | null
+          recurrence_type?: string
+          start_time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       schedule_events: {
         Row: {
           category: string
