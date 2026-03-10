@@ -86,7 +86,7 @@ export const ScheduleCalendar = ({ selectedDate, onSelectDate, events, getRecurr
           <h3 className="text-sm font-semibold text-foreground">{MONTHS[viewMonth]} {viewYear}</h3>
           <Button variant="ghost" size="sm" className="text-xs text-primary h-6 px-2" onClick={() => {
             const t = new Date();
-            onSelectDate(t.toISOString().split('T')[0]);
+            handleSelectDate(t.toISOString().split('T')[0]);
           }}>
             Today
           </Button>
