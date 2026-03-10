@@ -114,7 +114,7 @@ export const ScheduleCalendar = ({ selectedDate, onSelectDate, events, getRecurr
           return (
             <button
               key={i}
-              onClick={() => onSelectDate(dateStr)}
+              onClick={() => handleSelectDate(dateStr)}
               className={`
                 relative flex flex-col items-center justify-center h-10 rounded-xl text-xs transition-all
                 ${!cell.isCurrentMonth ? 'text-muted-foreground/40' : 'text-foreground'}
