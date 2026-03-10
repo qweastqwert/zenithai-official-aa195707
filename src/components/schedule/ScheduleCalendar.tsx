@@ -23,11 +23,13 @@ export const ScheduleCalendar = ({ selectedDate, onSelectDate, events, getRecurr
   const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
 
-  React.useEffect(() => {
-    const d = new Date(selectedDate + 'T00:00:00');
+  // Sync view when selected date changes to a different month
+  const handleSelectDate = (dateStr: string) => {
+    const d = new Date(dateStr + 'T00:00:00');
     setViewMonth(d.getMonth());
     setViewYear(d.getFullYear());
-  }, [selectedDate]);
+    onSelectDate(dateStr);
+  };
 
   const navigateMonth = (dir: number) => {
     let m = viewMonth + dir;
