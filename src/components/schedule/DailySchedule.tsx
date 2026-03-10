@@ -36,11 +36,18 @@ export const DailySchedule = () => {
     fetchEvents(selectedDate);
   }, [selectedDate, fetchEvents]);
 
-  // Auto-add sleep/wake events
+  // Auto-add sleep/wake events (with guard to prevent duplicates)
+  const sleepAddedRef = useRef<string>('');
   useEffect(() => {
     if (!sleepProfile || loading) return;
+    if (sleepAddedRef.current === selectedDate) return;
+    
     const hasSleepEvent = events.some(e => e.category === 'sleep' && e.event_date === selectedDate && e.is_auto_generated);
     const hasWakeEvent = events.some(e => e.category === 'wake' && e.event_date === selectedDate && e.is_auto_generated);
+
+    if (hasSleepEvent && hasWakeEvent) return;
+    
+    sleepAddedRef.current = selectedDate;
 
     if (!hasSleepEvent && sleepProfile.sleep_time) {
       addEvent({
