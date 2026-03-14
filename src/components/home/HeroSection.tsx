@@ -31,7 +31,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
       </div>
 
       {/* Gradient overlay for text readability */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/80 via-background/40 to-background/90 dark:from-background/90 dark:via-background/50 dark:to-background/95" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/60 via-transparent to-background/70 dark:from-background/70 dark:via-background/20 dark:to-background/80" />
 
       <div className="container mx-auto text-center relative z-10">
         <div className="max-w-4xl mx-auto">
