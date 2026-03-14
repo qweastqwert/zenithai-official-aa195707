@@ -47,15 +47,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
           </div>
 
           {/* Title with deep meaning */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-4 sm:mb-6 royal-gradient-text royal-fade-in px-3" style={{ animationDelay: '0.2s' }}>
-            Reach Your <span className="font-playfair italic">Zenith</span>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-4 sm:mb-6 text-foreground royal-fade-in px-3" style={{ animationDelay: '0.2s' }}>
+            Reach Your <span className="font-playfair italic text-primary">Zenith</span>
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl mb-3 text-muted-foreground royal-fade-in font-light leading-relaxed px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.3s' }}>
+          <p className="text-lg sm:text-xl md:text-2xl mb-3 text-foreground/80 royal-fade-in font-light leading-relaxed px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.3s' }}>
             The highest point isn't a destination — it's a practice.
           </p>
 
-          <p className="text-sm sm:text-base mb-8 sm:mb-10 text-muted-foreground/70 royal-fade-in font-light px-6 max-w-xl mx-auto" style={{ animationDelay: '0.4s' }}>
+          <p className="text-sm sm:text-base mb-8 sm:mb-10 text-foreground/60 royal-fade-in font-light px-6 max-w-xl mx-auto" style={{ animationDelay: '0.4s' }}>
             AI-powered meditation, mood intelligence, and personalized wellness — 
             crafted for the journey inward.
           </p>
