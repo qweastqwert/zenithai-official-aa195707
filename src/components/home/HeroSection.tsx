@@ -100,9 +100,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
 
           {/* Meaningful quote */}
           <div className="royal-fade-in px-6" style={{ animationDelay: '0.7s' }}>
-            <blockquote className="text-sm sm:text-base text-muted-foreground/60 italic font-light max-w-lg mx-auto border-l-2 border-primary/30 pl-4 text-left">
+            <blockquote className="text-sm sm:text-base text-foreground/70 italic font-light max-w-lg mx-auto border-l-2 border-primary/50 pl-4 text-left">
               "The mind is everything. What you think, you become."
-              <span className="block text-xs mt-1 not-italic text-muted-foreground/40">— Buddha</span>
+              <span className="block text-xs mt-1 not-italic text-foreground/50">— Buddha</span>
             </blockquote>
           </div>
         </div>
