@@ -31,7 +31,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
       </div>
 
       {/* Gradient overlay for text readability */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/80 via-background/40 to-background/90 dark:from-background/90 dark:via-background/50 dark:to-background/95" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-background/60 via-transparent to-background/70 dark:from-background/70 dark:via-background/20 dark:to-background/80" />
 
       <div className="container mx-auto text-center relative z-10">
         <div className="max-w-4xl mx-auto">
@@ -47,15 +47,15 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
           </div>
 
           {/* Title with deep meaning */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-4 sm:mb-6 royal-gradient-text royal-fade-in px-3" style={{ animationDelay: '0.2s' }}>
-            Reach Your <span className="font-playfair italic">Zenith</span>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-4 sm:mb-6 text-foreground royal-fade-in px-3" style={{ animationDelay: '0.2s' }}>
+            Reach Your <span className="font-playfair italic text-primary">Zenith</span>
           </h1>
           
-          <p className="text-lg sm:text-xl md:text-2xl mb-3 text-muted-foreground royal-fade-in font-light leading-relaxed px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.3s' }}>
+          <p className="text-lg sm:text-xl md:text-2xl mb-3 text-foreground/80 royal-fade-in font-light leading-relaxed px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.3s' }}>
             The highest point isn't a destination — it's a practice.
           </p>
 
-          <p className="text-sm sm:text-base mb-8 sm:mb-10 text-muted-foreground/70 royal-fade-in font-light px-6 max-w-xl mx-auto" style={{ animationDelay: '0.4s' }}>
+          <p className="text-sm sm:text-base mb-8 sm:mb-10 text-foreground/60 royal-fade-in font-light px-6 max-w-xl mx-auto" style={{ animationDelay: '0.4s' }}>
             AI-powered meditation, mood intelligence, and personalized wellness — 
             crafted for the journey inward.
           </p>
@@ -100,9 +100,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
 
           {/* Meaningful quote */}
           <div className="royal-fade-in px-6" style={{ animationDelay: '0.7s' }}>
-            <blockquote className="text-sm sm:text-base text-muted-foreground/60 italic font-light max-w-lg mx-auto border-l-2 border-primary/30 pl-4 text-left">
+            <blockquote className="text-sm sm:text-base text-foreground/70 italic font-light max-w-lg mx-auto border-l-2 border-primary/50 pl-4 text-left">
               "The mind is everything. What you think, you become."
-              <span className="block text-xs mt-1 not-italic text-muted-foreground/40">— Buddha</span>
+              <span className="block text-xs mt-1 not-italic text-foreground/50">— Buddha</span>
             </blockquote>
           </div>
         </div>
