@@ -15,19 +15,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
     <section className="relative pt-20 sm:pt-24 pb-12 sm:pb-20 px-3 sm:px-4 min-h-screen flex items-center justify-center overflow-hidden">
       {/* 3D Spline Background — Ambient abstract blob */}
       <div 
-        className="absolute inset-0 z-0 opacity-70 dark:opacity-50 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{ transform: `translateY(${parallaxOffset * 0.15}px)` }}
       >
-        <SplineScene
-          scene="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"
-          className="w-full h-full"
-          fallback={
-            <div className="w-full h-full">
-              <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-600/20 to-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-            </div>
-          }
-        />
+        <SplineScene variant="hero" className="w-full h-full" />
       </div>
 
       {/* Gradient overlay for text readability */}

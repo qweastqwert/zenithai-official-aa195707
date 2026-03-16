@@ -5,16 +5,8 @@ const PhilosophySection: React.FC = () => {
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden">
       {/* 3D Scene — Interactive floating object */}
-      <div className="absolute right-0 top-0 w-1/2 h-full opacity-60 dark:opacity-40 pointer-events-none hidden md:block">
-        <SplineScene
-          scene="https://prod.spline.design/pvM5sSiYV2ivGeya/scene.splinecode"
-          className="w-full h-full"
-          fallback={
-            <div className="w-full h-full flex items-center justify-center">
-              <div className="w-64 h-64 rounded-full bg-gradient-to-br from-primary/15 via-purple-400/10 to-primary/5 blur-2xl animate-float" />
-            </div>
-          }
-        />
+      <div className="absolute right-0 top-0 w-1/2 h-full pointer-events-none hidden md:block">
+        <SplineScene variant="philosophy" className="w-full h-full" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
