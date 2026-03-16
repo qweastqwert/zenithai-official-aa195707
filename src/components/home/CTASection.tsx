@@ -7,18 +7,9 @@ import SplineScene from './SplineScene';
 const CTASection: React.FC = () => {
   return (
     <section className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-br from-primary/95 via-purple-700 to-indigo-900">
-      {/* 3D Background */}
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <SplineScene
-          scene="https://prod.spline.design/PwbEVKnbziNXYgZG/scene.splinecode"
-          className="w-full h-full"
-          fallback={
-            <div className="absolute inset-0">
-              <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-300/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
-            </div>
-          }
-        />
+      {/* Animated Background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <SplineScene variant="cta" className="w-full h-full" />
       </div>
       
       <div className="container mx-auto px-4 text-center relative z-10">
