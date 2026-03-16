@@ -43,19 +43,19 @@ const slideVariants = {
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] }
+    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const }
   },
   exit: (direction: number) => ({
     x: direction < 0 ? 30 : -30,
     opacity: 0,
-    transition: { duration: 0.2, ease: "easeIn" }
+    transition: { duration: 0.2, ease: "easeIn" as const }
   })
 };
 
 const pulseVariants = {
   pulse: {
     scale: [1, 1.05, 1],
-    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+    transition: { duration: 2, repeat: Infinity, ease: "easeInOut" as const }
   }
 };
 
