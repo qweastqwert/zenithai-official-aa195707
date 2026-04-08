@@ -8,7 +8,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getCookie, setCookie } from '@/utils/cookieUtils';
@@ -25,17 +24,13 @@ interface AccessibilityState {
   readingGuide: boolean;
   screenReader: boolean;
   muteSounds: boolean;
-  // New: Color-blind corrections
   colorBlindMode: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia';
-  // New: Screen reader enhancements
   focusHighlight: boolean;
   announcePageChanges: boolean;
   skipNavigation: boolean;
-  // New: Additional helpers
-  lineHeight: number; // 100-200
+  lineHeight: number;
   cursorSpeed: 'normal' | 'slow';
   tooltipDelay: 'normal' | 'long';
-  // Active preset
   activePreset: string | null;
 }
 
@@ -153,6 +148,9 @@ const PRESETS: Preset[] = [
   },
 ];
 
+export { DEFAULT_STATE, PRESETS };
+export type { AccessibilityState, Preset };
+
 const AccessibilityWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -167,6 +165,16 @@ const AccessibilityWidget = () => {
     } catch {}
   }, []);
 
+  // Listen for visibility changes from settings
+  useEffect(() => {
+    const handler = () => {
+      const visible = getCookie('zenith-accessibility-visible');
+      setIsVisible(visible !== 'false');
+    };
+    window.addEventListener('zenith-a11y-visibility-changed', handler);
+    return () => window.removeEventListener('zenith-a11y-visibility-changed', handler);
+  }, []);
+
   const save = useCallback((newState: AccessibilityState) => {
     setCookie('zenith-accessibility', JSON.stringify(newState), 365);
   }, []);
@@ -175,11 +183,9 @@ const AccessibilityWidget = () => {
   useEffect(() => {
     const root = document.documentElement;
     
-    // Font size via zoom
     root.style.setProperty('--a11y-font-scale', `${state.fontSize / 100}`);
     document.body.style.zoom = state.fontSize !== 100 ? `${state.fontSize}%` : '';
 
-    // Toggleable classes
     root.classList.toggle('a11y-high-contrast', state.highContrast);
     root.classList.toggle('a11y-reduce-motion', state.reduceMotion);
     root.classList.toggle('a11y-dyslexia-font', state.dyslexiaFont);
@@ -191,11 +197,9 @@ const AccessibilityWidget = () => {
     root.classList.toggle('a11y-skip-nav', state.skipNavigation);
     root.classList.toggle('a11y-slow-cursor', state.cursorSpeed === 'slow');
 
-    // Color blind filter + saturation combined
     const filters: string[] = [];
     if (state.saturation !== 100) filters.push(`saturate(${state.saturation}%)`);
     
-    // Color blind SVG filters are applied via CSS class
     root.classList.remove('a11y-cb-protanopia', 'a11y-cb-deuteranopia', 'a11y-cb-tritanopia', 'a11y-cb-achromatopsia');
     if (state.colorBlindMode !== 'none') {
       root.classList.add(`a11y-cb-${state.colorBlindMode}`);
@@ -203,7 +207,6 @@ const AccessibilityWidget = () => {
     
     root.style.filter = filters.length ? filters.join(' ') : '';
     
-    // Line height
     if (state.lineHeight !== 100) {
       root.style.setProperty('--a11y-line-height', `${state.lineHeight / 100}`);
       root.classList.add('a11y-custom-line-height');
@@ -211,10 +214,8 @@ const AccessibilityWidget = () => {
       root.classList.remove('a11y-custom-line-height');
     }
 
-    // Screen reader
     root.setAttribute('data-screen-reader-optimized', state.screenReader ? 'true' : 'false');
     
-    // Page change announcements
     if (state.announcePageChanges) {
       let announcer = document.getElementById('a11y-announcer');
       if (!announcer) {
@@ -242,7 +243,6 @@ const AccessibilityWidget = () => {
 
   const applyPreset = (preset: Preset) => {
     if (state.activePreset === preset.id) {
-      // Deactivate - reset to defaults
       setState(DEFAULT_STATE);
       save(DEFAULT_STATE);
     } else {
@@ -257,16 +257,18 @@ const AccessibilityWidget = () => {
     save(DEFAULT_STATE);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible) return (
+    <>
+      {state.readingGuide && <ReadingGuide />}
+      <ColorBlindFilters />
+    </>
+  );
 
   return (
     <>
       {state.readingGuide && <ReadingGuide />}
-      
-      {/* SVG color-blind filters (hidden) */}
       <ColorBlindFilters />
       
-      {/* Skip navigation link */}
       {state.skipNavigation && (
         <a
           href="#main-content"
@@ -296,10 +298,10 @@ const AccessibilityWidget = () => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 80, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="fixed bottom-24 right-18 z-[61] w-[340px] max-h-[75vh] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden"
+            className="fixed bottom-2 right-2 sm:bottom-24 sm:right-18 z-[61] w-[calc(100vw-1rem)] sm:w-[340px] max-h-[80vh] sm:max-h-[75vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-3 border-b border-border bg-muted/50">
+            <div className="flex items-center justify-between p-3 border-b border-border bg-muted/50 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Accessibility className="w-4 h-4 text-primary" />
                 <h3 className="font-semibold text-sm">Accessibility</h3>
@@ -314,8 +316,8 @@ const AccessibilityWidget = () => {
               </div>
             </div>
 
-            <Tabs defaultValue="settings" className="w-full">
-              <TabsList className="w-full grid grid-cols-2 rounded-none border-b border-border bg-muted/30 h-9">
+            <Tabs defaultValue="settings" className="w-full flex flex-col flex-1 min-h-0">
+              <TabsList className="w-full grid grid-cols-2 rounded-none border-b border-border bg-muted/30 h-9 flex-shrink-0">
                 <TabsTrigger value="settings" className="text-xs data-[state=active]:bg-background rounded-none">
                   <Sparkles className="w-3 h-3 mr-1" /> Settings
                 </TabsTrigger>
@@ -325,174 +327,164 @@ const AccessibilityWidget = () => {
               </TabsList>
 
               {/* SETTINGS TAB */}
-              <TabsContent value="settings" className="mt-0">
-                <ScrollArea className="max-h-[calc(75vh-100px)]">
-                  <div className="p-4 space-y-4">
-                    
-                    {/* Text Size */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Type className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Text Size</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{state.fontSize}%</span>
-                      </div>
+              <TabsContent value="settings" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <div className="p-4 space-y-4">
+                  
+                  {/* Text Size */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => update({ fontSize: Math.max(80, state.fontSize - 10) })}>
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <Slider value={[state.fontSize]} min={80} max={200} step={10} onValueChange={([v]) => update({ fontSize: v })} className="flex-1" />
-                        <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => update({ fontSize: Math.min(200, state.fontSize + 10) })}>
-                          <Plus className="w-3 h-3" />
-                        </Button>
+                        <Type className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">Text Size</span>
                       </div>
+                      <span className="text-xs text-muted-foreground">{state.fontSize}%</span>
                     </div>
-
-                    {/* Line Height */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Type className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Line Height</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{state.lineHeight}%</span>
-                      </div>
-                      <Slider value={[state.lineHeight]} min={100} max={200} step={10} onValueChange={([v]) => update({ lineHeight: v })} />
-                    </div>
-
-                    <Separator />
-
-                    {/* Vision & Color */}
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vision & Color</p>
-                      
-                      <ToggleRow icon={<Eye className="w-4 h-4" />} label="High Contrast" description="Increase color contrast" checked={state.highContrast} onChange={(v) => update({ highContrast: v })} />
-
-                      {/* Color Blind Mode */}
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <Palette className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm font-medium">Color Blind Correction</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {(['none', 'protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'] as const).map((mode) => (
-                            <button
-                              key={mode}
-                              onClick={() => update({ colorBlindMode: mode })}
-                              className={`text-[11px] px-2 py-1.5 rounded-md border transition-colors ${
-                                state.colorBlindMode === mode
-                                  ? 'bg-primary text-primary-foreground border-primary'
-                                  : 'bg-muted/50 text-foreground border-border hover:bg-muted'
-                              }`}
-                            >
-                              {mode === 'none' ? 'None' : 
-                               mode === 'protanopia' ? 'Protanopia' :
-                               mode === 'deuteranopia' ? 'Deuteranopia' :
-                               mode === 'tritanopia' ? 'Tritanopia' : 'Achromatopsia'}
-                            </button>
-                          ))}
-                        </div>
-                        <p className="text-[10px] text-muted-foreground">
-                          {state.colorBlindMode === 'protanopia' && 'Red-blind correction'}
-                          {state.colorBlindMode === 'deuteranopia' && 'Green-blind correction'}
-                          {state.colorBlindMode === 'tritanopia' && 'Blue-yellow correction'}
-                          {state.colorBlindMode === 'achromatopsia' && 'Complete color blindness'}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <Sun className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Saturation</span>
-                          <span className="text-xs text-muted-foreground ml-auto">{state.saturation}%</span>
-                        </div>
-                        <Slider value={[state.saturation]} min={0} max={200} step={10} onValueChange={([v]) => update({ saturation: v })} />
-                        <div className="flex justify-between text-[10px] text-muted-foreground">
-                          <span>Grayscale</span><span>Vivid</span>
-                        </div>
-                      </div>
-
-                      <ToggleRow icon={<MousePointer2 className="w-4 h-4" />} label="Highlight Links" description="Underline & color all links" checked={state.highlightLinks} onChange={(v) => update({ highlightLinks: v })} />
-                    </div>
-
-                    <Separator />
-
-                    {/* Reading */}
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Reading</p>
-                      <ToggleRow icon={<Type className="w-4 h-4" />} label="Dyslexia-Friendly Font" description="Use OpenDyslexic typeface" checked={state.dyslexiaFont} onChange={(v) => update({ dyslexiaFont: v })} />
-                      <ToggleRow icon={<Type className="w-4 h-4" />} label="Text Spacing" description="More space between letters & lines" checked={state.textSpacing} onChange={(v) => update({ textSpacing: v })} />
-                      <ToggleRow icon={<Minus className="w-4 h-4" />} label="Reading Guide" description="Horizontal line follows cursor" checked={state.readingGuide} onChange={(v) => update({ readingGuide: v })} />
-                    </div>
-
-                    <Separator />
-
-                    {/* Motor & Navigation */}
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Motor & Navigation</p>
-                      <ToggleRow icon={<MousePointer2 className="w-4 h-4" />} label="Large Cursor & Targets" description="Bigger click targets & cursor" checked={state.largePointer} onChange={(v) => update({ largePointer: v })} />
-                      <ToggleRow icon={<Moon className="w-4 h-4" />} label="Reduce Animations" description="Minimize motion & transitions" checked={state.reduceMotion} onChange={(v) => update({ reduceMotion: v })} />
-                      <ToggleRow icon={<Focus className="w-4 h-4" />} label="Focus Indicators" description="Strong visible focus outlines" checked={state.focusHighlight} onChange={(v) => update({ focusHighlight: v })} />
-                      <ToggleRow icon={<Zap className="w-4 h-4" />} label="Skip Navigation" description="Keyboard shortcut to skip to content" checked={state.skipNavigation} onChange={(v) => update({ skipNavigation: v })} />
-                    </div>
-
-                    <Separator />
-
-                    {/* Screen Reader & Audio */}
-                    <div className="space-y-3">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Screen Reader & Audio</p>
-                      <ToggleRow icon={<Ear className="w-4 h-4" />} label="Screen Reader Optimized" description="Enhanced ARIA labels & structure" checked={state.screenReader} onChange={(v) => update({ screenReader: v })} />
-                      <ToggleRow icon={<Ear className="w-4 h-4" />} label="Announce Page Changes" description="Read route changes aloud" checked={state.announcePageChanges} onChange={(v) => update({ announcePageChanges: v })} />
-                      <ToggleRow icon={state.muteSounds ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />} label="Mute All Sounds" description="Silence background audio" checked={state.muteSounds} onChange={(v) => update({ muteSounds: v })} />
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => update({ fontSize: Math.max(80, state.fontSize - 10) })}>
+                        <Minus className="w-3 h-3" />
+                      </Button>
+                      <Slider value={[state.fontSize]} min={80} max={200} step={10} onValueChange={([v]) => update({ fontSize: v })} className="flex-1" />
+                      <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => update({ fontSize: Math.min(200, state.fontSize + 10) })}>
+                        <Plus className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
-                </ScrollArea>
+
+                  {/* Line Height */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Type className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">Line Height</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{state.lineHeight}%</span>
+                    </div>
+                    <Slider value={[state.lineHeight]} min={100} max={200} step={10} onValueChange={([v]) => update({ lineHeight: v })} />
+                  </div>
+
+                  <Separator />
+
+                  {/* Vision & Color */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vision & Color</p>
+                    
+                    <ToggleRow icon={<Eye className="w-4 h-4" />} label="High Contrast" description="Increase color contrast" checked={state.highContrast} onChange={(v) => update({ highContrast: v })} />
+
+                    {/* Color Blind Mode */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Palette className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">Color Blind Correction</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {(['none', 'protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            onClick={() => update({ colorBlindMode: mode })}
+                            className={`text-[11px] px-2 py-1.5 rounded-md border transition-colors ${
+                              state.colorBlindMode === mode
+                                ? 'bg-primary text-primary-foreground border-primary'
+                                : 'bg-muted/50 text-foreground border-border hover:bg-muted'
+                            }`}
+                          >
+                            {mode === 'none' ? 'None' : 
+                             mode === 'protanopia' ? 'Protanopia' :
+                             mode === 'deuteranopia' ? 'Deuteranopia' :
+                             mode === 'tritanopia' ? 'Tritanopia' : 'Achromatopsia'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <Sun className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm">Saturation</span>
+                        <span className="text-xs text-muted-foreground ml-auto">{state.saturation}%</span>
+                      </div>
+                      <Slider value={[state.saturation]} min={0} max={200} step={10} onValueChange={([v]) => update({ saturation: v })} />
+                      <div className="flex justify-between text-[10px] text-muted-foreground">
+                        <span>Grayscale</span><span>Vivid</span>
+                      </div>
+                    </div>
+
+                    <ToggleRow icon={<MousePointer2 className="w-4 h-4" />} label="Highlight Links" description="Underline & color all links" checked={state.highlightLinks} onChange={(v) => update({ highlightLinks: v })} />
+                  </div>
+
+                  <Separator />
+
+                  {/* Reading */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Reading</p>
+                    <ToggleRow icon={<Type className="w-4 h-4" />} label="Dyslexia-Friendly Font" description="Use OpenDyslexic typeface" checked={state.dyslexiaFont} onChange={(v) => update({ dyslexiaFont: v })} />
+                    <ToggleRow icon={<Type className="w-4 h-4" />} label="Text Spacing" description="More space between letters & lines" checked={state.textSpacing} onChange={(v) => update({ textSpacing: v })} />
+                    <ToggleRow icon={<Minus className="w-4 h-4" />} label="Reading Guide" description="Horizontal line follows cursor" checked={state.readingGuide} onChange={(v) => update({ readingGuide: v })} />
+                  </div>
+
+                  <Separator />
+
+                  {/* Motor & Navigation */}
+                  <div className="space-y-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Motor & Navigation</p>
+                    <ToggleRow icon={<MousePointer2 className="w-4 h-4" />} label="Large Cursor & Targets" description="Bigger click targets & cursor" checked={state.largePointer} onChange={(v) => update({ largePointer: v })} />
+                    <ToggleRow icon={<Moon className="w-4 h-4" />} label="Reduce Animations" description="Minimize motion & transitions" checked={state.reduceMotion} onChange={(v) => update({ reduceMotion: v })} />
+                    <ToggleRow icon={<Focus className="w-4 h-4" />} label="Focus Indicators" description="Strong visible focus outlines" checked={state.focusHighlight} onChange={(v) => update({ focusHighlight: v })} />
+                    <ToggleRow icon={<Zap className="w-4 h-4" />} label="Skip Navigation" description="Keyboard shortcut to skip to content" checked={state.skipNavigation} onChange={(v) => update({ skipNavigation: v })} />
+                  </div>
+
+                  <Separator />
+
+                  {/* Screen Reader & Audio */}
+                  <div className="space-y-3 pb-4">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Screen Reader & Audio</p>
+                    <ToggleRow icon={<Ear className="w-4 h-4" />} label="Screen Reader Optimized" description="Enhanced ARIA labels & structure" checked={state.screenReader} onChange={(v) => update({ screenReader: v })} />
+                    <ToggleRow icon={<Ear className="w-4 h-4" />} label="Announce Page Changes" description="Read route changes aloud" checked={state.announcePageChanges} onChange={(v) => update({ announcePageChanges: v })} />
+                    <ToggleRow icon={state.muteSounds ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />} label="Mute All Sounds" description="Silence background audio" checked={state.muteSounds} onChange={(v) => update({ muteSounds: v })} />
+                  </div>
+                </div>
               </TabsContent>
 
               {/* PRESETS TAB */}
-              <TabsContent value="presets" className="mt-0">
-                <ScrollArea className="max-h-[calc(75vh-100px)]">
-                  <div className="p-4 space-y-4">
-                    
-                    {/* Disability Presets */}
+              <TabsContent value="presets" className="mt-0 flex-1 min-h-0 overflow-y-auto">
+                <div className="p-4 space-y-4">
+                  
+                  {/* Disability Presets */}
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Disability Support</p>
                     <div className="space-y-2">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Disability Support</p>
-                      <div className="space-y-2">
-                        {PRESETS.filter(p => p.category === 'disability').map((preset) => (
-                          <PresetCard
-                            key={preset.id}
-                            preset={preset}
-                            isActive={state.activePreset === preset.id}
-                            onToggle={() => applyPreset(preset)}
-                          />
-                        ))}
-                      </div>
+                      {PRESETS.filter(p => p.category === 'disability').map((preset) => (
+                        <PresetCard
+                          key={preset.id}
+                          preset={preset}
+                          isActive={state.activePreset === preset.id}
+                          onToggle={() => applyPreset(preset)}
+                        />
+                      ))}
                     </div>
-
-                    <Separator />
-
-                    {/* Mental Health Presets */}
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mental Health Support</p>
-                      <div className="space-y-2">
-                        {PRESETS.filter(p => p.category === 'mental').map((preset) => (
-                          <PresetCard
-                            key={preset.id}
-                            preset={preset}
-                            isActive={state.activePreset === preset.id}
-                            onToggle={() => applyPreset(preset)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    <p className="text-[10px] text-muted-foreground text-center pt-2">
-                      Tap a preset to activate. Tap again to deactivate.
-                      You can further customize in the Settings tab.
-                    </p>
                   </div>
-                </ScrollArea>
+
+                  <Separator />
+
+                  {/* Mental Health Presets */}
+                  <div className="space-y-2 pb-4">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Mental Health Support</p>
+                    <div className="space-y-2">
+                      {PRESETS.filter(p => p.category === 'mental').map((preset) => (
+                        <PresetCard
+                          key={preset.id}
+                          preset={preset}
+                          isActive={state.activePreset === preset.id}
+                          onToggle={() => applyPreset(preset)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground text-center pt-2 pb-4">
+                    Tap a preset to activate. Tap again to deactivate.
+                    You can further customize in the Settings tab.
+                  </p>
+                </div>
               </TabsContent>
             </Tabs>
           </motion.div>
@@ -560,19 +552,15 @@ const ReadingGuide = () => {
 const ColorBlindFilters = () => (
   <svg className="absolute w-0 h-0" aria-hidden="true">
     <defs>
-      {/* Protanopia (red-blind) */}
       <filter id="cb-protanopia">
         <feColorMatrix type="matrix" values="0.567, 0.433, 0, 0, 0  0.558, 0.442, 0, 0, 0  0, 0.242, 0.758, 0, 0  0, 0, 0, 1, 0" />
       </filter>
-      {/* Deuteranopia (green-blind) */}
       <filter id="cb-deuteranopia">
         <feColorMatrix type="matrix" values="0.625, 0.375, 0, 0, 0  0.7, 0.3, 0, 0, 0  0, 0.3, 0.7, 0, 0  0, 0, 0, 1, 0" />
       </filter>
-      {/* Tritanopia (blue-yellow blind) */}
       <filter id="cb-tritanopia">
         <feColorMatrix type="matrix" values="0.95, 0.05, 0, 0, 0  0, 0.433, 0.567, 0, 0  0, 0.475, 0.525, 0, 0  0, 0, 0, 1, 0" />
       </filter>
-      {/* Achromatopsia (complete color blindness) */}
       <filter id="cb-achromatopsia">
         <feColorMatrix type="matrix" values="0.299, 0.587, 0.114, 0, 0  0.299, 0.587, 0.114, 0, 0  0.299, 0.587, 0.114, 0, 0  0, 0, 0, 1, 0" />
       </filter>
