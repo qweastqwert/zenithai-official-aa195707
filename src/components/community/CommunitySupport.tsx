@@ -29,9 +29,9 @@ const CommunitySupport: React.FC = () => {
     const postElement = document.getElementById(`post-${postId}`);
     if (postElement) {
       postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      postElement.classList.add('ring-2', 'ring-[#7950f2]', 'ring-offset-2');
+      postElement.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
       setTimeout(() => {
-        postElement.classList.remove('ring-2', 'ring-[#7950f2]', 'ring-offset-2');
+        postElement.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
       }, 2000);
     }
   };
@@ -51,130 +51,86 @@ const CommunitySupport: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-gradient-to-br from-[hsl(var(--zenith-purple))/5] via-background to-[hsl(var(--zenith-primary))/10] p-4"
+      className="min-h-screen bg-background"
     >
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+      {/* Mobile-optimized sticky header */}
+      <div className="sticky top-0 z-20 bg-primary text-primary-foreground p-3 sm:p-4 flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/chat')}
+          className="p-1.5 text-primary-foreground hover:bg-primary-foreground/10 flex-shrink-0"
         >
-          <Card className="bg-gradient-to-r from-[#7950f2]/10 to-[#b197fc]/10 backdrop-blur-sm border-[#7950f2]/30 mb-6 overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#7950f2]/5 to-transparent pointer-events-none" />
-            <CardHeader className="relative">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/chat')}
-                    className="p-1.5 -ml-1.5 flex-shrink-0"
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </Button>
-                  <motion.div 
-                    className="p-3 bg-gradient-to-br from-[#7950f2] to-[#b197fc] rounded-xl shadow-lg shadow-[#7950f2]/30"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Users className="h-6 w-6 text-white" />
-                  </motion.div>
-                  <div>
-                    <CardTitle className="text-2xl text-foreground flex items-center gap-2">
-                      Community Support
-                      <Sparkles className="h-5 w-5 text-[#7950f2]" />
-                    </CardTitle>
-                    <p className="text-muted-foreground mt-1">
-                      Share experiences, ask for advice, and support each other
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                  {isAdmin && (
-                    <Button
-                      onClick={() => setShowAdminDashboard(!showAdminDashboard)}
-                      variant="outline"
-                      className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
-                    >
-                      <Shield className="h-4 w-4 mr-2 text-[#7950f2]" />
-                      Admin
-                    </Button>
-                  )}
-                  {user && !isTherapist && role === 'user' && (
-                    <Button
-                      onClick={() => setShowTherapistApplication(!showTherapistApplication)}
-                      variant="outline"
-                      className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
-                    >
-                      <UserPlus className="h-4 w-4 mr-2 text-[#7950f2]" />
-                      Apply as Professional
-                    </Button>
-                  )}
-                  {user && (
-                    <Button
-                      onClick={() => setShowCreatePost(!showCreatePost)}
-                      className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/30 transition-all duration-200 hover:scale-105"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      New Post
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        </motion.div>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-lg font-semibold truncate">Community</h1>
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {isAdmin && (
+            <Button
+              onClick={() => setShowAdminDashboard(!showAdminDashboard)}
+              variant="ghost"
+              size="sm"
+              className="text-primary-foreground hover:bg-primary-foreground/10 p-1.5"
+            >
+              <Shield className="h-4 w-4" />
+            </Button>
+          )}
+          {user && (
+            <Button
+              onClick={() => setShowCreatePost(!showCreatePost)}
+              variant="ghost"
+              size="sm"
+              className="text-primary-foreground hover:bg-primary-foreground/10 p-1.5"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
+      </div>
 
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 space-y-3">
         {/* Trending Posts */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="mb-6"
-        >
-          <TrendingPosts onPostClick={scrollToPost} />
-        </motion.div>
+        <TrendingPosts onPostClick={scrollToPost} />
 
         {/* Search */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.15 }}
-        >
-          <Card className="bg-card/80 backdrop-blur-sm border-[#7950f2]/20 mb-6">
-            <CardContent className="pt-6">
-              <form onSubmit={handleSearch} className="flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#7950f2]/60 h-4 w-4" />
-                  <Input
-                    placeholder="Search posts by title or content..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-background/50 border-[#7950f2]/20 focus:border-[#7950f2]/50 transition-all duration-200 focus:scale-[1.02]"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  variant="outline" 
-                  className="border-[#7950f2]/30 hover:border-[#7950f2] hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
-                >
-                  Search
+        <Card className="bg-card/80 backdrop-blur-sm border-primary/20">
+          <CardContent className="p-3">
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary/60 h-4 w-4" />
+                <Input
+                  placeholder="Search posts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-background/50 border-primary/20 focus:border-primary/50 h-9 text-sm"
+                />
+              </div>
+              <Button type="submit" size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground h-9">
+                Search
+              </Button>
+              {searchTerm && (
+                <Button type="button" variant="ghost" size="sm" onClick={clearSearch} className="h-9">
+                  Clear
                 </Button>
-                {searchTerm && (
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    onClick={clearSearch} 
-                    className="hover:bg-[#7950f2]/10 transition-all duration-200 hover:scale-105"
-                  >
-                    Clear
-                  </Button>
-                )}
-              </form>
-            </CardContent>
-          </Card>
-        </motion.div>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Therapist Application */}
+        {user && !isTherapist && role === 'user' && (
+          <Button
+            onClick={() => setShowTherapistApplication(!showTherapistApplication)}
+            variant="outline"
+            size="sm"
+            className="w-full border-primary/30 hover:border-primary hover:bg-primary/10"
+          >
+            <UserPlus className="h-4 w-4 mr-2 text-primary" />
+            Apply as Professional
+          </Button>
+        )}
 
         {/* Admin Dashboard */}
         <AnimatePresence>
@@ -184,7 +140,6 @@ const CommunitySupport: React.FC = () => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mb-6"
             >
               <AdminDashboard />
             </motion.div>
@@ -199,7 +154,6 @@ const CommunitySupport: React.FC = () => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mb-6"
             >
               <TherapistApplicationForm onCancel={() => setShowTherapistApplication(false)} />
             </motion.div>
@@ -214,7 +168,6 @@ const CommunitySupport: React.FC = () => {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mb-6"
             >
               <CreatePost onCancel={() => setShowCreatePost(false)} />
             </motion.div>
@@ -223,97 +176,71 @@ const CommunitySupport: React.FC = () => {
 
         {/* Auth Warning */}
         {!user && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
-          >
-            <Card className="bg-[#7950f2]/5 border-[#7950f2]/20 mb-6">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <MessageCircle className="h-8 w-8 text-[#7950f2]/60 mx-auto mb-2" />
-                  <p className="text-muted-foreground">
-                    Please log in to create posts, comment, and vote
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="py-4">
+              <div className="text-center">
+                <MessageCircle className="h-6 w-6 text-primary/60 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  Please log in to create posts, comment, and vote
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* Posts */}
-        <motion.div
-          ref={postsRef}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.3 }}
-          className="space-y-6"
-        >
+        <div ref={postsRef} className="space-y-3 pb-6">
           {loading ? (
             <div className="text-center py-8">
               <motion.div 
                 animate={{ rotate: 360 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                className="inline-block w-8 h-8 border-4 border-[#7950f2] border-t-transparent rounded-full mb-4"
+                className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full mb-4"
               />
-              <div className="text-muted-foreground">Loading posts...</div>
+              <div className="text-muted-foreground text-sm">Loading posts...</div>
             </div>
           ) : posts.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Card className="bg-card/80 backdrop-blur-sm border-[#7950f2]/20">
-                <CardContent className="pt-6">
-                  <div className="text-center py-8">
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
+            <Card className="bg-card/80 border-primary/20">
+              <CardContent className="py-8">
+                <div className="text-center">
+                  <Users className="h-10 w-10 text-primary/40 mx-auto mb-3" />
+                  <h3 className="text-base font-semibold text-foreground mb-1">
+                    {searchTerm ? 'No posts found' : 'No posts yet'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {searchTerm 
+                      ? 'Try adjusting your search terms'
+                      : 'Be the first to start a conversation'
+                    }
+                  </p>
+                  {!searchTerm && user && (
+                    <Button
+                      onClick={() => setShowCreatePost(true)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      size="sm"
                     >
-                      <Users className="h-12 w-12 text-[#7950f2]/40 mx-auto mb-4" />
-                    </motion.div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      {searchTerm ? 'No posts found' : 'No posts yet'}
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      {searchTerm 
-                        ? 'Try adjusting your search terms'
-                        : 'Be the first to start a conversation in the community'
-                      }
-                    </p>
-                    {!searchTerm && user && (
-                      <Button
-                        onClick={() => setShowCreatePost(true)}
-                        className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/30 transition-all duration-200 hover:scale-105"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create First Post
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Post
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           ) : (
-            <AnimatePresence>
-              {posts.map((post, index) => (
-                <motion.div
-                  key={post.id}
-                  id={`post-${post.id}`}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="transition-all duration-300"
-                >
-                  <PostCard post={post} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            posts.map((post, index) => (
+              <motion.div
+                key={post.id}
+                id={`post-${post.id}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className="transition-all duration-300"
+              >
+                <PostCard post={post} />
+              </motion.div>
+            ))
           )}
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   );

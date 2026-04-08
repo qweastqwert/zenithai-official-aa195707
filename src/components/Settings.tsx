@@ -9,6 +9,7 @@ import AppearanceSection from '@/components/settings/AppearanceSection';
 import UICustomizationSection from '@/components/settings/UICustomizationSection';
 import AudioSection from '@/components/settings/AudioSection';
 import NotificationsSection from '@/components/settings/NotificationsSection';
+import AccessibilitySettingsSection from '@/components/settings/AccessibilitySettingsSection';
 import { MindArchiveSection } from '@/components/settings/MindArchiveSection';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -40,6 +41,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <Separator />
           <AppearanceSection />
           <Separator />
+          <AccessibilitySettingsSection />
+          <Separator />
           <UICustomizationSection />
           <Separator />
           <AudioSection />
@@ -49,7 +52,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           
           <div className="flex flex-col space-y-3">
             <div className="flex space-x-3">
-              <Button onClick={onClose} className="flex-1" style={{ backgroundColor: 'var(--zenith-primary)' }}>
+              <Button onClick={onClose} className="flex-1 bg-primary hover:bg-primary/90">
                 Save Changes
               </Button>
               <Button variant="outline" onClick={onClose} className="flex-1">

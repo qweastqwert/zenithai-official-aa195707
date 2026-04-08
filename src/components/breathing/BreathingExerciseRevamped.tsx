@@ -186,17 +186,17 @@ const BreathingExerciseRevamped: React.FC = () => {
 
   if (isComplete) {
     return (
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-2xl mx-auto p-4 sm:p-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center space-y-6"
         >
           <div className="text-6xl">🎉</div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             Session Complete!
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Great job completing your breathing exercise. You've taken an important step for your wellbeing.
           </p>
         </motion.div>
@@ -205,32 +205,21 @@ const BreathingExerciseRevamped: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-8">
-      {/* Header */}
+    <div className="max-w-2xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-8">
+      {/* Header - compact on mobile */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4"
+        className="text-center space-y-2"
       >
-        <div className="flex items-center justify-center gap-3">
-          <motion.div
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          >
-            <Wind className="h-8 w-8 text-blue-500" />
-          </motion.div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-            Breathing Exercise
-          </h1>
-        </div>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-muted-foreground">
           {selectedPattern.description}
         </p>
       </motion.div>
 
       {/* Main breathing interface */}
-      <Card className="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-800 dark:via-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200/50 dark:border-blue-700/50">
-        <CardContent className="p-8 flex flex-col items-center justify-center space-y-8 min-h-[400px]">
+      <Card className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-primary/10 border border-primary/20">
+        <CardContent className="p-4 sm:p-8 flex flex-col items-center justify-center space-y-4 sm:space-y-8 min-h-[320px] sm:min-h-[400px]">
           <BreathingCircle
             phase={currentPhase}
             timeLeft={timeLeft}
@@ -239,7 +228,7 @@ const BreathingExerciseRevamped: React.FC = () => {
           />
 
           <div className="text-center space-y-2">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-muted-foreground">
               {selectedPattern.name}
             </div>
           </div>
