@@ -100,24 +100,24 @@ const ChatInterface = () => {
     handleNavigation('mindmate', autoPrompt);
   };
 
-  // Check for new achievements
+  // Check for new achievements - only show each once ever
   useEffect(() => {
-    const checkForNewAchievements = () => {
-      const newlyUnlocked = getNewlyUnlocked();
-      const lastChecked = localStorage.getItem('zenith-last-achievement-check');
-      const currentUnlocked = newlyUnlocked.map(a => a.id).join(',');
-      
-      if (lastChecked !== currentUnlocked && newlyUnlocked.length > 0) {
-        const newest = newlyUnlocked[newlyUnlocked.length - 1];
-        setNewAchievement(newest);
-        localStorage.setItem('zenith-last-achievement-check', currentUnlocked);
-      }
-    };
-
-    if (hasProfile) {
-      checkForNewAchievements();
+    if (!hasProfile) return;
+    
+    const shownIds: string[] = JSON.parse(localStorage.getItem('zenith-shown-achievements') || '[]');
+    const newlyUnlocked = getNewlyUnlocked();
+    const unshown = newlyUnlocked.find(a => !shownIds.includes(a.id));
+    
+    if (unshown) {
+      const timer = setTimeout(() => {
+        setNewAchievement(unshown);
+        shownIds.push(unshown.id);
+        localStorage.setItem('zenith-shown-achievements', JSON.stringify(shownIds));
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [hasProfile, getNewlyUnlocked]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasProfile]);
 
   // Check if user needs sleep profile setup
   useEffect(() => {

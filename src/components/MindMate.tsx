@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Send, ArrowLeft, MoreVertical, Brain, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { streamChat } from '@/utils/streamChat';
@@ -981,9 +981,11 @@ interface Message {
 interface MindMateProps {
   profile: UserProfile | null;
   initialPrompt?: string | null;
+  onBack?: () => void;
 }
 
-const MindMate = ({ profile, initialPrompt }: MindMateProps) => {
+const MindMate = ({ profile, initialPrompt, onBack }: MindMateProps) => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState<Message[]>([
     { 
       role: 'assistant', 
@@ -1067,6 +1069,12 @@ THERAPEUTIC APPROACH:
 4. Focus on the user's emotional wellbeing and mental health needs
 5. Encourage healthy behavioral patterns and thought processes
 6. Recognize signs of crisis and respond appropriately with resources and professional referrals
+
+LANGUAGE FLEXIBILITY:
+- You can understand and respond in Hinglish (Hindi+English mix), Marathi+English (Minglish), Tamil+English (Tanglish), and other Indian language mixes naturally.
+- Mirror the user's language style. If they write in Hinglish, respond in Hinglish. If they write in pure English, respond in English.
+- Be natural with code-switching — don't force Hindi or English. Match the user's vibe.
+- You understand Devanagari script, Roman Hindi, and mixed scripts.
 
 CONVERSATION STYLE:
 - While you're primarily a therapist, you can engage in casual, friendly conversation
@@ -1253,11 +1261,9 @@ Customize your therapeutic approach based on this information while maintaining 
     <div className="flex flex-col h-screen bg-white dark:bg-gray-900">
       {/* Header */}
       <div className="p-4 flex items-center text-white" style={{ backgroundColor: 'var(--zenith-primary)' }}>
-        <Link to="/chat" className="mr-4" title="Return to Dashboard">
-          <Button variant="ghost" className="text-white hover:bg-black/20 p-2" aria-label="Return to Dashboard">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
+        <Button variant="ghost" className="text-white hover:bg-black/20 p-2 mr-4" aria-label="Return to Dashboard" onClick={() => onBack ? onBack() : navigate('/chat')}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
         <div className="flex items-center flex-1">
           <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
             <span className="font-bold text-lg" style={{ color: 'var(--zenith-primary)' }}>Z</span>

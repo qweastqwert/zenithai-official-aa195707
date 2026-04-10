@@ -80,7 +80,7 @@ interface SoothingMusicProps {
 const SoothingMusic: React.FC<SoothingMusicProps> = ({ suggestedSong }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const { toast } = useToast();
-  const { currentSong, isPlaying, playSong, setPlaylist } = useMusicPlayer();
+  const { currentSong, isPlaying, playSong, togglePlayPause, setPlaylist } = useMusicPlayer();
 
   const categories = ['All', 'Uplifting', 'Calming', 'Sleep', 'Energizing', 'Meditation', 'Nature', 'Relaxation', 'Spiritual'];
 
@@ -106,8 +106,14 @@ const SoothingMusic: React.FC<SoothingMusicProps> = ({ suggestedSong }) => {
     ? songs 
     : songs.filter(song => song.category === selectedCategory);
 
+  const { togglePlayPause } = useMusicPlayer();
+
   const handlePlayPause = (song: Song) => {
-    playSong(song);
+    if (currentSong?.id === song.id) {
+      togglePlayPause();
+    } else {
+      playSong(song);
+    }
   };
 
   return (
