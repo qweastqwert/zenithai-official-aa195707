@@ -26,23 +26,22 @@ export const useSpeechRecognition = (): UseSpeechRecognitionReturn => {
     
     const recognition = recognitionRef.current;
     recognition.continuous = true;
-    recognition.interimResults = true;
+    recognition.interimResults = false;
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
       let finalTranscript = '';
-      let interimTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
           finalTranscript += result[0].transcript;
-        } else {
-          interimTranscript += result[0].transcript;
         }
       }
 
-      setTranscript(finalTranscript + interimTranscript);
+      if (finalTranscript) {
+        setTranscript(finalTranscript);
+      }
     };
 
     recognition.onerror = (event: any) => {
