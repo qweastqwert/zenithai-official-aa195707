@@ -78,7 +78,7 @@ const MoodTracking = () => {
           {/* Stats Cards */}
           <div className={`grid ${isMobile ? 'grid-cols-3 gap-3' : 'grid-cols-1 md:grid-cols-3 gap-6'} mb-8`}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <Card className="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 border-purple-200 dark:border-purple-700">
+              <Card className="bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 border-border">
                 <CardContent className={`${isMobile ? 'p-3' : 'p-6'} text-center`}>
                   <TrendingUp className={`${isMobile ? 'h-6 w-6' : 'h-8 w-8'} text-purple-600 dark:text-purple-400 mx-auto mb-2`} />
                   <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-purple-800 dark:text-purple-300 mb-1`}>{stats.totalEntries}</div>
@@ -112,7 +112,7 @@ const MoodTracking = () => {
           {/* Recent Entries */}
           {moodEntries.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-purple-200/50 dark:border-purple-700/50">
+              <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Clock className="h-5 w-5 text-purple-600" />
