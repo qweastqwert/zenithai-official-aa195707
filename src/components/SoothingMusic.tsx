@@ -106,7 +106,7 @@ const SoothingMusic: React.FC<SoothingMusicProps> = ({ suggestedSong }) => {
     ? songs 
     : songs.filter(song => song.category === selectedCategory);
 
-  const { togglePlayPause } = useMusicPlayer();
+  
 
   const handlePlayPause = (song: Song) => {
     if (currentSong?.id === song.id) {
