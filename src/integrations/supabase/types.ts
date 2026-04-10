@@ -913,6 +913,7 @@ export type Database = {
         }
       }
       cleanup_old_conversations: { Args: never; Returns: undefined }
+      delete_user_account: { Args: never; Returns: undefined }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["app_role"]
