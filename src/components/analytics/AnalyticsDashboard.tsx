@@ -117,7 +117,13 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
       }
 
       const data = response.data;
-      const tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
+      let tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
+      // Strip any reasoning/thinking the model may have leaked
+      // Take only the last meaningful sentence if the model dumped its chain-of-thought
+      if (tip.length > 150) {
+        const lines = tip.split('\n').map((l: string) => l.trim()).filter((l: string) => l && !l.startsWith('*') && !l.startsWith('-') && !l.startsWith('#'));
+        tip = lines[lines.length - 1] || lines[0] || 'Take a moment to breathe deeply and reset your mind today. ✨';
+      }
       setAiTip(tip);
     } catch (error) {
       console.error('Error generating AI tip:', error);
