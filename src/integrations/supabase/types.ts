@@ -149,45 +149,6 @@ export type Database = {
         }
         Relationships: []
       }
-      community_characters: {
-        Row: {
-          avatar_emoji: string
-          created_at: string
-          creator_user_id: string
-          description: string
-          greeting: string | null
-          id: string
-          is_private: boolean
-          name: string
-          system_prompt: string
-          updated_at: string
-        }
-        Insert: {
-          avatar_emoji?: string
-          created_at?: string
-          creator_user_id: string
-          description?: string
-          greeting?: string | null
-          id?: string
-          is_private?: boolean
-          name: string
-          system_prompt: string
-          updated_at?: string
-        }
-        Update: {
-          avatar_emoji?: string
-          created_at?: string
-          creator_user_id?: string
-          description?: string
-          greeting?: string | null
-          id?: string
-          is_private?: boolean
-          name?: string
-          system_prompt?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       community_comments: {
         Row: {
           content: string
@@ -428,42 +389,6 @@ export type Database = {
         }
         Relationships: []
       }
-      notification_preferences: {
-        Row: {
-          created_at: string
-          id: string
-          journal_reminder_time: string | null
-          mood_reminder_time: string | null
-          push_enabled: boolean | null
-          sleep_reminder_enabled: boolean | null
-          timezone: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          journal_reminder_time?: string | null
-          mood_reminder_time?: string | null
-          push_enabled?: boolean | null
-          sleep_reminder_enabled?: boolean | null
-          timezone?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          journal_reminder_time?: string | null
-          mood_reminder_time?: string | null
-          push_enabled?: boolean | null
-          sleep_reminder_enabled?: boolean | null
-          timezone?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       post_votes: {
         Row: {
           created_at: string
@@ -516,7 +441,6 @@ export type Database = {
           reputation: number
           updated_at: string
           user_id: string
-          username: string | null
         }
         Insert: {
           age: string
@@ -530,7 +454,6 @@ export type Database = {
           reputation?: number
           updated_at?: string
           user_id: string
-          username?: string | null
         }
         Update: {
           age?: string
@@ -542,43 +465,6 @@ export type Database = {
           name?: string
           problems?: string | null
           reputation?: number
-          updated_at?: string
-          user_id?: string
-          username?: string | null
-        }
-        Relationships: []
-      }
-      push_subscriptions: {
-        Row: {
-          auth: string
-          created_at: string
-          device_name: string | null
-          endpoint: string
-          id: string
-          is_active: boolean
-          p256dh: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          auth: string
-          created_at?: string
-          device_name?: string | null
-          endpoint: string
-          id?: string
-          is_active?: boolean
-          p256dh: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          auth?: string
-          created_at?: string
-          device_name?: string | null
-          endpoint?: string
-          id?: string
-          is_active?: boolean
-          p256dh?: string
           updated_at?: string
           user_id?: string
         }

@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,8 +20,7 @@ const ProfileSection = () => {
     age: '',
     gender: '',
     hobbies: '',
-    problems: '',
-    username: ''
+    problems: ''
   });
 
   const handleProfileUpdate = () => {
@@ -75,17 +75,6 @@ const ProfileSection = () => {
               onChange={(e) => setEditedProfile({ ...editedProfile, age: e.target.value })}
             />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="username" className="text-gray-700 dark:text-gray-300">Username</Label>
-          <Input
-            id="username"
-            placeholder="Your community username"
-            value={editedProfile.username || ''}
-            onChange={(e) => setEditedProfile({ ...editedProfile, username: e.target.value.replace(/\s/g, '').toLowerCase() })}
-          />
-          <p className="text-xs text-muted-foreground">Shown on community posts and characters you create</p>
         </div>
         
         <div className="space-y-2">

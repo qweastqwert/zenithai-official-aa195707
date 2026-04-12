@@ -547,12 +547,9 @@ const ChatInterface = () => {
                 </div>
 
                 {/* Daily Schedule Widget */}
-                <div className="relative">
-                  <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
-                  <Badge className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full z-10">New</Badge>
-                </div>
+                <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
 
-                {/* Achievements Quick Card - no New badge */}
+                {/* Achievements Quick Card */}
                 <motion.div
                   whileTap={{ scale: 0.97 }}
                   onClick={() => handleNavigation('achievements')}
@@ -567,6 +564,7 @@ const ChatInterface = () => {
                     <h3 className="font-bold text-xs text-foreground">Achievements</h3>
                     <p className="text-[10px] text-muted-foreground">Track your wellness journey</p>
                   </div>
+                  <Badge className="bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full">New</Badge>
                 </motion.div>
 
                 {/* Main Features Grid - Compact for small Android screens */}
@@ -863,7 +861,32 @@ const ChatInterface = () => {
                   </CardContent>
                 </Card>
               </motion.div>
-              {/* MindMate - Main Feature (FIRST) */}
+              {/* Achievements - Featured */}
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card 
+                  className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-800 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation relative overflow-hidden"
+                  onClick={() => handleNavigation('achievements')}
+                >
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-yellow-500 text-white text-xs">New!</Badge>
+                  </div>
+                  <CardContent className="p-4 md:p-6 flex flex-col items-center">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-3 md:mb-4">
+                      <Trophy className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                    </div>
+                    <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">Achievements</h2>
+                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                      Track your progress
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* MindMate - Main Feature */}
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -970,28 +993,6 @@ const ChatInterface = () => {
                     <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">Mood Tracking</h2>
                     <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center leading-relaxed">
                       Track emotions
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-
-              {/* Achievements */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card 
-                  className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-yellow-200 dark:border-yellow-800 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation"
-                  onClick={() => handleNavigation('achievements')}
-                >
-                  <CardContent className="p-4 md:p-6 flex flex-col items-center">
-                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-3 md:mb-4">
-                      <Trophy className="h-6 w-6 md:h-8 md:w-8 text-white" />
-                    </div>
-                    <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">Achievements</h2>
-                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center leading-relaxed">
-                      Track your progress
                     </p>
                   </CardContent>
                 </Card>
