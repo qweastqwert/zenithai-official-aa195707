@@ -60,8 +60,7 @@ const NotificationsSection = () => {
       try {
         const registration = await navigator.serviceWorker.ready;
         const subscription = await registration.pushManager.subscribe({
-          userApplicationServerKey: new Uint8Array(0), // VAPID key would go here
-          applicationServerKey: undefined,
+          userVisibleOnly: true,
         }).catch(() => null);
         
         if (subscription && user) {
