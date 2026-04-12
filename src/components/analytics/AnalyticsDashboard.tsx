@@ -91,33 +91,23 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className }) =>
       const moodSummary = periodMoods.map(m => `${m.mood}: ${m.reason}`).join('; ');
       const journalSummary = periodJournals.map(j => j.content.substring(0, 100)).join('; ');
       
-      const tipGenerationPrompt = `Based on the following user wellness data from the ${timeframe} period, provide a single, concise, and actionable wellness tip (max 20 words):
+      const tipGenerationPrompt = `User wellness data (${timeframe}): Mood: ${moodSummary || 'None'}. Journal: ${journalSummary || 'None'}. AI Usage: ${getUsageAnalytics().mindMateUsage}. Activity: ${getUsageAnalytics().totalSessions}.
 
-Mood Data: ${moodSummary || 'No mood entries'}
-Journal Insights: ${journalSummary || 'No journal entries'}
-AI Usage: ${getUsageAnalytics().mindMateUsage} sessions
-Activity Level: ${getUsageAnalytics().totalSessions} total wellness interactions
-
-Guidelines:
-- Keep it positive and encouraging
-- Make it actionable
-- Focus on mental wellness
-- Be supportive, not prescriptive
-- Use encouraging emojis sparingly (max 1)`;
+Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no formatting, no thinking. Just one sentence, max 20 words, with at most 1 emoji.`;
 
       const response = await supabase.functions.invoke('mindmate-chat', {
         body: {
           messages: [
             {
               role: 'system',
-              content: 'You are a supportive mental wellness coach. Provide brief, actionable, and encouraging tips based on user data.'
+              content: 'Output ONLY a single wellness tip sentence. No explanations, no formatting, no reasoning, no lists. Just the tip itself in one line.'
             },
             {
               role: 'user',
               content: tipGenerationPrompt
             }
           ],
-          maxTokens: 50,
+          maxTokens: 100,
           temperature: 0.7,
         }
       });
@@ -127,7 +117,13 @@ Guidelines:
       }
 
       const data = response.data;
-      const tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
+      let tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
+      // Strip any reasoning/thinking the model may have leaked
+      // Take only the last meaningful sentence if the model dumped its chain-of-thought
+      if (tip.length > 150) {
+        const lines = tip.split('\n').map((l: string) => l.trim()).filter((l: string) => l && !l.startsWith('*') && !l.startsWith('-') && !l.startsWith('#'));
+        tip = lines[lines.length - 1] || lines[0] || 'Take a moment to breathe deeply and reset your mind today. ✨';
+      }
       setAiTip(tip);
     } catch (error) {
       console.error('Error generating AI tip:', error);
