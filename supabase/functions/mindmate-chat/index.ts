@@ -97,9 +97,9 @@ serve(async (req) => {
       ? `\n\nUSER PROFILE: Name: ${userProfile.name}, Age: ${userProfile.age}, Hobbies: ${userProfile.hobbies || 'N/A'}, Challenges: ${userProfile.problems || 'N/A'}`
       : '';
 
-    const openRouterApiKey = Deno.env.get('OPENROUTER_API_KEY');
-    if (!openRouterApiKey) {
-      throw new Error('OpenRouter API key not configured');
+    const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
+    if (!googleApiKey) {
+      throw new Error('Google AI Studio API key not configured');
     }
 
     const toolInstructions = `
@@ -149,6 +149,9 @@ IMPORTANT:
       }
       return msg;
     });
+
+    // Convert messages for Gemini format
+    const geminiContents = convertToGeminiFormat(enhancedMessages);
 
     const tools = [
       {
@@ -305,72 +308,82 @@ IMPORTANT:
       }
     ];
 
+    // Convert tools to Gemini format
+    const geminiTools = [{
+      function_declarations: tools.map(t => ({
+        name: t.function.name,
+        description: t.function.description,
+        parameters: t.function.parameters,
+      }))
+    }];
+
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key=${googleApiKey}`;
+    const streamApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:streamGenerateContent?alt=sse&key=${googleApiKey}`;
+
     // NON-STREAMING: use tools, return JSON
     if (!stream) {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openRouterApiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://zenith-ai.lovable.app',
-          'X-Title': 'Zenith AI - MindMate',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'nvidia/nemotron-3-nano-30b-a3b:free',
-          messages: enhancedMessages,
-          max_tokens: maxTokens,
-          temperature,
-          tools,
-          tool_choice: "auto",
-          stream: false,
+          contents: geminiContents,
+          tools: geminiTools,
+          generationConfig: {
+            maxOutputTokens: maxTokens,
+            temperature,
+          },
         }),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('OpenRouter API error:', response.status, errorText);
-        throw new Error(`OpenRouter API error: ${response.status}`);
+        console.error('Google AI Studio API error:', response.status, errorText);
+        throw new Error(`Google AI Studio API error: ${response.status}`);
       }
 
       const data = await response.json();
-      const choice = data.choices?.[0];
-      const reply = choice?.message?.content || 'I apologize, but I had trouble generating a response. Please try again.';
-      const tokensUsed = data.usage?.total_tokens || 0;
-
-      // Handle tool calls
-      const toolCalls = choice?.message?.tool_calls;
-      const toolCallsData: any[] = [];
+      const candidate = data.candidates?.[0];
+      const parts = candidate?.content?.parts || [];
       
-      if (toolCalls && toolCalls.length > 0) {
-        for (const toolCall of toolCalls) {
-          try {
-            const args = JSON.parse(toolCall.function.arguments);
-            
-            if (toolCall.function.name === 'save_memory') {
-              const { error: memoryError } = await supabaseClient
-                .from('mind_archive')
-                .insert({ user_id: user.id, memory_text: args.memory_text, category: args.category });
-              if (memoryError) console.error('Error saving memory:', memoryError);
-              else console.log('Memory saved:', args.category);
-            } else if (toolCall.function.name === 'add_schedule_events') {
-              toolCallsData.push({ type: 'schedule_events', events: args.events, date: args.date });
-            } else {
-              const typeMap: Record<string, string> = {
-                'show_breathing_exercise': 'breathing_exercise',
-                'show_grounding_exercise': 'grounding_exercise',
-                'show_mindfulness_prompt': 'mindfulness_prompt',
-                'show_affirmations': 'affirmations',
-                'show_muscle_relaxation': 'muscle_relaxation',
-                'show_emergency_help': 'emergency_help',
-                'suggest_music': 'music_suggestion',
-              };
-              toolCallsData.push({ type: typeMap[toolCall.function.name] || toolCall.function.name, ...args });
-            }
-          } catch (e) {
-            console.error('Error processing tool call:', e);
+      let reply = '';
+      const toolCallsData: any[] = [];
+
+      for (const part of parts) {
+        if (part.text) {
+          reply += part.text;
+        }
+        if (part.functionCall) {
+          const fc = part.functionCall;
+          const args = fc.args || {};
+
+          if (fc.name === 'save_memory') {
+            const { error: memoryError } = await supabaseClient
+              .from('mind_archive')
+              .insert({ user_id: user.id, memory_text: args.memory_text, category: args.category });
+            if (memoryError) console.error('Error saving memory:', memoryError);
+            else console.log('Memory saved:', args.category);
+          } else if (fc.name === 'add_schedule_events') {
+            toolCallsData.push({ type: 'schedule_events', events: args.events, date: args.date });
+          } else {
+            const typeMap: Record<string, string> = {
+              'show_breathing_exercise': 'breathing_exercise',
+              'show_grounding_exercise': 'grounding_exercise',
+              'show_mindfulness_prompt': 'mindfulness_prompt',
+              'show_affirmations': 'affirmations',
+              'show_muscle_relaxation': 'muscle_relaxation',
+              'show_emergency_help': 'emergency_help',
+              'suggest_music': 'music_suggestion',
+            };
+            toolCallsData.push({ type: typeMap[fc.name] || fc.name, ...args });
           }
         }
       }
+
+      if (!reply) {
+        reply = 'I apologize, but I had trouble generating a response. Please try again.';
+      }
+
+      const tokensUsed = data.usageMetadata?.totalTokenCount || 0;
 
       // Log AI usage
       await supabaseClient.from('ai_usage').insert({
@@ -385,28 +398,23 @@ IMPORTANT:
       });
     }
 
-    // STREAMING: no tools, return SSE stream
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    // STREAMING: no tools, return SSE stream (convert Gemini SSE to OpenAI-compatible SSE)
+    const response = await fetch(streamApiUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openRouterApiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://zenith-ai.lovable.app',
-        'X-Title': 'Zenith AI - MindMate',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
-        messages: enhancedMessages,
-        max_tokens: maxTokens,
-        temperature,
-        stream: true,
+        contents: geminiContents,
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature,
+        },
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter streaming error:', response.status, errorText);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      console.error('Google AI Studio streaming error:', response.status, errorText);
+      throw new Error(`Google AI Studio API error: ${response.status}`);
     }
 
     // Log usage estimate for streaming
@@ -414,7 +422,38 @@ IMPORTANT:
       user_id: user.id, feature: 'mindmate', tokens_used: 0,
     }).then(({ error }) => { if (error) console.error('Error logging AI usage:', error); });
 
-    return new Response(response.body, {
+    // Transform Gemini SSE to OpenAI-compatible SSE format
+    const transformStream = new TransformStream({
+      transform(chunk, controller) {
+        const text = new TextDecoder().decode(chunk);
+        const lines = text.split('\n');
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const jsonStr = line.slice(6).trim();
+          if (!jsonStr) continue;
+          try {
+            const geminiData = JSON.parse(jsonStr);
+            const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (content) {
+              const openaiChunk = {
+                choices: [{ delta: { content } }]
+              };
+              controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
+            }
+            // Check if done
+            if (geminiData.candidates?.[0]?.finishReason) {
+              controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+            }
+          } catch {
+            // skip unparseable chunks
+          }
+        }
+      }
+    });
+
+    const readable = response.body!.pipeThrough(transformStream);
+
+    return new Response(readable, {
       headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
     });
 
@@ -429,3 +468,46 @@ IMPORTANT:
     });
   }
 });
+
+// Helper: Convert OpenAI-style messages to Gemini format
+function convertToGeminiFormat(messages: any[]) {
+  const contents: any[] = [];
+  let systemInstruction = '';
+
+  for (const msg of messages) {
+    if (msg.role === 'system') {
+      systemInstruction += (systemInstruction ? '\n\n' : '') + msg.content;
+      continue;
+    }
+    contents.push({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }],
+    });
+  }
+
+  // Gemini doesn't have a system role in contents, prepend as first user message context
+  if (systemInstruction && contents.length > 0) {
+    if (contents[0].role === 'user') {
+      contents[0].parts[0].text = systemInstruction + '\n\n' + contents[0].parts[0].text;
+    } else {
+      contents.unshift({ role: 'user', parts: [{ text: systemInstruction }] });
+    }
+  }
+
+  // Ensure conversation starts with user and alternates
+  const cleaned: any[] = [];
+  for (const c of contents) {
+    if (cleaned.length === 0 && c.role !== 'user') {
+      // Skip leading model messages
+      continue;
+    }
+    if (cleaned.length > 0 && cleaned[cleaned.length - 1].role === c.role) {
+      // Merge consecutive same-role messages
+      cleaned[cleaned.length - 1].parts[0].text += '\n\n' + c.parts[0].text;
+    } else {
+      cleaned.push(c);
+    }
+  }
+
+  return cleaned;
+}

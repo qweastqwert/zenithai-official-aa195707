@@ -35,7 +35,6 @@ serve(async (req) => {
 
     console.log('Analyzing conversation for user:', user.id);
 
-    // Save conversation to temporary storage if conversationId not provided
     let convId = conversationId;
     if (!convId) {
       const { data: conversation, error: saveError } = await supabaseClient
@@ -55,18 +54,16 @@ serve(async (req) => {
       console.log('Conversation saved with ID:', convId);
     }
 
-    const openaiApiKey = Deno.env.get('OPENROUTER_API_KEY');
-    if (!openaiApiKey) {
-      throw new Error('OpenRouter API key not configured');
+    const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
+    if (!googleApiKey) {
+      throw new Error('Google AI Studio API key not configured');
     }
 
-    // Prepare conversation for analysis
     const conversationText = messages
       .filter((msg: any) => msg.role !== 'system')
       .map((msg: any) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
       .join('\n\n');
 
-    // Use AI to extract key insights
     const analysisPrompt = `Analyze the following conversation and extract ONLY truly significant information about the user that should be remembered for future conversations. 
 
 Focus on:
@@ -83,39 +80,35 @@ DO NOT extract:
 - Temporary moods or fleeting thoughts
 - Surface-level comments
 
-Return your analysis as a JSON array of memory objects, each with "memory_text" and "category" fields. Only include memories that are genuinely significant. If there's nothing significant to remember, return an empty array.
+Return your analysis as a JSON object with a "memories" array, each item having "memory_text" and "category" fields. Only include memories that are genuinely significant. If there's nothing significant to remember, return {"memories":[]}.
 
 Categories should be one of: "trigger", "preference", "challenge", "goal", "background", "relationship"
 
 Conversation:
 ${conversationText}`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key=${googleApiKey}`;
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://zenith-ai.lovable.app',
-        'X-Title': 'Zenith AI - Memory Analysis',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
-        messages: [
-          { role: 'user', content: analysisPrompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
+        contents: [{ role: 'user', parts: [{ text: analysisPrompt }] }],
+        generationConfig: {
+          temperature: 0.3,
+          responseMimeType: 'application/json',
+        },
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('OpenRouter API error:', response.status, errorText);
-      throw new Error(`OpenRouter API error: ${response.status}`);
+      console.error('Google AI Studio API error:', response.status, errorText);
+      throw new Error(`Google AI Studio API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const analysisText = data.choices?.[0]?.message?.content || '{"memories":[]}';
+    const analysisText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{"memories":[]}';
     
     let analysis;
     try {
@@ -128,7 +121,6 @@ ${conversationText}`;
     const memories = analysis.memories || [];
     console.log('Extracted memories:', memories.length);
 
-    // Save memories to MindArchive
     let savedCount = 0;
     if (Array.isArray(memories) && memories.length > 0) {
       for (const memory of memories) {
@@ -150,7 +142,6 @@ ${conversationText}`;
       }
     }
 
-    // Mark conversation as analyzed
     await supabaseClient
       .from('conversation_history')
       .update({ analyzed: true })
