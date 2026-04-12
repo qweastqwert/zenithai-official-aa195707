@@ -22,6 +22,7 @@ export const useCommunityBans = () => {
   const [checkingBan, setCheckingBan] = useState(true);
   const { user } = useAuth();
 
+  // Only admins should fetch all bans; regular users just check own ban
   const fetchBans = async () => {
     try {
       setLoading(true);
@@ -33,8 +34,8 @@ export const useCommunityBans = () => {
       if (error) throw error;
       setBans(data || []);
     } catch (error) {
-      console.error('Error fetching bans:', error);
-      toast.error('Failed to load bans');
+      // Silently fail for non-admins (RLS will block)
+      setBans([]);
     } finally {
       setLoading(false);
     }
@@ -49,21 +50,11 @@ export const useCommunityBans = () => {
 
     try {
       setCheckingBan(true);
-      const { data, error } = await supabase
-        .from('community_bans')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') throw error;
-
-      if (data) {
-        const bannedUntil = new Date(data.banned_until);
-        const now = new Date();
-        setIsBanned(data.is_permanent || bannedUntil > now);
-      } else {
-        setIsBanned(false);
-      }
+      // Use the RPC function which is security definer
+      const { data, error } = await supabase.rpc('is_user_banned', { user_uuid: user.id });
+      
+      if (error) throw error;
+      setIsBanned(!!data);
     } catch (error) {
       console.error('Error checking ban status:', error);
       setIsBanned(false);
@@ -136,7 +127,6 @@ export const useCommunityBans = () => {
 
   useEffect(() => {
     if (user) {
-      fetchBans();
       checkUserBan();
     }
   }, [user]);
