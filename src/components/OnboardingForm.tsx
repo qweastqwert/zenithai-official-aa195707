@@ -22,6 +22,7 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState({
     name: '',
+    username: '',
     age: '',
     gender: '',
     hobbies: '',
@@ -64,7 +65,8 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
         age: profile.age,
         gender: profile.gender,
         hobbies: profile.hobbies,
-        problems: profile.problems
+        problems: profile.problems,
+        username: profile.username || undefined
       });
 
       // Create sleep profile
@@ -113,6 +115,18 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
                 required
                 className="border-gray-200 focus:border-zenith-primary focus:ring-zenith-primary/20"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-sm font-medium">Username (for community posts)</Label>
+              <Input
+                id="username"
+                placeholder="Choose a unique username"
+                value={profile.username}
+                onChange={(e) => setProfile({ ...profile, username: e.target.value.replace(/\s/g, '').toLowerCase() })}
+                className="border-gray-200 focus:border-zenith-primary focus:ring-zenith-primary/20"
+              />
+              <p className="text-xs text-muted-foreground">This will be shown on your community posts and characters</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
