@@ -101,130 +101,133 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
   // Mobile: Bottom sheet style with refined animations
   if (isMobile) {
     return (
-      <motion.div
-        initial={{ y: "100%", opacity: 0 }}
-        animate={{ 
-          y: isVisible ? 0 : "100%", 
-          opacity: isVisible ? 1 : 0 
-        }}
-        exit={{ y: "100%", opacity: 0 }}
-        transition={{ 
-          type: "spring", 
-          damping: 30, 
-          stiffness: 300,
-          mass: 0.8
-        }}
-        className="fixed bottom-[72px] left-0 right-0 mx-auto z-50 w-[calc(100%-1.5rem)] max-w-[420px] max-h-[65vh] overflow-y-auto"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-      >
-      <Card className="bg-background/98 backdrop-blur-xl border border-border/50 shadow-xl rounded-xl overflow-hidden">
-          <motion.div
-            initial={false}
-            animate={isMinimized ? { height: "auto" } : { height: "auto" }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {isMinimized ? (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                <CardContent className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <motion.div variants={pulseVariants} animate="pulse">
-                      <Heart className="h-4 w-4 text-primary" />
-                    </motion.div>
-                    <span className="text-sm font-medium text-foreground">How are you feeling?</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm" onClick={() => setIsMinimized(false)} className="h-8 w-8 p-0">
-                      <ChevronUp className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </motion.div>
-            ) : (
-              <>
-                <CardHeader className="pb-2 pt-3 px-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 min-w-0 flex-1">
-                      <AnimatePresence mode="wait">
-                        {step === 'reason' && (
-                          <motion.div
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                          >
-                            <Button variant="ghost" size="sm" onClick={handleBack} className="h-7 w-7 p-0 flex-shrink-0">
-                              <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                      <motion.div
-                        className="flex-shrink-0"
-                        animate={{ 
-                          rotate: [0, 5, -5, 0],
-                          scale: [1, 1.1, 1]
-                        }}
-                        transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
-                      >
-                        <Heart className="h-5 w-5 text-primary" />
+      <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isVisible ? 1 : 0 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[79] bg-background/40 backdrop-blur-sm"
+          onClick={onClose}
+        />
+
+        <motion.div
+          initial={{ y: '100%', opacity: 0 }}
+          animate={{
+            y: isVisible ? 0 : '100%',
+            opacity: isVisible ? 1 : 0,
+          }}
+          exit={{ y: '100%', opacity: 0 }}
+          transition={{
+            type: 'spring',
+            damping: 30,
+            stiffness: 300,
+            mass: 0.8,
+          }}
+          className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-[80] max-h-[70vh]"
+        >
+          <Card className="max-h-[70vh] overflow-hidden rounded-2xl border border-border bg-card/95 shadow-2xl backdrop-blur-xl">
+            <motion.div
+              initial={false}
+              animate={isMinimized ? { height: 'auto' } : { height: 'auto' }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {isMinimized ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <CardContent className="flex items-center justify-between p-3">
+                    <div className="flex items-center gap-2">
+                      <motion.div variants={pulseVariants} animate="pulse">
+                        <Heart className="h-4 w-4 text-primary" />
                       </motion.div>
-                      <CardTitle className="text-sm font-semibold text-foreground truncate">
-                        {step === 'select' ? 'How are you feeling?' : 'Tell us more'}
-                      </CardTitle>
+                      <span className="text-sm font-medium text-foreground">How are you feeling?</span>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0 ml-2">
-                      <Button variant="ghost" size="sm" onClick={() => setIsMinimized(true)} className="h-7 w-7 p-0">
-                        <ChevronDown className="h-4 w-4" />
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => setIsMinimized(false)} className="h-8 w-8 p-0">
+                        <ChevronUp className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={onClose} className="h-7 w-7 p-0">
+                      <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-3 pb-3 pt-1">
-                  <AnimatePresence mode="wait" custom={direction}>
-                    {step === 'select' ? (
-                      <motion.div
-                        key="select"
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                      >
-                        <MoodSelection selectedMood={selectedMood} onMoodSelect={handleMoodSelect} compact />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="reason"
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                      >
-                        <MoodReasonInput 
-                          selectedMood={selectedMood}
-                          onSubmit={handleReasonSubmit}
-                          onSkip={handleSkipReason}
-                          compact
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </CardContent>
-              </>
-            )}
-          </motion.div>
-        </Card>
-      </motion.div>
+                  </CardContent>
+                </motion.div>
+              ) : (
+                <>
+                  <CardHeader className="px-3 pb-2 pt-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex min-w-0 flex-1 items-center space-x-2">
+                        <AnimatePresence mode="wait">
+                          {step === 'reason' && (
+                            <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
+                              <Button variant="ghost" size="sm" onClick={handleBack} className="h-7 w-7 flex-shrink-0 p-0">
+                                <ArrowLeft className="h-4 w-4" />
+                              </Button>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                        <motion.div
+                          className="flex-shrink-0"
+                          animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.1, 1] }}
+                          transition={{ duration: 3, repeat: Infinity, repeatDelay: 2 }}
+                        >
+                          <Heart className="h-5 w-5 text-primary" />
+                        </motion.div>
+                        <CardTitle className="truncate text-sm font-semibold text-foreground">
+                          {step === 'select' ? 'How are you feeling?' : 'Tell us more'}
+                        </CardTitle>
+                      </div>
+                      <div className="ml-2 flex flex-shrink-0 items-center gap-1.5">
+                        <Button variant="ghost" size="sm" onClick={() => setIsMinimized(true)} className="h-7 w-7 p-0">
+                          <ChevronDown className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={onClose} className="h-7 w-7 p-0">
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="max-h-[calc(70vh-3.75rem)] overflow-y-auto overscroll-contain px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-1">
+                    <AnimatePresence mode="wait" custom={direction}>
+                      {step === 'select' ? (
+                        <motion.div
+                          key="select"
+                          custom={direction}
+                          variants={slideVariants}
+                          initial="enter"
+                          animate="center"
+                          exit="exit"
+                        >
+                          <MoodSelection selectedMood={selectedMood} onMoodSelect={handleMoodSelect} compact />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="reason"
+                          custom={direction}
+                          variants={slideVariants}
+                          initial="enter"
+                          animate="center"
+                          exit="exit"
+                        >
+                          <MoodReasonInput
+                            selectedMood={selectedMood}
+                            onSubmit={handleReasonSubmit}
+                            onSkip={handleSkipReason}
+                            compact
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </CardContent>
+                </>
+              )}
+            </motion.div>
+          </Card>
+        </motion.div>
+      </>
     );
   }
 
