@@ -517,7 +517,7 @@ const ChatInterface = () => {
               key="menu-mobile"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="min-h-screen pb-16"
+              className="flex h-[100dvh] flex-col overflow-hidden pb-16"
             >
               <MobileHeader
                 title={`Hey ${profile?.name}!`}
@@ -526,9 +526,11 @@ const ChatInterface = () => {
               
               {/* Pull-to-refresh container */}
               <div 
+                id="main-content"
                 ref={containerRef}
-                className="relative overflow-y-auto"
+                className="relative flex-1 overflow-y-auto overscroll-y-contain"
                 style={{ 
+                  WebkitOverflowScrolling: 'touch',
                   transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
                   transition: pullDistance === 0 ? 'transform 0.2s ease-out' : undefined
                 }}
@@ -540,7 +542,7 @@ const ChatInterface = () => {
                   shouldTrigger={shouldTrigger}
                 />
                 
-                <div className="px-3 py-2 space-y-3">
+                <div className="space-y-3 px-3 py-2 pb-24">
                 {/* Events Menu */}
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
@@ -551,6 +553,8 @@ const ChatInterface = () => {
                   <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
                   <Badge className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 rounded-full z-10">New</Badge>
                 </div>
+
+                {user && <AnalyticsDashboard className="mb-0" />}
 
                 {/* Achievements Quick Card - no New badge */}
                 <motion.div

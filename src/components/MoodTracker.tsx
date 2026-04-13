@@ -27,7 +27,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
   const supabaseMoodData = useMoodDataSupabase();
   
   const { toast } = useToast();
-  const { isMobile } = useDeviceDetection();
+  const { isMobile, isTablet } = useDeviceDetection();
 
   useEffect(() => {
     if (showPromptOnly) {
@@ -76,8 +76,6 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
   if (!showPrompt) {
     return null;
   }
-
-  const { isTablet } = useDeviceDetection();
 
   return (
     <AnimatePresence>
