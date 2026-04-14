@@ -136,7 +136,8 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble responding right now.";
+    const rawReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble responding right now.";
+    const reply = sanitizeModelText(rawReply);
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
