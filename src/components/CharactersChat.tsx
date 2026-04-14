@@ -150,7 +150,7 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
           avatar: c.avatar_emoji,
           personality: '',
           systemPrompt: c.system_prompt,
-          creatorUsername: profileMap.get(c.creator_user_id) || 'Anonymous',
+          creatorUsername: c.creator_user_id ? (profileMap.get(c.creator_user_id) || 'Anonymous') : 'Deleted Account',
           creatorUserId: c.creator_user_id,
           isPrivate: c.is_private,
           isCommunity: true,
@@ -185,7 +185,7 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
         setCommunityCharacters(data.map(c => ({
           id: c.id, name: c.name, description: c.description, avatar: c.avatar_emoji,
           personality: '', systemPrompt: c.system_prompt,
-          creatorUsername: profileMap.get(c.creator_user_id) || 'Anonymous',
+          creatorUsername: c.creator_user_id ? (profileMap.get(c.creator_user_id) || 'Anonymous') : 'Deleted Account',
           creatorUserId: c.creator_user_id, isPrivate: c.is_private, isCommunity: true,
         })));
       }
