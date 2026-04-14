@@ -8,6 +8,7 @@ import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useJournalSupabase } from '@/hooks/useJournalSupabase';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import { supabase } from '@/integrations/supabase/client';
+import { extractTip } from '@/utils/sanitizeAI';
 
 interface AnalyticsDashboardProps {
   className?: string;
@@ -117,14 +118,8 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
       }
 
       const data = response.data;
-      let tip = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
-      // Strip any reasoning/thinking the model may have leaked
-      // Take only the last meaningful sentence if the model dumped its chain-of-thought
-      if (tip.length > 150) {
-        const lines = tip.split('\n').map((l: string) => l.trim()).filter((l: string) => l && !l.startsWith('*') && !l.startsWith('-') && !l.startsWith('#'));
-        tip = lines[lines.length - 1] || lines[0] || 'Take a moment to breathe deeply and reset your mind today. ✨';
-      }
-      setAiTip(tip);
+      const raw = data.reply || 'Keep maintaining your mental wellness journey! 🌟';
+      setAiTip(extractTip(raw));
     } catch (error) {
       console.error('Error generating AI tip:', error);
       // Fallback tips based on timeframe

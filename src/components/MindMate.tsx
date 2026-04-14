@@ -984,38 +984,8 @@ interface MindMateProps {
   onBack?: () => void;
 }
 
-const INSTRUCTION_LEAK_PATTERNS = [
-  /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
-  /(^|\n)\s*Option\s+\d+\s*:/i,
-  /(^|\n)\s*Heading\s+\d+\s*:/i,
-  /(^|\n)\s*(Bullet list|Numbered list)\s*:/i,
-  /Max\s+\d+\s+words\?/i,
-  /Since it's a single/i,
-  /I can use a Heading/i,
-];
-
-const sanitizeAssistantMessage = (text: string) => {
-  const cleaned = text.replace(/<thinking[\s\S]*?<\/thinking>/gi, '').trim();
-  const leakCount = INSTRUCTION_LEAK_PATTERNS.reduce((count, pattern) => count + (pattern.test(cleaned) ? 1 : 0), 0);
-
-  if (leakCount < 2) {
-    return cleaned;
-  }
-
-  const filtered = cleaned
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter(
-      (line) =>
-        !/^(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT|Option\s+\d+|Heading\s+\d+|Bullet list|Numbered list)\s*:/i.test(line) &&
-        !/^(Since it's|I can use\b|The user has\b|Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?)/i.test(line)
-    )
-    .join('\n')
-    .trim();
-
-  return filtered || cleaned;
-};
+// Use shared sanitizer
+import { sanitizeAssistantMessage } from '@/utils/sanitizeAI';
 
 const MindMate = ({ profile, initialPrompt, onBack }: MindMateProps) => {
   const navigate = useNavigate();

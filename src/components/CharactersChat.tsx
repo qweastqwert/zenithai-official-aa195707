@@ -14,6 +14,7 @@ import { streamChat } from '@/utils/streamChat';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import FormattedMessage from '@/components/chat/FormattedMessage';
+import { sanitizeAssistantMessage } from '@/utils/sanitizeAI';
 
 interface Character {
   id: string;
