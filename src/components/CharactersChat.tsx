@@ -235,7 +235,13 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
         assistantContent += text;
         setMessages(prev => prev.map(m => m.id === assistantMessageId ? { ...m, content: assistantContent } : m));
       },
-      onDone: () => { setIsLoading(false); setTimeout(() => setAnimatingMessageId(null), 500); },
+      onDone: () => {
+        const sanitized = sanitizeAssistantMessage(assistantContent);
+        if (sanitized !== assistantContent) {
+          setMessages(prev => prev.map(m => m.id === assistantMessageId ? { ...m, content: sanitized } : m));
+        }
+        setIsLoading(false); setTimeout(() => setAnimatingMessageId(null), 500);
+      },
       onError: async (error) => {
         console.error('Streaming error, falling back:', error);
         try {
@@ -243,7 +249,7 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
             body: { messages: chatMessages, maxTokens: 800, temperature: 0.8 }
           });
           if (fnError) throw fnError;
-          setMessages(prev => prev.map(m => m.id === assistantMessageId ? { ...m, content: data?.reply || "I'm having trouble responding right now." } : m));
+          setMessages(prev => prev.map(m => m.id === assistantMessageId ? { ...m, content: sanitizeAssistantMessage(data?.reply || "I'm having trouble responding right now.") } : m));
         } catch {
           setMessages(prev => prev.map(m => m.id === assistantMessageId ? { ...m, content: "I'm sorry, I'm having trouble connecting right now. Please try again later!" } : m));
         } finally { setIsLoading(false); setTimeout(() => setAnimatingMessageId(null), 500); }
