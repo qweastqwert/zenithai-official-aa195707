@@ -171,7 +171,8 @@ const ensureLiveAnnouncer = (enabled: boolean) => {
 
 export const loadAccessibilityState = (): AccessibilityState => {
   try {
-    const saved = getCookie(ACCESSIBILITY_COOKIE_KEY);
+    // Try localStorage first, fall back to cookie
+    const saved = localStorage.getItem(ACCESSIBILITY_COOKIE_KEY) || getCookie(ACCESSIBILITY_COOKIE_KEY);
     if (!saved) return DEFAULT_ACCESSIBILITY_STATE;
 
     return {
@@ -184,13 +185,21 @@ export const loadAccessibilityState = (): AccessibilityState => {
 };
 
 export const saveAccessibilityState = (state: AccessibilityState) => {
-  setCookie(ACCESSIBILITY_COOKIE_KEY, JSON.stringify(state), 365);
+  const json = JSON.stringify(state);
+  localStorage.setItem(ACCESSIBILITY_COOKIE_KEY, json);
+  setCookie(ACCESSIBILITY_COOKIE_KEY, json, 8760);
 };
 
-export const loadAccessibilityVisibility = () => getCookie(ACCESSIBILITY_VISIBILITY_COOKIE_KEY) !== 'false';
+export const loadAccessibilityVisibility = (): boolean => {
+  const stored = localStorage.getItem(ACCESSIBILITY_VISIBILITY_COOKIE_KEY);
+  if (stored !== null) return stored !== 'false';
+  // Fall back to cookie
+  return getCookie(ACCESSIBILITY_VISIBILITY_COOKIE_KEY) !== 'false';
+};
 
 export const saveAccessibilityVisibility = (visible: boolean) => {
-  setCookie(ACCESSIBILITY_VISIBILITY_COOKIE_KEY, String(visible), 365);
+  localStorage.setItem(ACCESSIBILITY_VISIBILITY_COOKIE_KEY, String(visible));
+  setCookie(ACCESSIBILITY_VISIBILITY_COOKIE_KEY, String(visible), 8760);
 };
 
 export const applyAccessibilityState = (state: AccessibilityState) => {
