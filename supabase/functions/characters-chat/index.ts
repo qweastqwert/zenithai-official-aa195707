@@ -86,10 +86,24 @@ serve(async (req) => {
         throw new Error(`AI service error: ${response.status}`);
       }
 
-      // Transform Gemini SSE to OpenAI-compatible SSE
+      // Transform Gemini SSE to OpenAI-compatible SSE, sanitize on finish
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      let streamedReply = '';
+      let streamClosed = false;
+
+      const emitSanitized = (controller: TransformStreamDefaultController<Uint8Array>) => {
+        if (streamClosed) return;
+        streamClosed = true;
+        const final = sanitizeModelText(streamedReply) || "I'm having trouble responding right now.";
+        const chunk = { choices: [{ delta: { content: final } }] };
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+      };
+
       const transformStream = new TransformStream({
         transform(chunk, controller) {
-          const text = new TextDecoder().decode(chunk);
+          const text = decoder.decode(chunk, { stream: true });
           const lines = text.split('\n');
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
@@ -98,15 +112,15 @@ serve(async (req) => {
             try {
               const geminiData = JSON.parse(jsonStr);
               const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (content) {
-                const openaiChunk = { choices: [{ delta: { content } }] };
-                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
-              }
+              if (content) streamedReply += content;
               if (geminiData.candidates?.[0]?.finishReason) {
-                controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+                emitSanitized(controller);
               }
             } catch { /* skip */ }
           }
+        },
+        flush(controller) {
+          if (streamedReply && !streamClosed) emitSanitized(controller);
         }
       });
 
@@ -136,7 +150,8 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble responding right now.";
+    const rawReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble responding right now.";
+    const reply = sanitizeModelText(rawReply);
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -188,4 +203,33 @@ function convertToGeminiFormat(messages: any[]) {
   }
 
   return cleaned;
+}
+
+function sanitizeModelText(text: string): string {
+  let cleaned = text
+    .replace(/<thinking[\s\S]*?<\/thinking>/gi, '')
+    .replace(/<think[\s\S]*?<\/think>/gi, '')
+    .trim();
+
+  const leakPatterns = [
+    /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
+    /(^|\n)\s*Option\s+\d+\s*:/i,
+    /(^|\n)\s*(Let me|I need to|I should|I'll|My response|Checking|Analyzing)\b/i,
+  ];
+
+  const leakCount = leakPatterns.reduce((count, p) => count + (p.test(cleaned) ? 1 : 0), 0);
+  if (leakCount < 2) return cleaned;
+
+  const filtered = cleaned
+    .split(/\n+/)
+    .map(l => l.trim())
+    .filter(Boolean)
+    .filter(l =>
+      !/^(Role|Input|Constraint|Formatting|Tone|Emojis|IMPORTANT|Option\s+\d+)\s*:/i.test(l) &&
+      !/^(Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i.test(l)
+    )
+    .join('\n')
+    .trim();
+
+  return filtered || cleaned;
 }
