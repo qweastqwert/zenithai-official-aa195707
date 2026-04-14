@@ -11,6 +11,7 @@ import AudioSection from '@/components/settings/AudioSection';
 import NotificationsSection from '@/components/settings/NotificationsSection';
 import AccessibilitySettingsSection from '@/components/settings/AccessibilitySettingsSection';
 import { MindArchiveSection } from '@/components/settings/MindArchiveSection';
+import DangerZoneSection from '@/components/settings/DangerZoneSection';
 import { useAuth } from '@/hooks/useAuth';
 
 interface SettingsProps {
@@ -67,6 +68,9 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
               Sign Out
             </Button>
           </div>
+
+          <Separator />
+          <DangerZoneSection />
         </CardContent>
       </Card>
     </div>

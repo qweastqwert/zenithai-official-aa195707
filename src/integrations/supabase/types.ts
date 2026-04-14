@@ -153,7 +153,7 @@ export type Database = {
         Row: {
           avatar_emoji: string
           created_at: string
-          creator_user_id: string
+          creator_user_id: string | null
           description: string
           greeting: string | null
           id: string
@@ -165,7 +165,7 @@ export type Database = {
         Insert: {
           avatar_emoji?: string
           created_at?: string
-          creator_user_id: string
+          creator_user_id?: string | null
           description?: string
           greeting?: string | null
           id?: string
@@ -177,7 +177,7 @@ export type Database = {
         Update: {
           avatar_emoji?: string
           created_at?: string
-          creator_user_id?: string
+          creator_user_id?: string | null
           description?: string
           greeting?: string | null
           id?: string
