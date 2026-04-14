@@ -539,6 +539,12 @@ function convertToGeminiFormat(messages: any[]) {
 }
 
 function sanitizeModelText(text: string) {
+  // Strip thinking blocks
+  let cleaned = text
+    .replace(/<thinking[\s\S]*?<\/thinking>/gi, '')
+    .replace(/<think[\s\S]*?<\/think>/gi, '')
+    .trim();
+
   const leakPatterns = [
     /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
     /(^|\n)\s*Option\s+\d+\s*:/i,
@@ -547,14 +553,14 @@ function sanitizeModelText(text: string) {
     /Max\s+\d+\s+words\?/i,
     /Since it's a single/i,
     /I can use a Heading/i,
+    /\*\s*(Positive|Actionable|Mental wellness|Supportive|Formatting followed|Max \d+ words)\??/i,
+    /(^|\n)\s*Let me (think|analyze|check|consider)/i,
+    /(^|\n)\s*(I need to|I should|I'll|My response|Checking|Analyzing)/i,
   ];
 
-  const cleaned = text.replace(/<thinking[\s\S]*?<\/thinking>/gi, '').trim();
   const leakCount = leakPatterns.reduce((count, pattern) => count + (pattern.test(cleaned) ? 1 : 0), 0);
 
-  if (leakCount < 2) {
-    return cleaned;
-  }
+  if (leakCount < 2) return cleaned;
 
   const filtered = cleaned
     .split(/\n+/)
@@ -563,7 +569,8 @@ function sanitizeModelText(text: string) {
     .filter(
       (line) =>
         !/^(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT|Option\s+\d+|Heading\s+\d+|Bullet list|Numbered list)\s*:/i.test(line) &&
-        !/^(Since it's|I can use\b|The user has\b|Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?)/i.test(line)
+        !/^(Since it's|I can use\b|The user has\b|Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?|Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i.test(line) &&
+        !/^\*\s*\*?(Option|Heading|Role|Constraint|Tone|Emojis)\b/i.test(line)
     )
     .join('\n')
     .trim();
