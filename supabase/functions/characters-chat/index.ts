@@ -204,3 +204,32 @@ function convertToGeminiFormat(messages: any[]) {
 
   return cleaned;
 }
+
+function sanitizeModelText(text: string): string {
+  let cleaned = text
+    .replace(/<thinking[\s\S]*?<\/thinking>/gi, '')
+    .replace(/<think[\s\S]*?<\/think>/gi, '')
+    .trim();
+
+  const leakPatterns = [
+    /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
+    /(^|\n)\s*Option\s+\d+\s*:/i,
+    /(^|\n)\s*(Let me|I need to|I should|I'll|My response|Checking|Analyzing)\b/i,
+  ];
+
+  const leakCount = leakPatterns.reduce((count, p) => count + (p.test(cleaned) ? 1 : 0), 0);
+  if (leakCount < 2) return cleaned;
+
+  const filtered = cleaned
+    .split(/\n+/)
+    .map(l => l.trim())
+    .filter(Boolean)
+    .filter(l =>
+      !/^(Role|Input|Constraint|Formatting|Tone|Emojis|IMPORTANT|Option\s+\d+)\s*:/i.test(l) &&
+      !/^(Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i.test(l)
+    )
+    .join('\n')
+    .trim();
+
+  return filtered || cleaned;
+}
