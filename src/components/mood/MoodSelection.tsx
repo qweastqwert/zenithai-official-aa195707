@@ -51,7 +51,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
       initial="hidden"
       animate="visible"
       className={compact 
-        ? "grid grid-cols-3 sm:grid-cols-4 gap-2" 
+        ? "grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[40vh] overflow-y-auto overscroll-contain pb-1" 
         : "grid grid-cols-4 gap-3"
       }
     >

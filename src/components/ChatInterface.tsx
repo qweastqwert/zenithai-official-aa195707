@@ -169,7 +169,6 @@ const ChatInterface = () => {
         setIsTransitioning(false);
       }, 300);
     } else if (destination === 'mindmate') {
-      trackActivity('mindmate');
       setIsTransitioning(true);
       setTimeout(() => {
         setActiveChatbot('mindmate');
