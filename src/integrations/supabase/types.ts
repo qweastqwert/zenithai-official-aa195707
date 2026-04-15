@@ -74,6 +74,39 @@ export type Database = {
         }
         Relationships: []
       }
+      character_conversations: {
+        Row: {
+          character_id: string
+          character_name: string
+          created_at: string
+          id: string
+          messages: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          character_id: string
+          character_name: string
+          created_at?: string
+          id?: string
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          character_id?: string
+          character_name?: string
+          created_at?: string
+          id?: string
+          messages?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       comment_votes: {
         Row: {
           comment_id: string
@@ -152,36 +185,45 @@ export type Database = {
       community_characters: {
         Row: {
           avatar_emoji: string
+          avatar_image_url: string | null
+          avatar_type: string
           created_at: string
           creator_user_id: string | null
           description: string
           greeting: string | null
           id: string
           is_private: boolean
+          mood_tone: string | null
           name: string
           system_prompt: string
           updated_at: string
         }
         Insert: {
           avatar_emoji?: string
+          avatar_image_url?: string | null
+          avatar_type?: string
           created_at?: string
           creator_user_id?: string | null
           description?: string
           greeting?: string | null
           id?: string
           is_private?: boolean
+          mood_tone?: string | null
           name: string
           system_prompt: string
           updated_at?: string
         }
         Update: {
           avatar_emoji?: string
+          avatar_image_url?: string | null
+          avatar_type?: string
           created_at?: string
           creator_user_id?: string | null
           description?: string
           greeting?: string | null
           id?: string
           is_private?: boolean
+          mood_tone?: string | null
           name?: string
           system_prompt?: string
           updated_at?: string

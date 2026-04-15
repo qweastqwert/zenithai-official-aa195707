@@ -62,7 +62,7 @@ const DangerZoneSection = () => {
           <h3 className="text-lg font-semibold text-destructive">Danger Zone</h3>
         </div>
         <p className="text-sm text-muted-foreground">
-          Permanently delete your account and all personal data. Community posts and characters you created will remain but show as "Deleted Account". This action is <strong>irreversible</strong>.
+          Permanently delete your account and all personal data. Community posts and characters you created will remain but show as "Deleted Account". Character conversations will be permanently deleted. This action is <strong>irreversible</strong>.
         </p>
         <Button
           variant="destructive"
@@ -83,7 +83,7 @@ const DangerZoneSection = () => {
               Are you sure?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your account including all mood entries, journal entries, sleep data, AI conversations, memories, schedule, achievements, and profile. Community posts and character bots will remain but be anonymized.
+              This will permanently delete your account including all mood entries, journal entries, sleep data, AI conversations, character conversations, memories, schedule, achievements, and profile. Community posts and character bots will remain but be anonymized.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

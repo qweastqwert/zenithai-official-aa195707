@@ -1186,6 +1186,9 @@ Customize your therapeutic approach based on this information while maintaining 
             prev.map((m) => m.id === assistantMessageId ? { ...m, content: sanitizedContent } : m)
           );
         }
+        // Track AI usage only after a real AI response
+        const trackEvent = new CustomEvent('track-activity', { detail: { type: 'mindmate' } });
+        window.dispatchEvent(trackEvent);
         setIsLoading(false);
         setTimeout(() => setAnimatingMessageId(null), 500);
       },
