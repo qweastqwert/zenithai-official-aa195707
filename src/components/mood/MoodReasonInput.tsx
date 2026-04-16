@@ -92,17 +92,17 @@ const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmi
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <Card className="bg-gradient-to-br from-white via-purple-50/30 to-pink-50/30 dark:from-gray-800 dark:via-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200/50 dark:border-purple-700/50">
-        <CardContent className="p-6 space-y-6">
+        <CardContent className="p-4 space-y-4">
           <motion.div 
             className="text-center"
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
           >
-            <div className="text-6xl mb-3">
+            <div className="text-4xl mb-2">
               {moodEmojis[selectedMood]}
             </div>
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-1">
               You're feeling {moodLabels[selectedMood]}
             </h3>
             <motion.div

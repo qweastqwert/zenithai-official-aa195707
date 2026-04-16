@@ -9,6 +9,7 @@ import { useJournalSupabase } from '@/hooks/useJournalSupabase';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import { supabase } from '@/integrations/supabase/client';
 import { extractTip } from '@/utils/sanitizeAI';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AnalyticsDashboardProps {
   className?: string;
@@ -19,6 +20,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className }) =>
   const { entries: moodEntries } = useMoodDataSupabase();
   const { entries: journalEntries } = useJournalSupabase();
   const activityTracker = useActivityTracker();
+  const isMobile = useIsMobile();
   const [timeframe, setTimeframe] = useState<'weekly' | 'monthly'>('weekly');
   const [aiTip, setAiTip] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -144,6 +146,90 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
 
   const moodAnalytics = getMoodAnalytics();
   const usageAnalytics = getUsageAnalytics();
+
+  if (isMobile) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`mb-3 ${className}`}
+      >
+        <div className="px-1">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">Analytics</h3>
+            </div>
+            <div className="flex gap-1">
+              <button
+                onClick={() => setTimeframe('weekly')}
+                className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                  timeframe === 'weekly' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                Week
+              </button>
+              <button
+                onClick={() => setTimeframe('monthly')}
+                className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
+                  timeframe === 'monthly' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                Month
+              </button>
+            </div>
+          </div>
+
+          {/* Compact horizontal stats */}
+          <div className="flex gap-2 mb-2 overflow-x-auto pb-1">
+            <div className="flex-shrink-0 bg-card rounded-lg px-3 py-2 border border-border min-w-0">
+              <div className="flex items-center gap-1.5">
+                <Activity className="h-3 w-3 text-green-500" />
+                <span className="text-[10px] text-muted-foreground">Mood</span>
+              </div>
+              <p className="text-xs font-semibold text-foreground mt-0.5">
+                {moodAnalytics.mostCommon 
+                  ? `${moodAnalytics.mostCommon.percentage}% ${moodAnalytics.mostCommon.mood}` 
+                  : 'No data'}
+              </p>
+            </div>
+            <div className="flex-shrink-0 bg-card rounded-lg px-3 py-2 border border-border min-w-0">
+              <div className="flex items-center gap-1.5">
+                <Brain className="h-3 w-3 text-purple-500" />
+                <span className="text-[10px] text-muted-foreground">AI</span>
+              </div>
+              <p className="text-xs font-semibold text-foreground mt-0.5">
+                {usageAnalytics.mindMateUsage} sessions
+              </p>
+            </div>
+            <div className="flex-shrink-0 bg-card rounded-lg px-3 py-2 border border-border min-w-0">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-3 w-3 text-blue-500" />
+                <span className="text-[10px] text-muted-foreground">Entries</span>
+              </div>
+              <p className="text-xs font-semibold text-foreground mt-0.5">
+                {moodAnalytics.totalEntries} logged
+              </p>
+            </div>
+          </div>
+
+          {/* Compact AI tip */}
+          {aiTip && (
+            <div className="bg-accent/50 rounded-lg px-3 py-2 border border-border">
+              <div className="flex items-start gap-1.5">
+                <Brain className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" />
+                <p className="text-[11px] text-muted-foreground leading-relaxed">{aiTip}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
