@@ -7,10 +7,64 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface MindMateErrorResponseOptions {
+  message: string;
+  reply: string;
+  status?: number;
+  stream?: boolean;
+  fallback?: boolean;
+}
+
+function buildMindMateErrorResponse({
+  message,
+  reply,
+  status = 500,
+  stream = false,
+  fallback = false,
+}: MindMateErrorResponseOptions) {
+  const statusCode = fallback ? 200 : status;
+
+  if (stream) {
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+          choices: [{ delta: { content: reply } }],
+          error: message,
+          fallback,
+        })}\n\n`));
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+      },
+    });
+
+    return new Response(readable, {
+      status: statusCode,
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+    });
+  }
+
+  return new Response(JSON.stringify({ error: message, reply, fallback }), {
+    status: statusCode,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+function extractGoogleErrorMessage(errorText: string) {
+  try {
+    const parsed = JSON.parse(errorText);
+    return parsed?.error?.message || parsed?.error?.status || errorText;
+  } catch {
+    return errorText;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  let requestedStream = false;
 
   try {
     const supabaseClient = createClient(
@@ -32,6 +86,7 @@ serve(async (req) => {
     }
 
     const { messages, maxTokens = 2048, temperature = 0.7, stream = false } = await req.json();
+    requestedStream = Boolean(stream);
 
     if (!messages || !Array.isArray(messages)) {
       throw new Error('Messages array is required');
@@ -346,9 +401,6 @@ RESPONSE SAFETY RULES:
       generationConfig: {
         maxOutputTokens: maxTokens,
         temperature,
-        thinkingConfig: {
-          thinkingBudget: 0,
-        },
       },
     };
 
@@ -360,8 +412,16 @@ RESPONSE SAFETY RULES:
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Google AI Studio API error:', response.status, errorText);
-      throw new Error(`Google AI Studio API error: ${response.status}`);
+      const googleErrorMessage = extractGoogleErrorMessage(errorText);
+      console.error('Google AI Studio API error:', response.status, googleErrorMessage, errorText);
+
+      return buildMindMateErrorResponse({
+        message: `Google AI Studio API error: ${response.status}${googleErrorMessage ? ` - ${googleErrorMessage}` : ''}`,
+        reply: 'I’m having trouble reaching MindMate right now. Please try again in a moment.',
+        status: response.status,
+        stream: requestedStream,
+        fallback: response.status >= 500,
+      });
     }
 
     const data = await response.json();
@@ -449,12 +509,18 @@ RESPONSE SAFETY RULES:
 
   } catch (error) {
     console.error('Error in mindmate-chat function:', error);
-    return new Response(JSON.stringify({ 
-      error: error.message,
-      reply: 'I apologize, but I encountered an error. Please try again later.'
-    }), {
-      status: error.message.includes('Invalid user token') ? 401 : 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isAuthError = errorMessage.includes('Invalid user token') || errorMessage.includes('No authorization header');
+
+    return buildMindMateErrorResponse({
+      message: errorMessage,
+      reply: isAuthError
+        ? 'Please sign in again to continue chatting with MindMate.'
+        : 'I apologize, but I encountered an error. Please try again later.',
+      status: isAuthError ? 401 : 500,
+      stream: requestedStream,
+      fallback: !isAuthError,
     });
   }
 });
