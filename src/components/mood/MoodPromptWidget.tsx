@@ -331,7 +331,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                   }
                 </motion.p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 max-h-[60vh] overflow-y-auto overscroll-contain">
                 <AnimatePresence mode="wait" custom={direction}>
                   {step === 'select' ? (
                     <motion.div

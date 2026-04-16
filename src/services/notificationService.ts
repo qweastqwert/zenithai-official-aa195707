@@ -67,9 +67,15 @@ export class NotificationService {
       const granted = permission === 'granted';
       
       if (granted && 'serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(err => {
+        const reg = await navigator.serviceWorker.register('/sw.js').catch(err => {
           console.error('SW registration failed:', err);
+          return null;
         });
+        
+        // Subscribe to push with VAPID key if available
+        if (reg) {
+          await this.subscribeToPush(reg);
+        }
       }
       
       return granted;
@@ -77,6 +83,55 @@ export class NotificationService {
       console.error('Error requesting notification permission:', error);
       return false;
     }
+  }
+
+  private async subscribeToPush(registration: ServiceWorkerRegistration): Promise<void> {
+    try {
+      // Fetch VAPID public key from edge function
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data } = await supabase.functions.invoke('push-notifications', {
+        body: { action: 'get-vapid-key' }
+      });
+      
+      if (!data?.publicKey) {
+        console.warn('No VAPID public key available');
+        return;
+      }
+
+      const applicationServerKey = this.urlBase64ToUint8Array(data.publicKey);
+      
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey
+      });
+
+      // Send subscription to server
+      const subJson = subscription.toJSON();
+      await supabase.functions.invoke('push-notifications', {
+        body: {
+          action: 'subscribe',
+          subscription: {
+            endpoint: subJson.endpoint,
+            keys: subJson.keys
+          }
+        }
+      });
+      
+      console.log('Push subscription registered successfully');
+    } catch (error) {
+      console.error('Push subscription failed:', error);
+    }
+  }
+
+  private urlBase64ToUint8Array(base64String: string): Uint8Array {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
   }
 
   private showNotification(title: string, body: string, tag: string): void {

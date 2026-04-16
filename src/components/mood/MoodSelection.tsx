@@ -52,7 +52,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
       animate="visible"
       className={compact 
         ? "grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[40vh] overflow-y-auto overscroll-contain pb-1" 
-        : "grid grid-cols-4 gap-3"
+        : "grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[50vh] overflow-y-auto overscroll-contain pb-1"
       }
     >
       {moods.map((mood) => (
@@ -90,7 +90,7 @@ const MoodSelection: React.FC<MoodSelectionProps> = ({ selectedMood, onMoodSelec
             >
               {mood.emoji}
             </motion.span>
-            <span className={`font-medium ${compact ? 'text-[10px] leading-tight' : 'text-xs md:text-sm'}`}>
+            <span className={`font-medium whitespace-nowrap ${compact ? 'text-[10px] leading-tight' : 'text-[11px] sm:text-xs md:text-sm'}`}>
               {mood.label}
             </span>
           </Button>
