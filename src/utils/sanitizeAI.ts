@@ -2,21 +2,19 @@
  * Strips model chain-of-thought / instruction leaks from AI responses.
  */
 
-const INSTRUCTION_LEAK_PATTERNS = [
-  /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
-  /(^|\n)\s*Option\s+\d+\s*:/i,
-  /(^|\n)\s*Heading\s+\d+\s*:/i,
-  /(^|\n)\s*(Bullet list|Numbered list)\s*:/i,
-  /Max\s+\d+\s+words\?/i,
-  /Since it's a single/i,
-  /I can use a Heading/i,
-  /\*\s*(Positive|Actionable|Mental wellness|Supportive|Formatting followed|Max \d+ words)\??/i,
-  /(^|\n)\s*\*\s*\*?Option\s+\d+/i,
-  /<think[\s\S]*?<\/think>/gi,
+const SCAFFOLDING_LINE = [
+  /^•\s*(User|Emotional state|Goal|Identify|Draw from|Use Therapeutic|Formatting|Empathy|Immediate Tool|Guidance|Knowledge Base|Heading \d|Bullet|Tool|Call)\b/i,
+  /^[-•]\s*(User \(|Emotional state|Goal:|Identify |Draw from|Use |Formatting:|Empathy:|Immediate|Guidance:|Knowledge|Heading \d|Bullet|Numbered|Call |show_|suggest_)/i,
+  /^\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
+  /^\s*Option\s+\d+\s*:/i,
+  /^\s*Heading\s+\d+\s*:/i,
+  /^\s*(Bullet list|Numbered list)\s*:/i,
+  /^(Since it's|I can use\b|The user has\b|Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i,
+  /^\*\s*\*?(Option|Heading|Role|Constraint|Tone|Emojis)\b/i,
+  /^(Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?)/i,
+  /\$\\rightarrow\$/,
+  /\\rightarrow/,
 ];
-
-const LINE_FILTER = /^(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT|Option\s+\d+|Heading\s+\d+|Bullet list|Numbered list)\s*:/i;
-const LINE_META = /^(Since it's|I can use\b|The user has\b|Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?|Let me |I need to |I'll |I should |My response|Checking|Analyzing)/i;
 
 export function sanitizeAssistantMessage(text: string): string {
   // Strip <thinking>...</thinking> and <think>...</think> blocks
@@ -25,27 +23,16 @@ export function sanitizeAssistantMessage(text: string): string {
     .replace(/<think[\s\S]*?<\/think>/gi, '')
     .trim();
 
-  const leakCount = INSTRUCTION_LEAK_PATTERNS.reduce(
-    (count, pattern) => count + (pattern.test(cleaned) ? 1 : 0),
-    0
-  );
+  // Always filter scaffolding lines (don't require a threshold)
+  const lines = cleaned.split('\n');
+  const filteredLines = lines.filter(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return true;
+    return !SCAFFOLDING_LINE.some(p => p.test(trimmed));
+  });
 
-  if (leakCount < 2) return cleaned;
-
-  const filtered = cleaned
-    .split(/\n+/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .filter(
-      (line) =>
-        !LINE_FILTER.test(line) &&
-        !LINE_META.test(line) &&
-        !/^\*\s*\*?(Option|Heading|Role|Constraint|Tone|Emojis)\b/i.test(line)
-    )
-    .join('\n')
-    .trim();
-
-  return filtered || cleaned;
+  const result = filteredLines.join('\n').trim();
+  return result || cleaned;
 }
 
 /**

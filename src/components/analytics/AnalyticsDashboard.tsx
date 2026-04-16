@@ -136,8 +136,12 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
     }
   };
 
+  const tipGeneratedRef = React.useRef<string>('');
+
   useEffect(() => {
-    if (user && moodEntries.length > 0) {
+    const key = `${timeframe}-${moodEntries.length}`;
+    if (user && moodEntries.length > 0 && tipGeneratedRef.current !== key) {
+      tipGeneratedRef.current = key;
       generateAITip();
     }
   }, [user, timeframe, moodEntries.length]);
