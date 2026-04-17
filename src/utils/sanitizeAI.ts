@@ -3,13 +3,15 @@
  */
 
 const SCAFFOLDING_LINE = [
-  /^•\s*(User|Emotional state|Goal|Identify|Draw from|Use Therapeutic|Formatting|Empathy|Immediate Tool|Guidance|Knowledge Base|Heading \d|Bullet|Tool|Call)\b/i,
+  /^[•*\-]\s*(User|Emotional state|Goal|Identify|Greeting|Reaction|Addressing|Relating|Catchphrases|Mannerisms|Ensure|Use words|Draw from|Use Therapeutic|Formatting|Empathy|Immediate Tool|Guidance|Knowledge Base|Heading \d|Bullet|Numbered|Tool|Call|Hinglish|Hindi|Mentally|Stay in character|Imagination)\b/i,
+  /^[•*\-]\s*\$?(name|age|gender|hobbies|problems)\b/i,
+  /^[•*\-]\s*"[^"]+"\s*\([^)]+\)\s*\.?\s*$/,
   /^[-•]\s*(User \(|Emotional state|Goal:|Identify |Draw from|Use |Formatting:|Empathy:|Immediate|Guidance:|Knowledge|Heading \d|Bullet|Numbered|Call |show_|suggest_)/i,
-  /^\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
+  /^\s*(Role|Input|Output|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT|Greeting|Reaction|Catchphrases|Mannerisms)\s*:/i,
   /^\s*Option\s+\d+\s*:/i,
   /^\s*Heading\s+\d+\s*:/i,
   /^\s*(Bullet list|Numbered list)\s*:/i,
-  /^(Since it's|I can use\b|The user has\b|Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i,
+  /^(Since it's|I can use\b|The user has\b|The user said|Since the user|Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i,
   /^\*\s*\*?(Option|Heading|Role|Constraint|Tone|Emojis)\b/i,
   /^(Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?)/i,
   /\$\\rightarrow\$/,
