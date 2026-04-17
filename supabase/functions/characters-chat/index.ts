@@ -246,25 +246,37 @@ function sanitizeModelText(text: string): string {
     .replace(/<think[\s\S]*?<\/think>/gi, '')
     .trim();
 
-  const leakPatterns = [
-    /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
-    /(^|\n)\s*Option\s+\d+\s*:/i,
-    /(^|\n)\s*(Let me|I need to|I should|I'll|My response|Checking|Analyzing)\b/i,
+  // Aggressively strip scaffolding bullet lines (the model loves to dump its plan)
+  const scaffoldPatterns = [
+    /^[•*\-]\s*(User|Emotional state|Goal|Identify|Greeting|Reaction|Addressing|Relating|Catchphrases|Mannerisms|Ensure|Use words|Heading|Bullet|Numbered|Tone|Constraint|Formatting|Role|Input|Output|Option|Hinglish|Hindi|Mentally|Stay in character|Imagination)\b/i,
+    /^[•*\-]\s*\$?(name|age|gender|hobbies|problems)\b/i,
+    /^[•*\-]\s*"[^"]+"\s*\([^)]+\)\s*\.?\s*$/,
+    /^\s*(Role|Input|Output|Constraint|Formatting|Tone|Emojis|IMPORTANT|Greeting|Reaction|Catchphrases|Mannerisms)\s*:/i,
+    /^\s*Option\s+\d+\s*:/i,
+    /^\s*Heading\s+\d+\s*:/i,
+    /^(Let me|I need to|I should|I'll|My response|Checking|Analyzing|The user said|The user has|Since the user)/i,
   ];
 
-  const leakCount = leakPatterns.reduce((count, p) => count + (p.test(cleaned) ? 1 : 0), 0);
-  if (leakCount < 2) return cleaned;
+  // Find first line that looks like actual character speech (quoted or just plain prose)
+  const lines = cleaned.split('\n');
+  const filtered = lines.filter((l) => {
+    const t = l.trim();
+    if (!t) return true;
+    return !scaffoldPatterns.some((p) => p.test(t));
+  });
 
-  const filtered = cleaned
-    .split(/\n+/)
-    .map(l => l.trim())
-    .filter(Boolean)
-    .filter(l =>
-      !/^(Role|Input|Constraint|Formatting|Tone|Emojis|IMPORTANT|Option\s+\d+)\s*:/i.test(l) &&
-      !/^(Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i.test(l)
-    )
-    .join('\n')
-    .trim();
+  let result = filtered.join('\n').trim();
 
-  return filtered || cleaned;
+  // Collapse 3+ consecutive blank lines
+  result = result.replace(/\n{3,}/g, '\n\n');
+
+  // If the model wrapped its real reply in quotes after a giant scaffold dump,
+  // try to extract the LAST quoted block as the actual reply.
+  const quotedBlocks = result.match(/"([^"]{40,})"/g);
+  if (quotedBlocks && result.length > 1500 && quotedBlocks.length > 0) {
+    const last = quotedBlocks[quotedBlocks.length - 1];
+    result = last.slice(1, -1).trim();
+  }
+
+  return result || "Hello! How can I help you today?";
 }
