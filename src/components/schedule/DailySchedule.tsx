@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,19 +115,35 @@ export const DailySchedule = () => {
 
   const recurringForDate = getRecurringEventsForDate(selectedDate);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.05 } },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 16 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as any } },
+  };
+
   return (
-    <div className="space-y-4 max-w-lg mx-auto">
+    <motion.div
+      className="space-y-4 max-w-lg mx-auto"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
       {/* Calendar */}
-      <ScheduleCalendar
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-        events={events}
-        recurringEvents={recurringEvents}
-        getRecurringEventsForDate={getRecurringEventsForDate}
-      />
+      <motion.div variants={itemVariants}>
+        <ScheduleCalendar
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          events={events}
+          recurringEvents={recurringEvents}
+          getRecurringEventsForDate={getRecurringEventsForDate}
+        />
+      </motion.div>
 
       {/* Selected date header + actions */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={itemVariants} className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-foreground">{formatDate(selectedDate)}</h3>
           <p className="text-xs text-muted-foreground">
@@ -141,9 +158,10 @@ export const DailySchedule = () => {
             <Plus className="h-3 w-3" /> Add
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Event list */}
+      <motion.div variants={itemVariants}>
       <Card className="border-border/50 shadow-sm">
         <CardContent className="p-4">
           {loading ? (
@@ -159,6 +177,7 @@ export const DailySchedule = () => {
           )}
         </CardContent>
       </Card>
+      </motion.div>
 
       {/* Add Event Dialog */}
       <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
@@ -215,6 +234,6 @@ export const DailySchedule = () => {
         onOpenChange={setShowRecurringForm}
         onAdd={addRecurringEvent}
       />
-    </div>
+    </motion.div>
   );
 };

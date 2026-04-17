@@ -36,7 +36,10 @@ import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return sessionStorage.getItem('zenith-chat-intro-shown') !== '1';
+  });
   const [activeChatbot, setActiveChatbot] = useState<'mindmate' | 'characters' | 'meditation' | 'journal' | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [showMoodPrompt, setShowMoodPrompt] = useState(false);
@@ -119,37 +122,47 @@ const ChatInterface = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasProfile]);
 
-  // Check if user needs sleep profile setup
+  // Check if user needs sleep profile setup (once per session)
   useEffect(() => {
     if (!user || !hasProfile || sleepProfileLoading) return;
+    if (sessionStorage.getItem('zenith-sleep-prompt-shown') === '1') return;
     
     if (profile && !sleepProfile) {
-      // Existing user without sleep profile - show prompt after a delay
       const timer = setTimeout(() => {
         setShowSleepPrompt(true);
+        sessionStorage.setItem('zenith-sleep-prompt-shown', '1');
       }, 2000);
       return () => clearTimeout(timer);
     }
   }, [user, profile, sleepProfile, hasProfile, sleepProfileLoading]);
 
-  // Check for mood prompt
+  // Check for mood prompt (once per session, plus 4h cookie window)
   useEffect(() => {
-    if (hasProfile) {
-      const lastPrompt = getCookie('zenith-last-mood-prompt');
-      const now = Date.now();
-      const fourHours = 4 * 60 * 60 * 1000;
-      
-      if (!lastPrompt || (now - parseInt(lastPrompt)) >= fourHours) {
-        const timer = setTimeout(() => setShowMoodPrompt(true), 2000);
-        return () => clearTimeout(timer);
-      }
+    if (!hasProfile) return;
+    if (sessionStorage.getItem('zenith-mood-prompt-shown') === '1') return;
+
+    const lastPrompt = getCookie('zenith-last-mood-prompt');
+    const now = Date.now();
+    const fourHours = 4 * 60 * 60 * 1000;
+    
+    if (!lastPrompt || (now - parseInt(lastPrompt)) >= fourHours) {
+      const timer = setTimeout(() => {
+        setShowMoodPrompt(true);
+        sessionStorage.setItem('zenith-mood-prompt-shown', '1');
+      }, 2000);
+      return () => clearTimeout(timer);
     }
   }, [hasProfile]);
 
-  // Wait for intro animation then show options
+  // Wait for intro animation then show options (skip if already shown this session)
   useEffect(() => {
+    if (sessionStorage.getItem('zenith-chat-intro-shown') === '1') {
+      setShowIntro(false);
+      return;
+    }
     const timer = setTimeout(() => {
       setShowIntro(false);
+      sessionStorage.setItem('zenith-chat-intro-shown', '1');
     }, 3000);
     
     return () => clearTimeout(timer);
