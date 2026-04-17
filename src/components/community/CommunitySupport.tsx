@@ -20,7 +20,7 @@ const CommunitySupport: React.FC = () => {
   const [showTherapistApplication, setShowTherapistApplication] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { posts, loading, fetchPosts } = useCommunityPosts();
+  const { posts, loading, error, fetchPosts } = useCommunityPosts();
   const { user } = useAuth();
   const { role, isAdmin, isTherapist } = useUserRole();
   const postsRef = useRef<HTMLDivElement>(null);
@@ -199,6 +199,27 @@ const CommunitySupport: React.FC = () => {
               />
               <div className="text-muted-foreground text-sm">Loading posts...</div>
             </div>
+          ) : error ? (
+            <Card className="bg-destructive/5 border-destructive/30">
+              <CardContent className="py-8">
+                <div className="text-center">
+                  <Users className="h-10 w-10 text-destructive/60 mx-auto mb-3" />
+                  <h3 className="text-base font-semibold text-foreground mb-1">
+                    Couldn't load posts
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 break-words px-4">
+                    {error}
+                  </p>
+                  <Button
+                    onClick={() => fetchPosts(searchTerm || undefined)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    size="sm"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           ) : posts.length === 0 ? (
             <Card className="bg-card/80 border-primary/20">
               <CardContent className="py-8">
@@ -213,16 +234,25 @@ const CommunitySupport: React.FC = () => {
                       : 'Be the first to start a conversation'
                     }
                   </p>
-                  {!searchTerm && user && (
+                  <div className="flex gap-2 justify-center">
+                    {!searchTerm && user && (
+                      <Button
+                        onClick={() => setShowCreatePost(true)}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        size="sm"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create First Post
+                      </Button>
+                    )}
                     <Button
-                      onClick={() => setShowCreatePost(true)}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      onClick={() => fetchPosts(searchTerm || undefined)}
+                      variant="outline"
                       size="sm"
                     >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create First Post
+                      Retry
                     </Button>
-                  )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

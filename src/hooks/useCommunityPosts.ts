@@ -24,7 +24,8 @@ const notifyListeners = () => {
 export const useCommunityPosts = () => {
   const [posts, setPosts] = useState<CommunityPost[]>(sharedPosts);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const { user, loading: authLoading } = useAuth();
 
   // Subscribe to shared state
   useEffect(() => {
@@ -36,8 +37,8 @@ export const useCommunityPosts = () => {
   const fetchPosts = useCallback(async (searchTerm?: string) => {
     try {
       setLoading(true);
+      setError(null);
       
-      // Query the base table directly - RLS handles visibility
       let query = supabase
         .from('community_posts')
         .select('*')
@@ -47,11 +48,13 @@ export const useCommunityPosts = () => {
         query = query.or(`title.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
       }
 
-      const { data, error } = await query;
+      const { data, error: queryError } = await query;
 
-      if (error) throw error;
+      if (queryError) {
+        console.error('Supabase fetch posts error:', queryError);
+        throw queryError;
+      }
       
-      // Client-side masking for anonymous posts
       const safePosts = (data || []).map(post => ({
         ...post,
         user_id: post.is_anonymous && post.user_id !== user?.id ? null : post.user_id
@@ -59,9 +62,11 @@ export const useCommunityPosts = () => {
       
       sharedPosts = safePosts;
       notifyListeners();
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-      toast.error('Failed to load posts');
+    } catch (err: any) {
+      const message = err?.message || 'Failed to load posts';
+      console.error('Error fetching posts:', err);
+      setError(message);
+      toast.error(`Failed to load posts: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -88,9 +93,9 @@ export const useCommunityPosts = () => {
       toast.success('Post created successfully!');
       await fetchPosts();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating post:', error);
-      toast.error('Failed to create post');
+      toast.error(`Failed to create post: ${error?.message || 'Unknown error'}`);
       return false;
     }
   };
@@ -113,20 +118,23 @@ export const useCommunityPosts = () => {
       toast.success('Post deleted successfully!');
       await fetchPosts();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting post:', error);
-      toast.error('Failed to delete post');
+      toast.error(`Failed to delete post: ${error?.message || 'Unknown error'}`);
       return false;
     }
   };
 
+  // Wait for auth to resolve before fetching to avoid race conditions
   useEffect(() => {
+    if (authLoading) return;
     fetchPosts();
-  }, [fetchPosts]);
+  }, [fetchPosts, authLoading]);
 
   return {
     posts,
     loading,
+    error,
     fetchPosts,
     createPost,
     deletePost
