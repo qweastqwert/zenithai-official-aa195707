@@ -156,6 +156,14 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
     avatar_type: 'emoji' as 'emoji' | 'image' | 'letter', avatar_image_data: null as string | null, mood_tone: '',
   });
 
+  // Edit / delete state
+  const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
+  const [deletingCharacterId, setDeletingCharacterId] = useState<string | null>(null);
+  const [editChar, setEditChar] = useState({
+    name: '', description: '', avatar_emoji: '🤖', system_prompt: '', greeting: '', is_private: false,
+    avatar_type: 'emoji' as 'emoji' | 'image' | 'letter', avatar_image_data: null as string | null, mood_tone: '',
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { getPersonalizedSystemInstruction, profile } = useProfile();
   const { user } = useAuth();
