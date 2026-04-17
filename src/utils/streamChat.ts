@@ -42,6 +42,16 @@ export async function streamChat({ functionName, body, onDelta, onDone, onError,
     const decoder = new TextDecoder();
     let buffer = '';
     let streamDone = false;
+    let collectedToolCalls: any[] | undefined;
+
+    const handleParsed = (parsed: any) => {
+      const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+      if (content) onDelta(content);
+      if (parsed.toolCalls && Array.isArray(parsed.toolCalls)) {
+        collectedToolCalls = parsed.toolCalls;
+        onToolCalls?.(parsed.toolCalls);
+      }
+    };
 
     while (!streamDone) {
       const { done, value } = await reader.read();
@@ -64,18 +74,14 @@ export async function streamChat({ functionName, body, onDelta, onDone, onError,
         }
 
         try {
-          const parsed = JSON.parse(jsonStr);
-          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-          if (content) onDelta(content);
+          handleParsed(JSON.parse(jsonStr));
         } catch {
-          // Incomplete JSON, put it back
           buffer = line + '\n' + buffer;
           break;
         }
       }
     }
 
-    // Final flush
     if (buffer.trim()) {
       for (let raw of buffer.split('\n')) {
         if (!raw) continue;
@@ -84,15 +90,11 @@ export async function streamChat({ functionName, body, onDelta, onDone, onError,
         if (!raw.startsWith('data: ')) continue;
         const jsonStr = raw.slice(6).trim();
         if (jsonStr === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(jsonStr);
-          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-          if (content) onDelta(content);
-        } catch { /* ignore */ }
+        try { handleParsed(JSON.parse(jsonStr)); } catch { /* ignore */ }
       }
     }
 
-    onDone();
+    onDone({ toolCalls: collectedToolCalls });
   } catch (error) {
     onError(error instanceof Error ? error : new Error('Unknown streaming error'));
   }
