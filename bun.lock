@@ -515,7 +515,7 @@
 
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.24.0", "", { "os": "win32", "cpu": "x64" }, "sha512-fbMkAF7fufku0N2dE5TBXcNlg0pt0cJue4xBRE2Qc5Vqikxr4VCgKj/ht6SMdFcOacVA9rqF70APJ8RN/4vMJw=="],
 
-    "@splinetool/runtime": ["@splinetool/runtime@1.12.84", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@splinetool/runtime/-/runtime-1.12.84.tgz", { "dependencies": { "on-change": "4.0.0", "semver-compare": "1.0.0" } }, "sha512-j0bs7WsN1C0LifwYiT0Hrpia03Kx5Bw5FKrwvI3fq9zn4JL2Okyvz1wn64slPlF7h2cjVwF2DgdG6ZZRZEfxFg=="],
+    "@splinetool/runtime": ["@splinetool/runtime@1.12.86", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@splinetool/runtime/-/runtime-1.12.86.tgz", { "dependencies": { "on-change": "4.0.0", "semver-compare": "1.0.0" } }, "sha512-Of+isflyGtFD+jcCj7wGM5TczKt5NRzmHUbpCNt8Co8yORD6fl4Db4f16tRTR5fEQD2FiCrzdn6CNt/jVlCLxw=="],
 
     "@supabase/auth-js": ["@supabase/auth-js@2.71.1", "", { "dependencies": { "@supabase/node-fetch": "^2.6.14" } }, "sha512-mMIQHBRc+SKpZFRB2qtupuzulaUhFYupNyxqDj5Jp/LyPvcWvjaJzZzObv6URtL/O6lPxkanASnotGtNpS3H2Q=="],
 
