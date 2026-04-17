@@ -4,11 +4,12 @@ interface StreamChatOptions {
   functionName: string;
   body: Record<string, any>;
   onDelta: (text: string) => void;
-  onDone: () => void;
+  onDone: (meta?: { toolCalls?: any[] }) => void;
   onError: (error: Error) => void;
+  onToolCalls?: (toolCalls: any[]) => void;
 }
 
-export async function streamChat({ functionName, body, onDelta, onDone, onError }: StreamChatOptions) {
+export async function streamChat({ functionName, body, onDelta, onDone, onError, onToolCalls }: StreamChatOptions) {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
