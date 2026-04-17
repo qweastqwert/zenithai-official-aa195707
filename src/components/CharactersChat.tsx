@@ -263,6 +263,65 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
     return c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) || (c.creatorUsername || '').toLowerCase().includes(q);
   });
 
+  const openEditCharacter = (character: Character) => {
+    setEditingCharacter(character);
+    setEditChar({
+      name: character.name,
+      description: character.description,
+      avatar_emoji: character.avatar || '🤖',
+      system_prompt: character.systemPrompt,
+      greeting: character.greeting || '',
+      is_private: !!character.isPrivate,
+      avatar_type: character.avatarType || 'emoji',
+      avatar_image_data: null,
+      mood_tone: character.moodTone || '',
+    });
+  };
+
+  const saveEditedCharacter = async () => {
+    if (!user || !editingCharacter) return;
+    let avatarImageUrl: string | null | undefined = undefined;
+    if (editChar.avatar_type === 'image' && editChar.avatar_image_data) {
+      avatarImageUrl = await uploadAvatarImage(editChar.avatar_image_data);
+    }
+    const updates: any = {
+      name: editChar.name,
+      description: editChar.description,
+      avatar_emoji: editChar.avatar_type === 'emoji' ? editChar.avatar_emoji : '🤖',
+      system_prompt: editChar.system_prompt,
+      greeting: editChar.greeting || null,
+      is_private: editChar.is_private,
+      avatar_type: editChar.avatar_type,
+      mood_tone: editChar.mood_tone || null,
+    };
+    if (avatarImageUrl !== undefined) updates.avatar_image_url = avatarImageUrl;
+
+    const { error } = await supabase
+      .from('community_characters')
+      .update(updates)
+      .eq('id', editingCharacter.id);
+
+    if (error) {
+      toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Character updated', description: 'Existing saved conversations are unchanged.' });
+      setEditingCharacter(null);
+      fetchCommunityChars();
+    }
+  };
+
+  const confirmDeleteCharacter = async () => {
+    if (!deletingCharacterId) return;
+    const { error } = await supabase.from('community_characters').delete().eq('id', deletingCharacterId);
+    if (error) {
+      toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Character deleted' });
+      setDeletingCharacterId(null);
+      fetchCommunityChars();
+    }
+  };
+
   // Auto-save conversation
   const saveConversation = useCallback(async (msgs: Message[], charId: string, charName: string, convoId: string | null) => {
     if (!user || msgs.length <= 1) return;
