@@ -3,11 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ArrowLeft, Send, Loader2, Search, Plus, Lock, X, MessageSquare, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Search, Plus, Lock, X, MessageSquare, PanelLeftClose, PanelLeftOpen, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { toast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
 import { streamChat } from '@/utils/streamChat';
@@ -153,6 +156,14 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
     avatar_type: 'emoji' as 'emoji' | 'image' | 'letter', avatar_image_data: null as string | null, mood_tone: '',
   });
 
+  // Edit / delete state
+  const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
+  const [deletingCharacterId, setDeletingCharacterId] = useState<string | null>(null);
+  const [editChar, setEditChar] = useState({
+    name: '', description: '', avatar_emoji: '🤖', system_prompt: '', greeting: '', is_private: false,
+    avatar_type: 'emoji' as 'emoji' | 'image' | 'letter', avatar_image_data: null as string | null, mood_tone: '',
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { getPersonalizedSystemInstruction, profile } = useProfile();
   const { user } = useAuth();
@@ -251,6 +262,65 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
     const q = searchQuery.toLowerCase();
     return c.name.toLowerCase().includes(q) || c.description.toLowerCase().includes(q) || (c.creatorUsername || '').toLowerCase().includes(q);
   });
+
+  const openEditCharacter = (character: Character) => {
+    setEditingCharacter(character);
+    setEditChar({
+      name: character.name,
+      description: character.description,
+      avatar_emoji: character.avatar || '🤖',
+      system_prompt: character.systemPrompt,
+      greeting: character.greeting || '',
+      is_private: !!character.isPrivate,
+      avatar_type: character.avatarType || 'emoji',
+      avatar_image_data: null,
+      mood_tone: character.moodTone || '',
+    });
+  };
+
+  const saveEditedCharacter = async () => {
+    if (!user || !editingCharacter) return;
+    let avatarImageUrl: string | null | undefined = undefined;
+    if (editChar.avatar_type === 'image' && editChar.avatar_image_data) {
+      avatarImageUrl = await uploadAvatarImage(editChar.avatar_image_data);
+    }
+    const updates: any = {
+      name: editChar.name,
+      description: editChar.description,
+      avatar_emoji: editChar.avatar_type === 'emoji' ? editChar.avatar_emoji : '🤖',
+      system_prompt: editChar.system_prompt,
+      greeting: editChar.greeting || null,
+      is_private: editChar.is_private,
+      avatar_type: editChar.avatar_type,
+      mood_tone: editChar.mood_tone || null,
+    };
+    if (avatarImageUrl !== undefined) updates.avatar_image_url = avatarImageUrl;
+
+    const { error } = await supabase
+      .from('community_characters')
+      .update(updates)
+      .eq('id', editingCharacter.id);
+
+    if (error) {
+      toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Character updated', description: 'Existing saved conversations are unchanged.' });
+      setEditingCharacter(null);
+      fetchCommunityChars();
+    }
+  };
+
+  const confirmDeleteCharacter = async () => {
+    if (!deletingCharacterId) return;
+    const { error } = await supabase.from('community_characters').delete().eq('id', deletingCharacterId);
+    if (error) {
+      toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Character deleted' });
+      setDeletingCharacterId(null);
+      fetchCommunityChars();
+    }
+  };
 
   // Auto-save conversation
   const saveConversation = useCallback(async (msgs: Message[], charId: string, charName: string, convoId: string | null) => {
@@ -573,8 +643,27 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
                     onClick={() => startChatWithCharacter(character)}
                   >
                     {character.isPrivate && (
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2 left-2">
                         <Lock className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    )}
+                    {character.creatorUserId === user?.id && (
+                      <div className="absolute top-1 right-1" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditCharacter(character)}>
+                              <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setDeletingCharacterId(character.id)}>
+                              <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     )}
                     <div className="text-center">
@@ -661,6 +750,75 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Character Dialog */}
+      <Dialog open={!!editingCharacter} onOpenChange={(o) => !o && setEditingCharacter(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Character</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">Existing saved conversations won't be modified.</p>
+            <div className="space-y-1">
+              <Label>Name *</Label>
+              <Input value={editChar.name} onChange={(e) => setEditChar({ ...editChar, name: e.target.value })} />
+            </div>
+            <AvatarEditor
+              avatarType={editChar.avatar_type}
+              avatarEmoji={editChar.avatar_emoji}
+              avatarImageData={editChar.avatar_image_data}
+              characterName={editChar.name}
+              onAvatarTypeChange={(t) => setEditChar({ ...editChar, avatar_type: t })}
+              onEmojiChange={(e) => setEditChar({ ...editChar, avatar_emoji: e })}
+              onImageChange={(d) => setEditChar({ ...editChar, avatar_image_data: d })}
+            />
+            <div className="space-y-1">
+              <Label>Description</Label>
+              <Textarea value={editChar.description} onChange={(e) => setEditChar({ ...editChar, description: e.target.value })} className="min-h-[60px]" />
+            </div>
+            <div className="space-y-1">
+              <Label>System Prompt *</Label>
+              <Textarea value={editChar.system_prompt} onChange={(e) => setEditChar({ ...editChar, system_prompt: e.target.value })} className="min-h-[100px]" />
+            </div>
+            <div className="space-y-1">
+              <Label>Mood / Tone</Label>
+              <Input value={editChar.mood_tone} onChange={(e) => setEditChar({ ...editChar, mood_tone: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Greeting Message</Label>
+              <Input value={editChar.greeting} onChange={(e) => setEditChar({ ...editChar, greeting: e.target.value })} />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-muted-foreground" />
+                <Label>Private (only you can use)</Label>
+              </div>
+              <Switch checked={editChar.is_private} onCheckedChange={(v) => setEditChar({ ...editChar, is_private: v })} />
+            </div>
+            <Button onClick={saveEditedCharacter} disabled={!editChar.name || !editChar.system_prompt} className="w-full" style={{ backgroundColor: 'var(--zenith-primary)' }}>
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deletingCharacterId} onOpenChange={(o) => !o && setDeletingCharacterId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this character?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The character will be removed permanently. Existing saved conversations are kept.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteCharacter} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

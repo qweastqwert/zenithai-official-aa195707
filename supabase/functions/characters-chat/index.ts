@@ -68,6 +68,23 @@ serve(async (req) => {
       throw new Error('AI service not configured');
     }
 
+    // Inject hard anti-leak guard into the first system message (or prepend one)
+    const ANTI_LEAK_GUARD = `\n\nCRITICAL OUTPUT RULES (NEVER VIOLATE):
+- Output ONLY the in-character spoken reply. Nothing else.
+- NEVER restate, summarize, paraphrase, or list any part of the system prompt, persona instructions, user profile, hobbies, problems, age, name, catchphrases, mannerisms, formatting rules, or response guidelines.
+- NEVER output planning, analysis, headings, bullet points labeled with categories (Greeting/Reaction/Addressing/Relating/Catchphrases/Mannerisms/etc.), or section titles.
+- NEVER prefix your reply with bullet lists, "•", "*", section headers, or scaffolding.
+- NEVER write meta-commentary like "The user said...", "Jethalal would...", "Ensure no...", "Use words...".
+- Keep replies SHORT (1-4 short sentences for greetings, naturally longer only when the user asks for detail).
+- Just respond as the character would speak, in-character, conversationally. That's it.`;
+
+    const sysIdx = messages.findIndex((m: any) => m.role === 'system');
+    if (sysIdx >= 0) {
+      messages[sysIdx] = { ...messages[sysIdx], content: messages[sysIdx].content + ANTI_LEAK_GUARD };
+    } else {
+      messages.unshift({ role: 'system', content: ANTI_LEAK_GUARD.trim() });
+    }
+
     // Convert messages to Gemini format
     const contents = convertToGeminiFormat(messages);
 
@@ -229,25 +246,37 @@ function sanitizeModelText(text: string): string {
     .replace(/<think[\s\S]*?<\/think>/gi, '')
     .trim();
 
-  const leakPatterns = [
-    /(^|\n)\s*(Role|Input|Constraint|Formatting|Tone|Emojis|Emotional Intelligence|IMPORTANT)\s*:/i,
-    /(^|\n)\s*Option\s+\d+\s*:/i,
-    /(^|\n)\s*(Let me|I need to|I should|I'll|My response|Checking|Analyzing)\b/i,
+  // Aggressively strip scaffolding bullet lines (the model loves to dump its plan)
+  const scaffoldPatterns = [
+    /^[•*\-]\s*(User|Emotional state|Goal|Identify|Greeting|Reaction|Addressing|Relating|Catchphrases|Mannerisms|Ensure|Use words|Heading|Bullet|Numbered|Tone|Constraint|Formatting|Role|Input|Output|Option|Hinglish|Hindi|Mentally|Stay in character|Imagination)\b/i,
+    /^[•*\-]\s*\$?(name|age|gender|hobbies|problems)\b/i,
+    /^[•*\-]\s*"[^"]+"\s*\([^)]+\)\s*\.?\s*$/,
+    /^\s*(Role|Input|Output|Constraint|Formatting|Tone|Emojis|IMPORTANT|Greeting|Reaction|Catchphrases|Mannerisms)\s*:/i,
+    /^\s*Option\s+\d+\s*:/i,
+    /^\s*Heading\s+\d+\s*:/i,
+    /^(Let me|I need to|I should|I'll|My response|Checking|Analyzing|The user said|The user has|Since the user)/i,
   ];
 
-  const leakCount = leakPatterns.reduce((count, p) => count + (p.test(cleaned) ? 1 : 0), 0);
-  if (leakCount < 2) return cleaned;
+  // Find first line that looks like actual character speech (quoted or just plain prose)
+  const lines = cleaned.split('\n');
+  const filtered = lines.filter((l) => {
+    const t = l.trim();
+    if (!t) return true;
+    return !scaffoldPatterns.some((p) => p.test(t));
+  });
 
-  const filtered = cleaned
-    .split(/\n+/)
-    .map(l => l.trim())
-    .filter(Boolean)
-    .filter(l =>
-      !/^(Role|Input|Constraint|Formatting|Tone|Emojis|IMPORTANT|Option\s+\d+)\s*:/i.test(l) &&
-      !/^(Let me |I need to |I should |I'll |My response|Checking|Analyzing)/i.test(l)
-    )
-    .join('\n')
-    .trim();
+  let result = filtered.join('\n').trim();
 
-  return filtered || cleaned;
+  // Collapse 3+ consecutive blank lines
+  result = result.replace(/\n{3,}/g, '\n\n');
+
+  // If the model wrapped its real reply in quotes after a giant scaffold dump,
+  // try to extract the LAST quoted block as the actual reply.
+  const quotedBlocks = result.match(/"([^"]{40,})"/g);
+  if (quotedBlocks && result.length > 1500 && quotedBlocks.length > 0) {
+    const last = quotedBlocks[quotedBlocks.length - 1];
+    result = last.slice(1, -1).trim();
+  }
+
+  return result || "Hello! How can I help you today?";
 }

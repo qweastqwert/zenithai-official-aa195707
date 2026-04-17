@@ -1179,12 +1179,29 @@ Customize your therapeutic approach based on this information while maintaining 
           prev.map((m) => m.id === assistantMessageId ? { ...m, content: assistantContent } : m)
         );
       },
-      onDone: () => {
+      onDone: (meta) => {
         const sanitizedContent = sanitizeAssistantMessage(assistantContent);
         if (sanitizedContent !== assistantContent) {
           setMessages((prev) =>
             prev.map((m) => m.id === assistantMessageId ? { ...m, content: sanitizedContent } : m)
           );
+        }
+        // Render widgets from streamed tool calls
+        if (meta?.toolCalls && Array.isArray(meta.toolCalls)) {
+          meta.toolCalls.forEach((toolCall: any, index: number) => {
+            if (toolCall.type === 'schedule_events') {
+              setScheduleProposals(toolCall.events || []);
+              setScheduleDate(toolCall.date);
+            } else {
+              const widgetMessage: Message = {
+                role: 'assistant',
+                content: '',
+                id: `widget-${Date.now()}-${index}`,
+                widget: { type: toolCall.type, data: toolCall }
+              };
+              setMessages((prev) => [...prev, widgetMessage]);
+            }
+          });
         }
         // Track AI usage only after a real AI response
         const trackEvent = new CustomEvent('track-activity', { detail: { type: 'mindmate' } });
