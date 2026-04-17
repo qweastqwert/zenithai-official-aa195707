@@ -643,8 +643,27 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
                     onClick={() => startChatWithCharacter(character)}
                   >
                     {character.isPrivate && (
-                      <div className="absolute top-2 right-2">
+                      <div className="absolute top-2 left-2">
                         <Lock className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    )}
+                    {character.creatorUserId === user?.id && (
+                      <div className="absolute top-1 right-1" onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => openEditCharacter(character)}>
+                              <Pencil className="h-3.5 w-3.5 mr-2" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => setDeletingCharacterId(character.id)}>
+                              <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     )}
                     <div className="text-center">
