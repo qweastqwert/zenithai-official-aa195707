@@ -1,60 +1,56 @@
 
 
-## Plan: Fix Mood Widget Layout, Mobile Analytics, and Push Notifications
+## Plan: Fix Borders, Dashboard Re-mount Reloads, Schedule Animations & Community Posts
 
-### 1. Fix Desktop Mood Widget — Squished Labels and Scrollability
+### 1. Remove Purple Borders (Mobile + General)
 
-**Problem**: On desktop/tablet (non-compact mode), the `MoodSelection` grid uses `grid-cols-4` with fixed heights (`h-24 md:h-28`). With 7 moods in a 4-column grid, the second row has 3 items and labels like "Melancholy" and "Distressed" get truncated. The `MoodReasonInput` (non-compact) has a large card layout that overflows the fixed-height widget.
+**Cause**: `src/App.css` adds `padding: 2rem` on `#root` for desktop and `max-width: 1280px` centering, which combined with body background creates side gutters that look like a "purple border". Some sub-pages (Community, SleepTracking, BreathingExercises, DailySchedule) use full-width `bg-background`, but the `#root` desktop padding still pushes them inward.
 
-**Fix in `MoodSelection.tsx`**:
-- Change non-compact grid from `grid-cols-4` to `grid-cols-3 sm:grid-cols-4` with `max-h-[50vh] overflow-y-auto overscroll-contain` so it scrolls when needed
-- Ensure label text doesn't truncate — use `text-[11px] sm:text-xs md:text-sm` with `whitespace-nowrap`
+**Fix**: In `src/App.css`, remove the `2rem` padding for desktop and remove `max-width: 1280px` constraint (let pages own their max-width). Also drop `text-align: center` on `#root` since it's a global anti-pattern.
 
-**Fix in `MoodPromptWidget.tsx`** (desktop/tablet branch, line 334):
-- Wrap the `CardContent` in a scrollable container: `max-h-[60vh] overflow-y-auto overscroll-contain`
+### 2. Stop Dashboard Re-mount (intro animation + mood prompt re-firing)
 
-**Fix in `MoodReasonInput.tsx`** (non-compact):
-- Reduce padding and emoji size so it fits within the widget without overflow
+**Cause**: Sub-pages (`/community`, `/sleep-tracking`, `/breathing-exercises`, `/daily-schedule`, `/mood-tracking`) are separate routes. When the user navigates back to `/chat`, `ChatInterface` fully remounts → `showIntro` resets to `true`, mood prompt re-fires, sleep prompt re-fires.
 
-### 2. Make Analytics Dashboard Mobile-Friendly
+**Fix (two-part)**:
 
-**Problem**: The analytics card is too large and visually jarring on mobile — full-width gradient card with desktop-sized spacing.
+**a) Persist intro state across mounts** in `ChatInterface.tsx`:
+- Initialize `showIntro` from `sessionStorage.getItem('zenith-chat-intro-shown')`. Set the flag once intro completes. So subsequent mounts skip the 3s intro animation.
+- Same persistence for mood prompt: only show once per session/4h window (it already uses cookie — check that the timer doesn't re-fire when cookie was just set; gate the `setTimeout` properly).
+- Same for sleep prompt: add a `sessionStorage` flag `zenith-sleep-prompt-shown`.
 
-**Changes to `AnalyticsDashboard.tsx`**:
-- Detect mobile via `useIsMobile()` hook
-- On mobile: compact single-column layout with smaller text, reduced padding (`p-3`), icon sizes (`h-4 w-4`), and `text-sm` headings
-- Change the 3-column stats grid to a horizontal scrollable row or stacked compact chips on mobile
-- Reduce AI tip section padding
-- Remove the Weekly/Monthly toggle buttons on mobile (default to weekly) or make them smaller pill buttons
+**b) Update sub-page back buttons** to navigate to `/chat` explicitly (they already do via `<Link to="/chat">`), so no changes needed there — the persistence above is what fixes the perceived "reload".
 
-### 3. Implement Working Push Notifications with VAPID
+### 3. Daily Schedule Page — Add Animations
 
-**Problem**: The push notification edge function only stores subscriptions but never actually sends notifications — no `web-push` library, no VAPID keys.
+In `src/components/schedule/DailySchedule.tsx` and `src/pages/DailySchedule.tsx`:
+- Wrap the page in a `motion.div` with fade+slide-up enter (`initial={{ opacity: 0, y: 20 }}`).
+- Wrap calendar, header, and event card with staggered `motion` children using framer-motion variants.
+- Add `AnimatePresence` around the `EventList` so adding/removing events animates.
+- Animate dialog opening with the existing Radix transitions (already present) — just ensure the Add Event dialog content uses motion fade.
 
-**Steps**:
-1. **Generate VAPID keys** via a script (`npx web-push generate-vapid-keys`)
-2. **Store as Supabase secrets**: `VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY`
-3. **Update `push-notifications/index.ts`** edge function:
-   - Import `web-push` (Deno-compatible)
-   - In the `test-push` action, actually send a push notification using the VAPID keys and stored subscriptions
-   - Add a new `send-push` action for programmatic notification sending
-4. **Update client-side** (`notificationService.ts` or `sw.js`):
-   - Use the VAPID public key when subscribing via `pushManager.subscribe({ applicationServerKey })`
-   - Ensure the service worker handles `push` events and shows notifications
+### 4. Community Posts "Fail to Load"
+
+**Likely cause**: `useCommunityPosts.fetchPosts` queries `community_posts` directly. If RLS requires authentication or a specific policy, anonymous/unauth or session-mismatched calls silently fail and toast errors. Also the hook subscribes to `sharedPosts` and may show stale empty state.
+
+**Fix**:
+- Add proper error logging that surfaces the Supabase error message in the toast (currently swallows it).
+- Guard `fetchPosts` to wait until `useAuth` has resolved (currently it runs immediately and may race with auth init).
+- Add a "Retry" button in the empty/error state in `CommunitySupport.tsx`.
+- Verify RLS policy on `community_posts` allows authenticated SELECT (run a quick check via Supabase tools post-approval).
+
+### 5. Sub-page Background Consistency
+
+Pages with the colored header (Community, SleepTracking, BreathingExercises, DailySchedule, MoodTracking) use `bg-primary` headers — once `#root` padding is removed they'll go edge-to-edge correctly. No further changes required beyond Step 1.
 
 ### Files to Edit
-- `src/components/mood/MoodSelection.tsx` — scrollable grid, prevent label truncation
-- `src/components/mood/MoodPromptWidget.tsx` — scrollable desktop CardContent
-- `src/components/mood/MoodReasonInput.tsx` — reduce non-compact size
-- `src/components/analytics/AnalyticsDashboard.tsx` — mobile-optimized compact layout
-- `supabase/functions/push-notifications/index.ts` — implement actual push sending with web-push
-- `public/sw.js` — handle `push` events
-- `src/services/notificationService.ts` — use VAPID public key for subscription
+- `src/App.css` — remove root padding/max-width (purple border fix)
+- `src/components/ChatInterface.tsx` — persist intro/sleep prompt across mounts via sessionStorage
+- `src/components/schedule/DailySchedule.tsx` — add framer-motion enter/stagger animations
+- `src/pages/DailySchedule.tsx` — wrap header in motion
+- `src/hooks/useCommunityPosts.ts` — better error reporting, await auth
+- `src/components/community/CommunitySupport.tsx` — add retry button on empty/error
 
 ### Files to Create
-- None (all changes in existing files)
-
-### Secrets to Add
-- `VAPID_PUBLIC_KEY` — public VAPID key (also embedded in client code)
-- `VAPID_PRIVATE_KEY` — private VAPID key (edge function secret only)
+- None
 
