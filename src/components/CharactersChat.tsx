@@ -750,6 +750,75 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Character Dialog */}
+      <Dialog open={!!editingCharacter} onOpenChange={(o) => !o && setEditingCharacter(null)}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Character</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">Existing saved conversations won't be modified.</p>
+            <div className="space-y-1">
+              <Label>Name *</Label>
+              <Input value={editChar.name} onChange={(e) => setEditChar({ ...editChar, name: e.target.value })} />
+            </div>
+            <AvatarEditor
+              avatarType={editChar.avatar_type}
+              avatarEmoji={editChar.avatar_emoji}
+              avatarImageData={editChar.avatar_image_data}
+              characterName={editChar.name}
+              onAvatarTypeChange={(t) => setEditChar({ ...editChar, avatar_type: t })}
+              onEmojiChange={(e) => setEditChar({ ...editChar, avatar_emoji: e })}
+              onImageChange={(d) => setEditChar({ ...editChar, avatar_image_data: d })}
+            />
+            <div className="space-y-1">
+              <Label>Description</Label>
+              <Textarea value={editChar.description} onChange={(e) => setEditChar({ ...editChar, description: e.target.value })} className="min-h-[60px]" />
+            </div>
+            <div className="space-y-1">
+              <Label>System Prompt *</Label>
+              <Textarea value={editChar.system_prompt} onChange={(e) => setEditChar({ ...editChar, system_prompt: e.target.value })} className="min-h-[100px]" />
+            </div>
+            <div className="space-y-1">
+              <Label>Mood / Tone</Label>
+              <Input value={editChar.mood_tone} onChange={(e) => setEditChar({ ...editChar, mood_tone: e.target.value })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Greeting Message</Label>
+              <Input value={editChar.greeting} onChange={(e) => setEditChar({ ...editChar, greeting: e.target.value })} />
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Lock className="h-4 w-4 text-muted-foreground" />
+                <Label>Private (only you can use)</Label>
+              </div>
+              <Switch checked={editChar.is_private} onCheckedChange={(v) => setEditChar({ ...editChar, is_private: v })} />
+            </div>
+            <Button onClick={saveEditedCharacter} disabled={!editChar.name || !editChar.system_prompt} className="w-full" style={{ backgroundColor: 'var(--zenith-primary)' }}>
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation */}
+      <AlertDialog open={!!deletingCharacterId} onOpenChange={(o) => !o && setDeletingCharacterId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this character?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The character will be removed permanently. Existing saved conversations are kept.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteCharacter} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
