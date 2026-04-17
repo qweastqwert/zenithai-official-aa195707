@@ -33,6 +33,19 @@ serve(async (req) => {
 
     const { conversationId, messages } = await req.json();
 
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 200) {
+      return new Response(JSON.stringify({ error: 'Invalid messages array', success: false }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    for (const m of messages) {
+      if (!m || typeof m.content !== 'string' || m.content.length > 10000) {
+        return new Response(JSON.stringify({ error: 'Invalid message content', success: false }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     console.log('Analyzing conversation for user:', user.id);
 
     let convId = conversationId;
@@ -160,7 +173,7 @@ ${conversationText}`;
   } catch (error) {
     console.error('Error in analyze-conversation function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: 'Internal server error',
       success: false
     }), {
       status: 500,

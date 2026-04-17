@@ -42,7 +42,25 @@ serve(async (req) => {
       });
     }
 
-    const { messages, maxTokens, temperature, stream = false } = await req.json();
+    const body = await req.json();
+    const rawMessages = body?.messages;
+    const maxTokens = Math.min(Math.max(Number(body?.maxTokens) || 2048, 50), 4096);
+    const temperature = Math.min(Math.max(Number(body?.temperature) || 0.8, 0), 2);
+    const stream = Boolean(body?.stream);
+
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0 || rawMessages.length > 100) {
+      return new Response(JSON.stringify({ error: 'Invalid messages array', reply: "Please try again." }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    for (const m of rawMessages) {
+      if (!m || typeof m.content !== 'string' || m.content.length > 10000) {
+        return new Response(JSON.stringify({ error: 'Invalid message content', reply: "Please try again." }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+    const messages = rawMessages;
     console.log('Characters chat request, streaming:', stream);
 
     const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
@@ -160,7 +178,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in characters-chat function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: 'Internal server error',
       reply: "I apologize, but I'm having trouble connecting right now. Please try again later!"
     }), {
       status: 500,
