@@ -85,12 +85,22 @@ serve(async (req) => {
       throw new Error('Invalid user token');
     }
 
-    const { messages, maxTokens = 2048, temperature = 0.7, stream = false } = await req.json();
-    requestedStream = Boolean(stream);
+    const body = await req.json();
+    const rawMessages = body?.messages;
+    const maxTokens = Math.min(Math.max(Number(body?.maxTokens) || 2048, 50), 4096);
+    const temperature = Math.min(Math.max(Number(body?.temperature) || 0.7, 0), 2);
+    const stream = Boolean(body?.stream);
+    requestedStream = stream;
 
-    if (!messages || !Array.isArray(messages)) {
-      throw new Error('Messages array is required');
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0 || rawMessages.length > 100) {
+      throw new Error('Invalid messages array');
     }
+    for (const m of rawMessages) {
+      if (!m || typeof m.content !== 'string' || m.content.length > 10000) {
+        throw new Error('Invalid message content');
+      }
+    }
+    const messages = rawMessages;
 
     console.log('Processing MindMate chat request for user:', user.id, 'streaming:', stream);
 
