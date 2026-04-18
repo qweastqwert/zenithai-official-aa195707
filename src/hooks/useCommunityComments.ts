@@ -81,11 +81,11 @@ export const useCommunityComments = (postId: string) => {
     }
 
     try {
+      // RLS will allow either the owner OR an admin to delete.
       const { error } = await supabase
         .from('community_comments')
         .delete()
-        .eq('id', commentId)
-        .eq('user_id', user.id);
+        .eq('id', commentId);
 
       if (error) throw error;
 

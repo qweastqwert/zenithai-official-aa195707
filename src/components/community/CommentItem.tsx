@@ -8,6 +8,7 @@ import ReportDialog from './ReportDialog';
 import UserProfileDialog from './UserProfileDialog';
 import VoteButtons from './VoteButtons';
 import ReputationBadge from './ReputationBadge';
+import AdminBadge from './AdminBadge';
 import { CommunityComment } from '@/hooks/useCommunityComments';
 import { useCommentVoting } from '@/hooks/useVoting';
 
@@ -21,19 +22,24 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, canDelete, onDelete 
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [userName, setUserName] = useState<string>('');
   const [userReputation, setUserReputation] = useState<number>(0);
+  const [authorIsAdmin, setAuthorIsAdmin] = useState(false);
   const { score, userVote, vote, loading: voteLoading } = useCommentVoting(comment.id);
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!comment.is_anonymous && comment.user_id) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('name, reputation')
-          .eq('user_id', comment.user_id)
-          .single();
-        
+        const [{ data }, { data: roleRow }] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('name, reputation')
+            .eq('user_id', comment.user_id)
+            .maybeSingle(),
+          supabase.rpc('get_user_role', { user_uuid: comment.user_id }),
+        ]);
+
         if (data?.name) setUserName(data.name);
         if (data?.reputation !== undefined) setUserReputation(data.reputation);
+        setAuthorIsAdmin(roleRow === 'admin');
       }
     };
 
@@ -63,16 +69,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, canDelete, onDelete 
                 {comment.is_anonymous ? (
                   <Badge variant="outline" className="text-xs border-primary/30">Anonymous</Badge>
                 ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-auto p-0 hover:underline text-xs flex items-center gap-1.5 text-primary hover:text-primary/80"
-                    onClick={() => setProfileDialogOpen(true)}
-                  >
-                    <User className="h-3 w-3" />
-                    {userName || 'User'}
-                    <ReputationBadge reputation={userReputation} showLabel={false} size="sm" />
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 hover:underline text-xs flex items-center gap-1.5 text-primary hover:text-primary/80"
+                      onClick={() => setProfileDialogOpen(true)}
+                    >
+                      <User className="h-3 w-3" />
+                      {userName || 'User'}
+                      <ReputationBadge reputation={userReputation} showLabel={false} size="sm" />
+                    </Button>
+                    {authorIsAdmin && <AdminBadge />}
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-1">
