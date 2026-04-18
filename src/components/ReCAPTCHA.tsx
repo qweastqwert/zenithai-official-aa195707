@@ -48,8 +48,8 @@ const ReCAPTCHA = ({ onVerified, title }: ReCAPTCHAProps) => {
           <CardTitle className="text-2xl font-bold text-zenith-darkpurple dark:text-zenith-purple">
             {title}
           </CardTitle>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please verify to continue with premium access
+          <p className="text-slate-700">
+            Please verify to chat
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
