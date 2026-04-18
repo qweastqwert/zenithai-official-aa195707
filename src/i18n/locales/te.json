@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "home": "హోమ్", "chat": "చాట్", "journal": "డైరీ", "mood": "మూడ్",
+    "community": "సంఘం", "resources": "వనరులు", "settings": "సెట్టింగ్‌లు", "back": "వెనుకకు"
+  },
+  "dashboard": {
+    "greeting": "నమస్కారం", "greetingDefault": "జెనిత్‌కు స్వాగతం",
+    "subtitle": "ఈ రోజు మీరు ఎలా అనిపిస్తోంది?",
+    "mindmate": "మైండ్‌మేట్", "mindmateDesc": "ఏఐ థెరపిస్ట్",
+    "characters": "పాత్రలు", "charactersDesc": "ఏఐ పాత్రలతో మాట్లాడండి",
+    "journal": "డైరీ", "journalDesc": "మీ ఆలోచనలు రాయండి",
+    "meditation": "ధ్యానం", "meditationDesc": "ప్రశాంతతను కనుగొనండి",
+    "breathing": "శ్వాస", "breathingDesc": "విశ్రాంతి తీసుకోండి",
+    "mood": "మూడ్ ట్రాకర్", "moodDesc": "మీ భావనలను లాగ్ చేయండి",
+    "music": "ప్రశాంత సంగీతం", "musicDesc": "ప్రశాంత శబ్దాలు",
+    "sleep": "నిద్ర", "sleepDesc": "మీ విశ్రాంతిని ట్రాక్ చేయండి",
+    "schedule": "షెడ్యూల్", "scheduleDesc": "మీ రోజును ప్లాన్ చేయండి",
+    "community": "సంఘం", "communityDesc": "ఇతరులతో కనెక్ట్ అవ్వండి",
+    "resources": "వనరులు", "resourcesDesc": "ఆరోగ్య కథనాలు",
+    "achievements": "విజయాలు", "analytics": "విశ్లేషణ"
+  },
+  "settings": {
+    "title": "సెట్టింగ్‌లు", "profile": "ప్రొఫైల్", "appearance": "రూపం",
+    "notifications": "నోటిఫికేషన్లు", "audio": "ఆడియో", "language": "భాష",
+    "accessibility": "యాక్సెసిబిలిటీ", "ui": "యూఐ అనుకూలీకరణ",
+    "mindArchive": "మైండ్ ఆర్కైవ్", "dangerZone": "ప్రమాద జోన్",
+    "save": "సేవ్", "cancel": "రద్దు"
+  },
+  "common": {
+    "loading": "లోడ్ అవుతోంది...", "save": "సేవ్", "cancel": "రద్దు",
+    "delete": "తొలగించు", "edit": "సవరించు", "close": "మూసివేయి", "send": "పంపండి", "retry": "మళ్ళీ ప్రయత్నించు"
+  }
+}

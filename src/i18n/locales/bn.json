@@ -1,0 +1,32 @@
+{
+  "nav": {
+    "home": "হোম", "chat": "চ্যাট", "journal": "ডায়েরি", "mood": "মুড",
+    "community": "কমিউনিটি", "resources": "সম্পদ", "settings": "সেটিংস", "back": "ফিরুন"
+  },
+  "dashboard": {
+    "greeting": "নমস্কার", "greetingDefault": "জেনিথে স্বাগতম", "subtitle": "আজ আপনি কেমন অনুভব করছেন?",
+    "mindmate": "মাইন্ডমেট", "mindmateDesc": "এআই থেরাপিস্ট",
+    "characters": "চরিত্র", "charactersDesc": "এআই চরিত্রের সাথে কথা বলুন",
+    "journal": "ডায়েরি", "journalDesc": "আপনার ভাবনা লিখুন",
+    "meditation": "ধ্যান", "meditationDesc": "শান্তি খুঁজুন",
+    "breathing": "শ্বাস", "breathingDesc": "শিথিল হোন",
+    "mood": "মুড ট্র্যাকার", "moodDesc": "আপনার অনুভূতি লগ করুন",
+    "music": "প্রশান্তিদায়ক সঙ্গীত", "musicDesc": "শান্ত শব্দ",
+    "sleep": "ঘুম", "sleepDesc": "আপনার বিশ্রাম ট্র্যাক করুন",
+    "schedule": "সময়সূচি", "scheduleDesc": "আপনার দিন পরিকল্পনা করুন",
+    "community": "কমিউনিটি", "communityDesc": "অন্যদের সাথে সংযোগ করুন",
+    "resources": "সম্পদ", "resourcesDesc": "ওয়েলনেস নিবন্ধ",
+    "achievements": "অর্জন", "analytics": "বিশ্লেষণ"
+  },
+  "settings": {
+    "title": "সেটিংস", "profile": "প্রোফাইল", "appearance": "চেহারা",
+    "notifications": "বিজ্ঞপ্তি", "audio": "অডিও", "language": "ভাষা",
+    "accessibility": "অ্যাক্সেসিবিলিটি", "ui": "ইউআই কাস্টমাইজেশন",
+    "mindArchive": "মাইন্ড আর্কাইভ", "dangerZone": "বিপদ অঞ্চল",
+    "save": "সংরক্ষণ", "cancel": "বাতিল"
+  },
+  "common": {
+    "loading": "লোড হচ্ছে...", "save": "সংরক্ষণ", "cancel": "বাতিল",
+    "delete": "মুছুন", "edit": "সম্পাদনা", "close": "বন্ধ", "send": "পাঠান", "retry": "আবার চেষ্টা"
+  }
+}

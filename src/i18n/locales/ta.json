@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "home": "முகப்பு", "chat": "அரட்டை", "journal": "டயரி", "mood": "மனநிலை",
+    "community": "சமூகம்", "resources": "வளங்கள்", "settings": "அமைப்புகள்", "back": "பின்"
+  },
+  "dashboard": {
+    "greeting": "வணக்கம்", "greetingDefault": "ஜெனித்துக்கு வரவேற்கிறோம்",
+    "subtitle": "இன்று எப்படி உணர்கிறீர்கள்?",
+    "mindmate": "மைண்ட்மேட்", "mindmateDesc": "ஏஐ சிகிச்சையாளர்",
+    "characters": "கதாபாத்திரங்கள்", "charactersDesc": "ஏஐ கதாபாத்திரங்களுடன் பேசுங்கள்",
+    "journal": "டயரி", "journalDesc": "உங்கள் எண்ணங்களை எழுதுங்கள்",
+    "meditation": "தியானம்", "meditationDesc": "அமைதியை கண்டறியுங்கள்",
+    "breathing": "சுவாசம்", "breathingDesc": "ஓய்வெடுங்கள்",
+    "mood": "மனநிலை டிராக்கர்", "moodDesc": "உங்கள் உணர்வுகளை பதிவு செய்யுங்கள்",
+    "music": "அமைதியான இசை", "musicDesc": "அமைதியான ஒலிகள்",
+    "sleep": "தூக்கம்", "sleepDesc": "உங்கள் ஓய்வை கண்காணியுங்கள்",
+    "schedule": "அட்டவணை", "scheduleDesc": "உங்கள் நாளை திட்டமிடுங்கள்",
+    "community": "சமூகம்", "communityDesc": "மற்றவர்களுடன் இணையுங்கள்",
+    "resources": "வளங்கள்", "resourcesDesc": "ஆரோக்கிய கட்டுரைகள்",
+    "achievements": "சாதனைகள்", "analytics": "பகுப்பாய்வு"
+  },
+  "settings": {
+    "title": "அமைப்புகள்", "profile": "சுயவிவரம்", "appearance": "தோற்றம்",
+    "notifications": "அறிவிப்புகள்", "audio": "ஆடியோ", "language": "மொழி",
+    "accessibility": "அணுகல்தன்மை", "ui": "யுஐ தனிப்பயனாக்கம்",
+    "mindArchive": "மைண்ட் ஆர்கைவ்", "dangerZone": "ஆபத்து மண்டலம்",
+    "save": "சேமி", "cancel": "ரத்து"
+  },
+  "common": {
+    "loading": "ஏற்றுகிறது...", "save": "சேமி", "cancel": "ரத்து",
+    "delete": "நீக்கு", "edit": "திருத்து", "close": "மூடு", "send": "அனுப்பு", "retry": "மீண்டும் முயற்சி"
+  }
+}

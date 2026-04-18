@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "home": "Home", "chat": "Chat", "journal": "Diary", "mood": "Mood",
+    "community": "Community", "resources": "Resources", "settings": "Settings", "back": "Wapas"
+  },
+  "dashboard": {
+    "greeting": "Namaste", "greetingDefault": "Zenith mein swagat hai",
+    "subtitle": "Aaj kaise feel ho raha hai?",
+    "mindmate": "MindMate", "mindmateDesc": "AI Therapist",
+    "characters": "Characters", "charactersDesc": "AI characters se baat karein",
+    "journal": "Diary", "journalDesc": "Apne thoughts likhein",
+    "meditation": "Meditation", "meditationDesc": "Shanti paayein",
+    "breathing": "Breathing", "breathingDesc": "Relax karein",
+    "mood": "Mood Tracker", "moodDesc": "Apni feelings log karein",
+    "music": "Soothing Music", "musicDesc": "Calm sounds",
+    "sleep": "Sleep", "sleepDesc": "Apni neend track karein",
+    "schedule": "Schedule", "scheduleDesc": "Apna din plan karein",
+    "community": "Community", "communityDesc": "Logon se jude",
+    "resources": "Resources", "resourcesDesc": "Wellness articles",
+    "achievements": "Achievements", "analytics": "Analytics"
+  },
+  "settings": {
+    "title": "Settings", "profile": "Profile", "appearance": "Appearance",
+    "notifications": "Notifications", "audio": "Audio", "language": "Language",
+    "accessibility": "Accessibility", "ui": "UI Customization",
+    "mindArchive": "Mind Archive", "dangerZone": "Danger Zone",
+    "save": "Save karein", "cancel": "Cancel"
+  },
+  "common": {
+    "loading": "Load ho raha hai...", "save": "Save", "cancel": "Cancel",
+    "delete": "Delete", "edit": "Edit", "close": "Close", "send": "Bhejein", "retry": "Phir try karein"
+  }
+}
