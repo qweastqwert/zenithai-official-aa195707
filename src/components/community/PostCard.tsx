@@ -10,9 +10,11 @@ import ReputationBadge from './ReputationBadge';
 import { CommunityPost, useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { usePostVoting } from '@/hooks/useVoting';
 import { supabase } from '@/integrations/supabase/client';
 import CommentSection from './CommentSection';
+import AdminBadge from './AdminBadge';
 import { formatDistanceToNow } from 'date-fns';
 
 interface PostCardProps {
@@ -24,26 +26,32 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [userName, setUserName] = useState<string>('');
   const [userReputation, setUserReputation] = useState<number>(0);
+  const [authorIsAdmin, setAuthorIsAdmin] = useState(false);
   const { comments } = useCommunityComments(post.id);
   const { deletePost } = useCommunityPosts();
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
   const { score, userVote, vote, loading: voteLoading } = usePostVoting(post.id);
 
-  const canDelete = user?.id === post.user_id;
+  const canDelete = user?.id === post.user_id || isAdmin;
 
   useEffect(() => {
     const fetchUserData = async () => {
       if (!post.is_anonymous && post.user_id) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('name, username, reputation')
-          .eq('user_id', post.user_id)
-          .single();
-        
-        if (data) {
-          setUserName(data.username || data.name || 'User');
-          if (data.reputation !== undefined) setUserReputation(data.reputation);
+        const [{ data: profile }, { data: roleRow }] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('name, username, reputation')
+            .eq('user_id', post.user_id)
+            .maybeSingle(),
+          supabase.rpc('get_user_role', { user_uuid: post.user_id }),
+        ]);
+
+        if (profile) {
+          setUserName(profile.username || profile.name || 'User');
+          if (profile.reputation !== undefined) setUserReputation(profile.reputation);
         }
+        setAuthorIsAdmin(roleRow === 'admin');
       }
     };
 
