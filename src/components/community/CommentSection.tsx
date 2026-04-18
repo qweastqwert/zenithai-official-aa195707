@@ -3,10 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Shield } from 'lucide-react';
 import CommentItem from './CommentItem';
+import TurnstileWidget from '@/components/TurnstileWidget';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { validateContentWithToast } from '@/utils/validateContent';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 import { toast } from 'sonner';
@@ -20,13 +22,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [newComment, setNewComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { comments, createComment, deleteComment, loading } = useCommunityComments(postId);
   const { user } = useAuth();
+  const { isAdmin } = useUserRole();
   const { isBanned } = useCommunityBans();
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
+
+    if (!turnstileToken) {
+      toast.error('Please complete the verification');
+      return;
+    }
 
     if (isBanned) {
       toast.error('You are banned from commenting in the community');
@@ -35,7 +44,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
     const rateLimitKey = `comment_create_${user?.id || 'anonymous'}`;
     const rateLimitCheck = rateLimiter.checkLimit(rateLimitKey, RATE_LIMITS.COMMENT_CREATE);
-    
+
     if (!rateLimitCheck.isAllowed) {
       toast.error(rateLimitCheck.message);
       return;
@@ -78,7 +87,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             rows={3}
             className="bg-background/50 border-[#7950f2]/20 focus:border-[#7950f2]/50 resize-none"
           />
-          
+
           <div className="flex items-center justify-between p-2 bg-[#7950f2]/5 rounded-lg border border-[#7950f2]/20">
             <Label htmlFor="comment-anonymous" className="cursor-pointer text-sm">
               Comment anonymously
@@ -89,12 +98,24 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               onCheckedChange={setIsAnonymous}
             />
           </div>
-          
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Shield className="h-3.5 w-3.5 text-[#7950f2]" />
+              <span>Verify you're human to comment</span>
+            </div>
+            <TurnstileWidget
+              onVerify={(token) => setTurnstileToken(token)}
+              onExpire={() => setTurnstileToken(null)}
+              size="compact"
+            />
+          </div>
+
           <div className="flex justify-end">
             <Button
               type="submit"
               size="sm"
-              disabled={!newComment.trim() || isSubmitting}
+              disabled={!newComment.trim() || !turnstileToken || isSubmitting}
               className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/20"
             >
               {isSubmitting ? 'Posting...' : 'Comment'}
@@ -127,7 +148,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             <CommentItem
               key={comment.id}
               comment={comment}
-              canDelete={user?.id === comment.user_id}
+              canDelete={user?.id === comment.user_id || isAdmin}
               onDelete={handleDeleteComment}
             />
           ))
