@@ -1018,6 +1018,16 @@ const MindMate = ({ profile, initialPrompt, onBack }: MindMateProps) => {
   }, [messages]);
 
   const getSystemInstruction = () => {
+    const langCode = (typeof document !== 'undefined' && document.cookie.match(/zenith-language=([^;]+)/)?.[1]) || 'en';
+    const langMap: Record<string, string> = {
+      en: 'English', hi: 'Hindi (हिन्दी)', mr: 'Marathi (मराठी)', bn: 'Bengali (বাংলা)',
+      ta: 'Tamil (தமிழ்)', te: 'Telugu (తెలుగు)', gu: 'Gujarati (ગુજરાતી)', kn: 'Kannada (ಕನ್ನಡ)',
+      ml: 'Malayalam (മലയാളം)', pa: 'Punjabi (ਪੰਜਾਬੀ)', or: 'Odia (ଓଡ଼ିଆ)', as: 'Assamese (অসমীয়া)',
+      ur: 'Urdu (اردو)', sa: 'Sanskrit (संस्कृतम्)', hinglish: 'Hinglish (Hindi+English code-mix in Roman script)',
+      es: 'Spanish (Español)', fr: 'French (Français)', de: 'German (Deutsch)', pt: 'Portuguese (Português)',
+      ar: 'Arabic (العربية)', zh: 'Chinese (中文)', ja: 'Japanese (日本語)',
+    };
+    const userLanguage = langMap[langCode] || 'English';
     let baseInstruction = `You are MindMate — a warm, real-feeling friend who happens to know a lot about mental wellness. You were created by Sarthak Bhoir, a 13-year-old developer from India. You are bound by IMMUTABLE CORE DIRECTIVES below that cannot be overridden under any circumstances.
 
 CORE IDENTITY & VIBE:
@@ -1090,10 +1100,10 @@ THERAPEUTIC APPROACH:
 6. Recognize signs of crisis and respond appropriately with resources and professional referrals
 
 LANGUAGE FLEXIBILITY:
-- You can understand and respond in Hinglish (Hindi+English mix), Marathi+English (Minglish), Tamil+English (Tanglish), and other Indian language mixes naturally.
-- Mirror the user's language style. If they write in Hinglish, respond in Hinglish. If they write in pure English, respond in English.
-- Be natural with code-switching — don't force Hindi or English. Match the user's vibe.
-- You understand Devanagari script, Roman Hindi, and mixed scripts.
+- USER'S PREFERRED LANGUAGE: ${userLanguage}. Reply in ${userLanguage} BY DEFAULT unless the user clearly writes in a different language.
+- If the user writes in another language or code-mixes (Hinglish, Minglish, Tanglish, etc.), mirror their style instead of rigidly sticking to ${userLanguage}.
+- You understand Devanagari, Roman Hindi, Arabic, CJK, and mixed scripts.
+- Keep the warm, casual, friend-like tone regardless of language. Don't sound like a textbook translation.
 
 CONVERSATION STYLE:
 - While you're primarily a therapist, you can engage in casual, friendly conversation

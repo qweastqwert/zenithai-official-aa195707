@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "home": "હોમ", "chat": "ચેટ", "journal": "ડાયરી", "mood": "મૂડ",
+    "community": "સમુદાય", "resources": "સંસાધનો", "settings": "સેટિંગ્સ", "back": "પાછળ"
+  },
+  "dashboard": {
+    "greeting": "નમસ્તે", "greetingDefault": "ઝેનિથમાં આપનું સ્વાગત છે",
+    "subtitle": "આજે તમે કેવું અનુભવો છો?",
+    "mindmate": "માઇન્ડમેટ", "mindmateDesc": "એઆઈ થેરાપિસ્ટ",
+    "characters": "પાત્રો", "charactersDesc": "એઆઈ પાત્રો સાથે વાત કરો",
+    "journal": "ડાયરી", "journalDesc": "તમારા વિચારો લખો",
+    "meditation": "ધ્યાન", "meditationDesc": "શાંતિ શોધો",
+    "breathing": "શ્વાસ", "breathingDesc": "આરામ કરો",
+    "mood": "મૂડ ટ્રેકર", "moodDesc": "તમારી લાગણીઓ લોગ કરો",
+    "music": "શાંત સંગીત", "musicDesc": "શાંત અવાજો",
+    "sleep": "ઊંઘ", "sleepDesc": "તમારો આરામ ટ્રેક કરો",
+    "schedule": "શેડ્યૂલ", "scheduleDesc": "તમારો દિવસ આયોજિત કરો",
+    "community": "સમુદાય", "communityDesc": "અન્ય સાથે જોડાઓ",
+    "resources": "સંસાધનો", "resourcesDesc": "વેલનેસ લેખો",
+    "achievements": "સિદ્ધિઓ", "analytics": "વિશ્લેષણ"
+  },
+  "settings": {
+    "title": "સેટિંગ્સ", "profile": "પ્રોફાઇલ", "appearance": "દેખાવ",
+    "notifications": "સૂચનાઓ", "audio": "ઑડિઓ", "language": "ભાષા",
+    "accessibility": "ઍક્સેસિબિલિટી", "ui": "યુઆઈ કસ્ટમાઇઝેશન",
+    "mindArchive": "માઇન્ડ આર્કાઇવ", "dangerZone": "જોખમ ઝોન",
+    "save": "સાચવો", "cancel": "રદ કરો"
+  },
+  "common": {
+    "loading": "લોડ થઈ રહ્યું છે...", "save": "સાચવો", "cancel": "રદ કરો",
+    "delete": "કાઢી નાખો", "edit": "સંપાદિત કરો", "close": "બંધ", "send": "મોકલો", "retry": "ફરી પ્રયત્ન"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "home": "Inicio", "chat": "Chat", "journal": "Diario", "mood": "Ánimo",
+    "community": "Comunidad", "resources": "Recursos", "settings": "Ajustes", "back": "Atrás"
+  },
+  "dashboard": {
+    "greeting": "Hola", "greetingDefault": "Bienvenido a Zenith",
+    "subtitle": "¿Cómo te sientes hoy?",
+    "mindmate": "MindMate", "mindmateDesc": "Terapeuta IA",
+    "characters": "Personajes", "charactersDesc": "Habla con personajes IA",
+    "journal": "Diario", "journalDesc": "Escribe tus pensamientos",
+    "meditation": "Meditación", "meditationDesc": "Encuentra la calma",
+    "breathing": "Respiración", "breathingDesc": "Relájate y respira",
+    "mood": "Rastreador de ánimo", "moodDesc": "Registra cómo te sientes",
+    "music": "Música relajante", "musicDesc": "Sonidos tranquilos",
+    "sleep": "Sueño", "sleepDesc": "Rastrea tu descanso",
+    "schedule": "Agenda", "scheduleDesc": "Planifica tu día",
+    "community": "Comunidad", "communityDesc": "Conecta con otros",
+    "resources": "Recursos", "resourcesDesc": "Artículos de bienestar",
+    "achievements": "Logros", "analytics": "Analíticas"
+  },
+  "settings": {
+    "title": "Ajustes", "profile": "Perfil", "appearance": "Apariencia",
+    "notifications": "Notificaciones", "audio": "Audio", "language": "Idioma",
+    "accessibility": "Accesibilidad", "ui": "Personalización UI",
+    "mindArchive": "Archivo Mental", "dangerZone": "Zona de Peligro",
+    "save": "Guardar", "cancel": "Cancelar"
+  },
+  "common": {
+    "loading": "Cargando...", "save": "Guardar", "cancel": "Cancelar",
+    "delete": "Eliminar", "edit": "Editar", "close": "Cerrar", "send": "Enviar", "retry": "Reintentar"
+  }
+}
