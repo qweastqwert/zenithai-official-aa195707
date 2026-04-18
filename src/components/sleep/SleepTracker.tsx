@@ -49,7 +49,7 @@ export const SleepTracker = () => {
   };
 
   const headerBar = (title: string, backAction?: () => void) => (
-    <div className="p-4 flex items-center text-primary-foreground bg-primary">
+    <div className="p-4 flex items-center text-primary-foreground bg-gradient-to-r from-[hsl(263_70%_55%)] via-primary to-[hsl(220_70%_55%)] shadow-lg shadow-primary/20 backdrop-blur-md">
       {backAction ? (
         <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 p-2 mr-4" onClick={backAction}>
           <ArrowLeft className="h-5 w-5" />
