@@ -94,7 +94,22 @@ const NotificationsSection = () => {
                 <p className="text-xs text-muted-foreground">Get reminded to check in with yourself</p>
               </div>
             </div>
-            <Button onClick={handlePermissionRequest} size="sm" variant="outline" className="flex-shrink-0">Enable</Button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button onClick={handlePermissionRequest} size="sm" variant="outline">Enable</Button>
+              <Button
+                onClick={async () => {
+                  const { data, error } = await supabase.functions.invoke('push-notifications', {
+                    body: { action: 'test-push' }
+                  });
+                  if (error || (data as any)?.error) {
+                    toast({ title: 'Test failed', description: (data as any)?.error || error?.message || 'Unknown error', variant: 'destructive' });
+                  } else {
+                    toast({ title: 'Test sent! 🔔', description: (data as any)?.message || 'Check your device.' });
+                  }
+                }}
+                size="sm"
+              >Test</Button>
+            </div>
           </div>
         </div>
 
