@@ -89,17 +89,20 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                   {post.is_anonymous ? (
                     <Badge variant="outline" className="text-xs border-border/50">Anonymous</Badge>
                   ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-auto p-0 hover:underline text-xs flex items-center gap-1.5"
-                      style={{ color: 'var(--zenith-primary)' }}
-                      onClick={() => setProfileDialogOpen(true)}
-                    >
-                      <User className="h-3 w-3" />
-                      {userName || 'User'}
-                      <ReputationBadge reputation={userReputation} showLabel={false} size="sm" />
-                    </Button>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto p-0 hover:underline text-xs flex items-center gap-1.5"
+                        style={{ color: 'var(--zenith-primary)' }}
+                        onClick={() => setProfileDialogOpen(true)}
+                      >
+                        <User className="h-3 w-3" />
+                        {userName || 'User'}
+                        <ReputationBadge reputation={userReputation} showLabel={false} size="sm" />
+                      </Button>
+                      {authorIsAdmin && <AdminBadge />}
+                    </div>
                   )}
                 </div>
               </div>
