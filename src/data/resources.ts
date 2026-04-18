@@ -761,5 +761,655 @@ Technology is a tool, not a master. By being intentional about how we use it, we
     helpful: 184,
     notHelpful: 5
   }
+,
+  {
+    id: '14',
+    title: 'Building Emotional Resilience: Bouncing Back Stronger',
+    description: 'Discover practical techniques to develop emotional resilience and navigate life’s challenges with greater confidence.',
+    category: 'self-care',
+    readTime: '7 min',
+    content: `Emotional resilience is the ability to adapt to stressful situations and bounce back from adversity. It is a learnable skill — not a fixed personality trait.
+
+## What Resilience Really Means
+
+Resilience is not about avoiding pain or pretending everything is fine. It is about facing difficulty with awareness, flexibility, and self-compassion.
+
+## Core Pillars of Resilience
+
+1. **Self-awareness** — Notice your emotions without judgment.
+2. **Self-regulation** — Pause before reacting.
+3. **Optimism** — Believe difficulties are temporary and specific.
+4. **Connection** — Lean on trusted relationships.
+5. **Purpose** — Anchor yourself in what matters.
+
+## Daily Practices
+
+### Reframe Setbacks
+Ask: "What is this teaching me?" instead of "Why me?"
+
+### Small Wins Journal
+Each night, write three things that went well — however small.
+
+### Build a Support Map
+List 3–5 people you can reach out to during hard moments.
+
+### Body-Based Reset
+Cold water on the face, a 2-minute walk, or slow exhales reset your nervous system.
+
+## When Resilience Feels Out of Reach
+
+It is okay to ask for help. Resilience grows fastest when you do not have to face hard things alone.`,
+    image: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=800&auto=format&fit=crop',
+    tags: ['resilience', 'self-care', 'growth', 'coping'],
+    author: 'Zenith AI',
+    publishedAt: '2024-08-02',
+    helpful: 142,
+    notHelpful: 3
+  },
+  {
+    id: '15',
+    title: 'The Science of Gratitude: Rewiring Your Brain for Joy',
+    description: 'How a simple gratitude practice changes your brain, your mood, and your relationships.',
+    category: 'mindfulness',
+    readTime: '6 min',
+    content: `Gratitude is one of the most studied positive psychology interventions — and it works. Regular practice measurably improves mood, sleep, and relationships.
+
+## What Happens in Your Brain
+
+When you focus on gratitude, your brain releases dopamine and serotonin — the same neurotransmitters targeted by many antidepressants. Over time, gratitude strengthens neural pathways linked to positive thinking.
+
+## Three Evidence-Based Practices
+
+### 1. Three Good Things
+Each evening, write three specific good things from your day and why they happened.
+
+### 2. Gratitude Letter
+Write a detailed thank-you letter to someone who positively impacted your life. Delivering it amplifies the effect.
+
+### 3. Mental Subtraction
+Imagine your life without something you value. This sharpens appreciation.
+
+## Common Pitfalls
+
+- Listing the same things daily (be specific instead)
+- Forcing positivity when you are hurting
+- Using gratitude to avoid real emotions
+
+Gratitude is not denial. It is choosing where to place your attention without ignoring what is hard.`,
+    image: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=800&auto=format&fit=crop',
+    tags: ['gratitude', 'mindfulness', 'positivity', 'neuroscience'],
+    author: 'Zenith AI',
+    publishedAt: '2024-08-10',
+    helpful: 198,
+    notHelpful: 4
+  },
+  {
+    id: '16',
+    title: 'Setting Healthy Boundaries Without Guilt',
+    description: 'Learn how to say no, protect your energy, and build relationships that respect your needs.',
+    category: 'relationships',
+    readTime: '8 min',
+    content: `Boundaries are not walls — they are doors with locks you control. They protect your energy and make genuine connection possible.
+
+## Why Boundaries Feel Hard
+
+- Fear of disappointing others
+- Guilt from cultural or family conditioning
+- Worry about conflict or rejection
+- Believing your needs are "too much"
+
+## Types of Boundaries
+
+1. **Time** — How and when you give your time
+2. **Emotional** — What you absorb from others
+3. **Physical** — Personal space and touch
+4. **Digital** — Notifications, replies, availability
+5. **Material** — Money, possessions, lending
+
+## How to Set a Boundary
+
+### The 3-Step Script
+1. **Name it** — "I have noticed I feel drained after long calls."
+2. **State it** — "I need to keep our calls under 30 minutes."
+3. **Hold it** — Repeat calmly if pushed back.
+
+## Sample Phrases
+
+- "That does not work for me."
+- "I am not available for that, but thank you for thinking of me."
+- "Let me check and get back to you."
+
+## After Setting a Boundary
+
+Discomfort is normal — it is not proof you did the wrong thing. Healthy people will adjust. Those who push back may have benefited from your lack of boundaries.`,
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=800&auto=format&fit=crop',
+    tags: ['boundaries', 'relationships', 'self-respect', 'communication'],
+    author: 'Zenith AI',
+    publishedAt: '2024-08-18',
+    helpful: 221,
+    notHelpful: 6
+  },
+  {
+    id: '17',
+    title: 'Overcoming Perfectionism: From Pressure to Progress',
+    description: 'Why perfectionism harms more than it helps, and how to shift toward healthy striving.',
+    category: 'self-care',
+    readTime: '7 min',
+    content: `Perfectionism is often praised, but research links it to anxiety, depression, burnout, and procrastination. The goal is not lower standards — it is healthier ones.
+
+## Perfectionism vs Healthy Striving
+
+| Perfectionism | Healthy Striving |
+|---|---|
+| Fear-driven | Growth-driven |
+| All-or-nothing | Progress-focused |
+| Self-worth tied to outcomes | Self-worth is stable |
+| Avoids risk | Embraces learning |
+
+## Common Patterns
+
+- Procrastinating because nothing feels "ready"
+- Difficulty delegating
+- Harsh self-criticism after small mistakes
+- Comparing yourself to curated versions of others
+
+## Reframing Tools
+
+### "Good Enough" Drafts
+Aim for a version that gets the job done. Refine only if needed.
+
+### The 80% Rule
+Most tasks only need 80% effort. Save the 100% for what truly matters.
+
+### Self-Compassion Pause
+Ask: "Would I say this to a friend?" If not, do not say it to yourself.
+
+## A Daily Practice
+
+Each evening, finish this sentence: "Today I made progress by..." — not perfection, just movement.`,
+    image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=800&auto=format&fit=crop',
+    tags: ['perfectionism', 'self-compassion', 'growth', 'productivity'],
+    author: 'Zenith AI',
+    publishedAt: '2024-08-25',
+    helpful: 167,
+    notHelpful: 4
+  },
+  {
+    id: '18',
+    title: 'Mindful Mornings: Designing a Calm Start to Your Day',
+    description: 'A simple, science-backed morning routine that sets the tone for focus, calm, and clarity.',
+    category: 'mindfulness',
+    readTime: '5 min',
+    content: `How you start your morning influences your entire day. A mindful morning does not require an hour — even 10 minutes can shift your state.
+
+## Why Mornings Matter
+
+The first 30 minutes after waking shape your cortisol rhythm, mood, and decision-making capacity for hours.
+
+## A 10-Minute Mindful Morning
+
+### Minute 1–2: Breathe Before Reaching for Your Phone
+Take 5 slow breaths. Notice the body waking up.
+
+### Minute 3–4: Hydrate Mindfully
+Drink a full glass of water slowly. Pay attention to temperature, taste, sensation.
+
+### Minute 5–7: Set an Intention
+Not a to-do list — an intention. Examples: "Today I move with patience" or "I respond, not react."
+
+### Minute 8–10: Light Movement or Stretch
+Wake the body gently. Sun salutations, neck rolls, or a short walk.
+
+## Things to Avoid First Thing
+
+- Checking news or social media
+- Replying to work messages
+- Scrolling without purpose
+
+Your attention is the most valuable thing you have. Protect its first hour.`,
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop',
+    tags: ['morning routine', 'mindfulness', 'habits', 'wellness'],
+    author: 'Zenith AI',
+    publishedAt: '2024-09-01',
+    helpful: 256,
+    notHelpful: 7
+  },
+  {
+    id: '19',
+    title: 'Understanding Burnout: Signs, Causes, and Recovery',
+    description: 'Recognize the early signs of burnout and learn evidence-based strategies to recover and prevent it.',
+    category: 'stress',
+    readTime: '9 min',
+    content: `Burnout is more than feeling tired. The WHO defines it as a syndrome from chronic, unmanaged workplace stress with three dimensions: exhaustion, cynicism, and reduced effectiveness.
+
+## Early Warning Signs
+
+- Dreading the start of the week
+- Emotional flatness or irritability
+- Trouble concentrating on familiar tasks
+- Physical symptoms (headaches, sleep issues)
+- Loss of meaning in work you once enjoyed
+
+## What Causes It
+
+- Workload that exceeds capacity for too long
+- Lack of control or autonomy
+- Insufficient recognition or reward
+- Values mismatch with your role
+- Unclear expectations
+- Unsupportive environment
+
+## Recovery Is Layered
+
+### Phase 1: Stabilize
+Sleep, basic nutrition, reducing nonessential commitments.
+
+### Phase 2: Restore
+Rebuild small daily joys, gentle movement, social connection.
+
+### Phase 3: Realign
+Examine what led here. What needs to change structurally — not just personally.
+
+## Prevention Beyond Self-Care
+
+Burnout is not solved by bubble baths. Real prevention often requires boundary-setting, role changes, conversations with leadership, or sometimes leaving environments that consistently harm you.`,
+    image: 'https://images.unsplash.com/photo-1552657085-9b8a47074632?q=80&w=800&auto=format&fit=crop',
+    tags: ['burnout', 'stress', 'work', 'recovery'],
+    author: 'Zenith AI',
+    publishedAt: '2024-09-08',
+    helpful: 312,
+    notHelpful: 8
+  },
+  {
+    id: '20',
+    title: 'Coping with Loneliness in a Connected World',
+    description: 'Why loneliness has become a modern epidemic and gentle steps to build meaningful connection.',
+    category: 'relationships',
+    readTime: '7 min',
+    content: `Loneliness is not about being alone — it is the gap between the connection you have and the connection you need. It can occur in crowds, marriages, and busy lives.
+
+## Loneliness Is a Health Issue
+
+Chronic loneliness has been linked to outcomes comparable to smoking 15 cigarettes a day. Your nervous system is wired to need connection.
+
+## Three Types of Loneliness
+
+1. **Intimate** — Lacking a close confidant
+2. **Relational** — Missing a circle of friends
+3. **Collective** — Feeling disconnected from a community
+
+## Small Steps That Help
+
+### Reach First
+Most people are also waiting to be reached out to.
+
+### Lower the Bar
+A short voice note counts. A 15-minute coffee counts.
+
+### Repeat Exposure
+Loneliness eases through familiarity — the same yoga class, the same coffee shop, the same online community.
+
+### Quality Over Quantity
+One real conversation outweighs ten surface ones.
+
+## When to Seek Support
+
+If loneliness has felt heavy for months, please talk to a professional. You do not have to climb out alone.`,
+    image: 'https://images.unsplash.com/photo-1511376777868-611b54f68947?q=80&w=800&auto=format&fit=crop',
+    tags: ['loneliness', 'connection', 'relationships', 'mental health'],
+    author: 'Zenith AI',
+    publishedAt: '2024-09-15',
+    helpful: 189,
+    notHelpful: 5
+  },
+  {
+    id: '21',
+    title: 'The Power of Journaling: A Beginner’s Guide',
+    description: 'Why writing by hand calms the mind, clarifies thoughts, and supports healing.',
+    category: 'mindfulness',
+    readTime: '6 min',
+    content: `Journaling is one of the simplest, most affordable mental health tools available. Research shows it reduces anxiety, supports immune function, and improves emotional regulation.
+
+## Why It Works
+
+Writing engages both the analytical and emotional parts of the brain, helping you process experiences instead of looping on them.
+
+## Journaling Styles to Try
+
+### Brain Dump
+Set a timer for 5 minutes. Write everything in your head — no filter, no grammar.
+
+### Gratitude Log
+Three specific things, daily.
+
+### Future-Self Letter
+Write to yourself one year from now. What do you want them to know?
+
+### Worry Container
+Write down worries, close the notebook. Symbolically "store" them.
+
+### Reflection Prompt
+- What drained me today?
+- What energized me?
+- What do I need tomorrow?
+
+## Tips for Sticking With It
+
+- Same time, same place
+- Keep it short — 5 minutes is enough
+- No one else needs to read it
+- Skip days without guilt`,
+    image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=800&auto=format&fit=crop',
+    tags: ['journaling', 'self-reflection', 'mindfulness', 'healing'],
+    author: 'Zenith AI',
+    publishedAt: '2024-09-22',
+    helpful: 234,
+    notHelpful: 4
+  },
+  {
+    id: '22',
+    title: 'Healthy Eating for Mental Health: The Gut-Brain Connection',
+    description: 'How what you eat directly impacts your mood, focus, and emotional resilience.',
+    category: 'self-care',
+    readTime: '8 min',
+    content: `Your gut produces around 90% of your body’s serotonin. Food is not just fuel — it is information for your brain.
+
+## The Gut-Brain Axis
+
+Trillions of microbes in your gut communicate with your brain through the vagus nerve, immune signals, and neurotransmitters.
+
+## Foods That Support Mental Health
+
+- **Fermented foods** (yogurt, kimchi, sauerkraut) — feed beneficial bacteria
+- **Omega-3 fatty acids** (walnuts, flax, fatty fish) — reduce inflammation
+- **Leafy greens** — folate supports mood regulation
+- **Whole grains** — steady energy, less crashing
+- **Berries** — antioxidants protect brain cells
+
+## Foods to Limit
+
+- Ultra-processed foods
+- Excess added sugar
+- Alcohol (a depressant)
+- High caffeine if anxious
+
+## Simple Daily Habits
+
+1. Eat protein at breakfast for stable mood
+2. Include a vegetable at every meal
+3. Stay hydrated — even mild dehydration affects mood
+4. Eat without screens at least once a day
+
+You do not need a perfect diet. Small, consistent shifts matter most.`,
+    image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=800&auto=format&fit=crop',
+    tags: ['nutrition', 'gut health', 'mental health', 'wellness'],
+    author: 'Zenith AI',
+    publishedAt: '2024-09-28',
+    helpful: 178,
+    notHelpful: 6
+  },
+  {
+    id: '23',
+    title: 'Exercise as Medicine: Movement for Mental Wellbeing',
+    description: 'How even small amounts of movement can transform your mental health.',
+    category: 'self-care',
+    readTime: '6 min',
+    content: `Exercise is one of the most underused antidepressants — backed by decades of research. You do not need a gym membership to benefit.
+
+## What Movement Does for Your Brain
+
+- Increases BDNF (a brain growth factor)
+- Releases endorphins and endocannabinoids
+- Reduces cortisol over time
+- Improves sleep quality
+- Boosts self-efficacy
+
+## How Much Is Enough
+
+Research suggests just **20–30 minutes, 3–5 times a week** of moderate movement provides significant mental health benefits.
+
+## Start Where You Are
+
+- Walking after meals
+- Dancing to one song
+- Stretching while videos buffer
+- Taking stairs when possible
+- Cycling instead of driving short distances
+
+## Make It Stick
+
+- Pair with something you enjoy (podcast, audiobook)
+- Schedule it like an appointment
+- Track streaks, not perfection
+- Find a movement buddy
+
+The best exercise is the one you will actually do — repeatedly.`,
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=800&auto=format&fit=crop',
+    tags: ['exercise', 'movement', 'mental health', 'habits'],
+    author: 'Zenith AI',
+    publishedAt: '2024-10-05',
+    helpful: 287,
+    notHelpful: 5
+  },
+  {
+    id: '24',
+    title: 'Navigating Difficult Emotions: A Compassionate Guide',
+    description: 'How to sit with hard feelings without being overwhelmed by them.',
+    category: 'self-care',
+    readTime: '7 min',
+    content: `Difficult emotions are not problems to solve — they are messengers. Avoiding them often makes them louder.
+
+## The RAIN Practice
+
+Developed by meditation teacher Tara Brach:
+
+### R — Recognize
+Name what you are feeling. "This is anger." "This is grief."
+
+### A — Allow
+Let it be there without trying to fix it.
+
+### I — Investigate
+Where do you feel it in the body? What does it need?
+
+### N — Nurture
+Place a hand on your heart. Speak kindly to yourself.
+
+## Common Misconceptions
+
+- "I should not feel this way." — Emotions are not chosen.
+- "If I feel it, I will drown." — Emotions are waves; they peak and pass.
+- "Strong people do not cry." — Allowing emotion is strength.
+
+## When Emotions Feel Stuck
+
+- Move your body — emotions are physical
+- Write what you cannot say out loud
+- Talk to a trusted person
+- Consider therapy — some emotions need a witness
+
+You do not need to like every emotion to allow it.`,
+    image: 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=800&auto=format&fit=crop',
+    tags: ['emotions', 'self-compassion', 'mindfulness', 'healing'],
+    author: 'Zenith AI',
+    publishedAt: '2024-10-12',
+    helpful: 245,
+    notHelpful: 6
+  },
+  {
+    id: '25',
+    title: 'Understanding Panic Attacks: What They Are and How to Cope',
+    description: 'A clear, calming guide to what happens during a panic attack and tools that genuinely help.',
+    category: 'anxiety',
+    readTime: '7 min',
+    content: `A panic attack is a sudden surge of intense fear with strong physical symptoms. They feel terrifying — but they are not dangerous, and they always pass.
+
+## Common Symptoms
+
+- Racing heart
+- Shortness of breath
+- Chest tightness
+- Dizziness or lightheadedness
+- Trembling
+- Fear of losing control or dying
+
+## What Is Happening in Your Body
+
+Your fight-or-flight response is firing without an actual threat. The discomfort is real — the danger is not.
+
+## In-the-Moment Tools
+
+### Slow Exhale
+Make your exhale longer than your inhale (e.g., 4 in, 6 out). This activates the calming nervous system.
+
+### 5-4-3-2-1 Grounding
+5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.
+
+### Cold Water
+Splash cold water on your face or hold ice. This triggers the dive reflex and slows the heart.
+
+### Anchor Phrase
+"This is uncomfortable, not dangerous. It will pass."
+
+## After a Panic Attack
+
+Be gentle with yourself. Rest. Hydrate. Reach out to someone safe. If panic attacks are recurring, please consult a mental health professional — they are highly treatable.`,
+    image: 'https://images.unsplash.com/photo-1500252185289-39e63b03d52f?q=80&w=800&auto=format&fit=crop',
+    tags: ['panic', 'anxiety', 'coping', 'mental health'],
+    author: 'Zenith AI',
+    publishedAt: '2024-10-19',
+    helpful: 301,
+    notHelpful: 7
+  },
+  {
+    id: '26',
+    title: 'The Art of Letting Go: Releasing What No Longer Serves You',
+    description: 'Practical wisdom for releasing grudges, expectations, and identities that hold you back.',
+    category: 'mindfulness',
+    readTime: '6 min',
+    content: `Letting go is rarely a single moment — it is a practice. We hold on to people, outcomes, identities, and stories long after they stop serving us.
+
+## What We Hold Onto
+
+- Old versions of ourselves
+- Expectations of how things "should" be
+- Resentments and grudges
+- Relationships that have ended
+- Roles we have outgrown
+
+## Why It Is So Hard
+
+Holding on can feel safer than the unknown. Grief, even for what hurt us, is real.
+
+## A Gentle Practice
+
+### Name It
+Write what you are ready to release.
+
+### Honor It
+Acknowledge what it gave you — even if it also caused pain.
+
+### Release Ritual
+Burn the paper, bury it, or simply throw it away with intention.
+
+### Replace It
+What new story, value, or practice do you want to step into?
+
+## Letting Go Is Not Forgetting
+
+You can release the grip something has on you while still acknowledging it shaped you. Letting go makes space — for healing, for new beginnings, for who you are becoming.`,
+    image: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=800&auto=format&fit=crop',
+    tags: ['letting go', 'mindfulness', 'healing', 'growth'],
+    author: 'Zenith AI',
+    publishedAt: '2024-10-26',
+    helpful: 213,
+    notHelpful: 5
+  },
+  {
+    id: '27',
+    title: 'Building Self-Compassion: Being Kinder to Yourself',
+    description: 'Why self-compassion is more powerful than self-criticism — and how to practice it daily.',
+    category: 'self-care',
+    readTime: '6 min',
+    content: `Self-compassion means treating yourself with the same kindness you would offer a good friend. Research by Dr. Kristin Neff shows it predicts wellbeing better than self-esteem.
+
+## Three Components
+
+1. **Self-kindness** — Warmth toward yourself in moments of suffering
+2. **Common humanity** — Recognizing that struggle is part of being human
+3. **Mindfulness** — Holding your experience without exaggerating or suppressing it
+
+## Common Myths
+
+- "It will make me lazy." — Studies show the opposite: self-compassion increases motivation.
+- "It is self-pity." — Pity isolates; compassion connects.
+- "I do not deserve it." — Compassion is not earned.
+
+## A Daily Self-Compassion Break
+
+When something hurts, place a hand on your heart and say:
+
+1. "This is a moment of suffering."
+2. "Suffering is part of life — I am not alone."
+3. "May I be kind to myself."
+
+## Reframing Self-Talk
+
+Replace "I am such an idiot" with "I made a mistake. Mistakes are human. What can I learn?"
+
+Self-compassion is not weakness. It is the foundation of lasting strength.`,
+    image: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=800&auto=format&fit=crop',
+    tags: ['self-compassion', 'self-care', 'mindfulness', 'kindness'],
+    author: 'Zenith AI',
+    publishedAt: '2024-11-02',
+    helpful: 276,
+    notHelpful: 4
+  },
+  {
+    id: '28',
+    title: 'Quieting the Inner Critic: Tools for a Kinder Mind',
+    description: 'Identify your inner critic and learn proven techniques to soften its voice.',
+    category: 'self-care',
+    readTime: '7 min',
+    content: `Most people have an inner critic — a voice that judges, doubts, and shames. It often developed early to protect us, but in adulthood it can hold us back.
+
+## Spotting Your Inner Critic
+
+- "You are not good enough."
+- "Who do you think you are?"
+- "You will fail."
+- "Everyone is judging you."
+
+## Where It Came From
+
+Inner critics are often internalized voices of caregivers, teachers, or culture. Recognizing this helps separate the voice from the truth.
+
+## Tools to Soften It
+
+### Name It
+Some people name their critic ("Hi, Karen") to create distance.
+
+### Talk Back Kindly
+"Thank you for trying to protect me. I have got this."
+
+### Evidence Check
+What evidence supports this thought? What contradicts it?
+
+### Compassionate Reframe
+What would you say to a friend in this exact moment?
+
+## A Practice for Hard Days
+
+Place a hand on your heart. Take three breaths. Say: "I am doing the best I can with what I know right now."
+
+The goal is not to silence the critic forever — it is to no longer be ruled by it.`,
+    image: 'https://images.unsplash.com/photo-1509099836639-18ba1795216d?q=80&w=800&auto=format&fit=crop',
+    tags: ['inner critic', 'self-talk', 'self-compassion', 'healing'],
+    author: 'Zenith AI',
+    publishedAt: '2024-11-09',
+    helpful: 198,
+    notHelpful: 3
+  }
+
 ];
 
