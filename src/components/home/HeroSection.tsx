@@ -48,7 +48,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl sm:text-6xl md:text-7xl font-bold mb-4 sm:mb-6 text-foreground px-3"
+            className="text-4xl sm:text-6xl md:text-7xl mb-4 sm:mb-6 text-foreground px-3 font-semibold"
           >
             Reach Your <span className="font-playfair italic text-primary">Zenith</span>
           </motion.h1>
@@ -66,7 +66,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm sm:text-base mb-8 sm:mb-10 text-foreground/60 font-light px-6 max-w-xl mx-auto"
+            className="text-sm sm:text-base mb-8 sm:mb-10 font-light px-6 max-w-xl mx-auto text-secondary-foreground"
           >
             AI-powered meditation, mood intelligence, and personalized wellness — 
             crafted for the journey inward.
@@ -133,9 +133,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
             transition={{ duration: 1, delay: 0.8 }}
             className="px-6"
           >
-            <blockquote className="text-sm sm:text-base text-foreground/70 italic font-light max-w-lg mx-auto border-l-2 border-primary/50 pl-4 text-left">
+            <blockquote className="text-sm sm:text-base italic font-light max-w-lg mx-auto border-l-2 border-primary/50 pl-4 text-left text-accent-foreground">
               "The mind is everything. What you think, you become."
-              <span className="block text-xs mt-1 not-italic text-foreground/50">— Buddha</span>
+              <span className="block text-xs mt-1 not-italic text-ring">— Buddha</span>
             </blockquote>
           </motion.div>
         </div>
