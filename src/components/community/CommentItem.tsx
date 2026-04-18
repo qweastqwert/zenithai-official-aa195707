@@ -69,16 +69,19 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, canDelete, onDelete 
                 {comment.is_anonymous ? (
                   <Badge variant="outline" className="text-xs border-primary/30">Anonymous</Badge>
                 ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-auto p-0 hover:underline text-xs flex items-center gap-1.5 text-primary hover:text-primary/80"
-                    onClick={() => setProfileDialogOpen(true)}
-                  >
-                    <User className="h-3 w-3" />
-                    {userName || 'User'}
-                    <ReputationBadge reputation={userReputation} showLabel={false} size="sm" />
-                  </Button>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 hover:underline text-xs flex items-center gap-1.5 text-primary hover:text-primary/80"
+                      onClick={() => setProfileDialogOpen(true)}
+                    >
+                      <User className="h-3 w-3" />
+                      {userName || 'User'}
+                      <ReputationBadge reputation={userReputation} showLabel={false} size="sm" />
+                    </Button>
+                    {authorIsAdmin && <AdminBadge />}
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-1">
