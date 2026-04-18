@@ -117,6 +117,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                     variant="ghost"
                     size="sm"
                     onClick={handleDelete}
+                    title={isAdmin && user?.id !== post.user_id ? 'Delete (admin moderation)' : 'Delete post'}
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="h-4 w-4" />
