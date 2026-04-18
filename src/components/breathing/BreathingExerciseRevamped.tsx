@@ -219,7 +219,23 @@ const BreathingExerciseRevamped: React.FC = () => {
 
       {/* Main breathing interface */}
       <Card className="relative overflow-hidden bg-gradient-to-br from-background via-primary/5 to-primary/10 border border-primary/20">
-        <CardContent className="p-4 sm:p-8 flex flex-col items-center justify-center space-y-4 sm:space-y-8 min-h-[320px] sm:min-h-[400px]">
+        {/* Ambient orbs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute -top-20 -left-16 w-56 h-56 rounded-full opacity-30 blur-3xl"
+            style={{ backgroundColor: selectedPattern.color }}
+            animate={{ scale: isActive ? [1, 1.15, 1] : 1, opacity: isActive ? [0.25, 0.4, 0.25] : 0.2 }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute -bottom-24 -right-16 w-72 h-72 rounded-full opacity-20 blur-3xl"
+            style={{ backgroundColor: selectedPattern.color }}
+            animate={{ scale: isActive ? [1.1, 0.95, 1.1] : 1, opacity: isActive ? [0.15, 0.3, 0.15] : 0.15 }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </div>
+
+        <CardContent className="relative p-4 sm:p-8 flex flex-col items-center justify-center space-y-4 sm:space-y-8 min-h-[320px] sm:min-h-[400px]">
           <BreathingCircle
             phase={currentPhase}
             timeLeft={timeLeft}
@@ -227,9 +243,10 @@ const BreathingExerciseRevamped: React.FC = () => {
             isActive={isActive}
           />
 
-          <div className="text-center space-y-2">
-            <div className="text-sm text-muted-foreground">
-              {selectedPattern.name}
+          <div className="text-center space-y-1">
+            <div className="text-sm font-medium text-foreground/80">{selectedPattern.name}</div>
+            <div className="text-xs text-muted-foreground">
+              {isActive ? "Follow the rhythm — you're doing great" : "Press Begin when you're ready"}
             </div>
           </div>
 
