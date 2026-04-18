@@ -67,7 +67,7 @@ export const SleepTracker = () => {
 
   if (profileLoading || logsLoading) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Tracker')}
         <div className="flex-1 flex items-center justify-center">
           <motion.div 
@@ -82,7 +82,7 @@ export const SleepTracker = () => {
 
   if (!profile || showSetup) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Tracker')}
         <motion.div {...fadeUp} className="flex-1 flex items-center justify-center p-4">
           <SleepSetupForm onComplete={() => setShowSetup(false)} isOnboarding={!profile} />
@@ -93,7 +93,7 @@ export const SleepTracker = () => {
 
   if (showQualityPrompt) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Quality', () => setShowQualityPrompt(false))}
         <motion.div {...fadeUp} className="flex-1 flex items-center justify-center p-4">
           <SleepQualityPrompt onComplete={() => setShowQualityPrompt(false)} />
@@ -104,7 +104,7 @@ export const SleepTracker = () => {
 
   if (showAnalytics) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Analytics', () => setShowAnalytics(false))}
         <motion.div {...fadeUp} className="flex-1 overflow-auto p-4">
           <SleepAnalytics />
@@ -114,7 +114,7 @@ export const SleepTracker = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen">
       {headerBar('Sleep Tracker')}
       
       <motion.div 
