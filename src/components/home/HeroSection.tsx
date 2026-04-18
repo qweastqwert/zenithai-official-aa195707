@@ -85,7 +85,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
               onClick={() => setShowFeatures(true)}
             >
               <Link to="/chat">
-                <Crown className="mr-2 h-5 w-5" />
                 Begin Your Journey
               </Link>
             </Button>
