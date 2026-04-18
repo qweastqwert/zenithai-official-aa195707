@@ -83,7 +83,7 @@ Consider reaching out to a mental health professional if:
 Remember, seeking help is a sign of strength, not weakness. With proper support and techniques, anxiety can be effectively managed.`,
     image: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?q=80&w=800&auto=format&fit=crop',
     tags: ['anxiety', 'mental health', 'coping strategies', 'wellness'],
-    author: 'Dr. Sarah Johnson',
+    author: 'Zenith AI',
     publishedAt: '2024-01-15',
     helpful: 342,
     notHelpful: 12
@@ -127,7 +127,7 @@ Mindfulness meditation involves sitting quietly and paying attention to your bre
 Mindfulness meditation is a valuable tool for managing stress and improving your overall wellbeing. By incorporating this practice into your daily routine, you can cultivate a greater sense of calm, focus, and self-awareness.`,
     image: 'https://images.unsplash.com/photo-1506126618818-88ebb369818f?q=80&w=800&auto=format&fit=crop',
     tags: ['meditation', 'mindfulness', 'stress reduction', 'wellness'],
-    author: 'Emily Carter',
+    author: 'Zenith AI',
     publishedAt: '2024-02-01',
     helpful: 287,
     notHelpful: 8
@@ -169,7 +169,7 @@ Mindfulness meditation is a valuable tool for managing stress and improving your
 A relaxing bedtime routine is a valuable tool for improving your sleep quality and overall wellbeing. By incorporating these elements into your nightly routine, you can create a peaceful and restful sleep environment.`,
     image: 'https://images.unsplash.com/photo-1487730116645-74489c90bad4?q=80&w=800&auto=format&fit=crop',
     tags: ['sleep', 'bedtime routine', 'relaxation', 'wellness'],
-    author: 'David Brown',
+    author: 'Zenith AI',
     publishedAt: '2024-02-15',
     helpful: 256,
     notHelpful: 5
@@ -221,7 +221,7 @@ Stress is your body's response to any demand or pressure. It can be triggered by
 By implementing these stress management strategies, you can reduce the negative impact of stress on your life and improve your overall wellbeing.`,
     image: 'https://images.unsplash.com/photo-1518611012114-b63536dc5ee3?q=80&w=800&auto=format&fit=crop',
     tags: ['stress', 'stress management', 'coping strategies', 'wellness'],
-    author: 'Jennifer Davis',
+    author: 'Zenith AI',
     publishedAt: '2024-03-01',
     helpful: 234,
     notHelpful: 10
@@ -268,7 +268,7 @@ Mindfulness is the quality of being present and fully engaged in whatever you're
 Mindful living is a valuable tool for improving your overall wellbeing and experiencing greater peace and contentment. By incorporating mindfulness into your daily life, you can cultivate a greater sense of presence, awareness, and appreciation for the present moment.`,
     image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop',
     tags: ['mindfulness', 'mindful living', 'present moment', 'wellness'],
-    author: 'Michael Wilson',
+    author: 'Zenith AI',
     publishedAt: '2024-03-15',
     helpful: 212,
     notHelpful: 7
@@ -324,7 +324,7 @@ Mindful living is a valuable tool for improving your overall wellbeing and exper
 Self-care is a valuable tool for improving your overall wellbeing and living a happier, healthier life. By incorporating self-care activities into your daily routine, you can nurture your mind, body, and soul.`,
     image: 'https://images.unsplash.com/photo-1490750967865-8a6944ba0c9f?q=80&w=800&auto=format&fit=crop',
     tags: ['self-care', 'wellness', 'mind', 'body', 'soul'],
-    author: 'Jessica White',
+    author: 'Zenith AI',
     publishedAt: '2024-04-01',
     helpful: 198,
     notHelpful: 6
@@ -377,7 +377,7 @@ Self-care is a valuable tool for improving your overall wellbeing and living a h
 Building strong and healthy relationships requires effort, commitment, and a willingness to work through challenges. By focusing on communication, trust, and respect, you can create relationships that are supportive, fulfilling, and long-lasting.`,
     image: 'https://images.unsplash.com/photo-1505904267569-2c9e4cb42258?q=80&w=800&auto=format&fit=crop',
     tags: ['relationships', 'communication', 'trust', 'respect'],
-    author: 'Robert Green',
+    author: 'Zenith AI',
     publishedAt: '2024-04-15',
     helpful: 185,
     notHelpful: 9
@@ -431,7 +431,7 @@ Building strong and healthy relationships requires effort, commitment, and a wil
 Boosting productivity requires a combination of time management, focus, and organization skills. By implementing these strategies, you can achieve your goals more efficiently and effectively.`,
     image: 'https://images.unsplash.com/photo-1587560699336-eaa4149ba22e?q=80&w=800&auto=format&fit=crop',
     tags: ['productivity', 'time management', 'focus', 'organization'],
-    author: 'Laura Smith',
+    author: 'Zenith AI',
     publishedAt: '2024-05-01',
     helpful: 172,
     notHelpful: 4
@@ -490,7 +490,7 @@ Depression is a mood disorder that causes a persistent feeling of sadness and lo
 Remember: Depression is treatable, and recovery is possible. You don't have to face it alone.`,
     image: 'https://images.unsplash.com/photo-1493836512294-502baa1986e2?q=80&w=800&auto=format&fit=crop',
     tags: ['depression', 'mental health', 'therapy', 'wellness'],
-    author: 'Dr. Michael Chen',
+    author: 'Zenith AI',
     publishedAt: '2024-05-15',
     helpful: 289,
     notHelpful: 8
@@ -551,7 +551,7 @@ Try saying these to yourself daily:
 Building self-esteem takes time and practice. Be patient with yourself on this journey.`,
     image: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=800&auto=format&fit=crop',
     tags: ['self-esteem', 'self-care', 'confidence', 'mental health'],
-    author: 'Sarah Martinez',
+    author: 'Zenith AI',
     publishedAt: '2024-06-01',
     helpful: 245,
     notHelpful: 6
@@ -618,7 +618,7 @@ Consider reaching out to a grief counselor if you:
 Grief is love with nowhere to go. It's a testament to how much you cared. In time, the pain softens, but the love remains.`,
     image: 'https://images.unsplash.com/photo-1516585427167-9f4af9627e6c?q=80&w=800&auto=format&fit=crop',
     tags: ['grief', 'loss', 'healing', 'mental health'],
-    author: 'Dr. Amanda Foster',
+    author: 'Zenith AI',
     publishedAt: '2024-06-15',
     helpful: 198,
     notHelpful: 3
@@ -692,7 +692,7 @@ Cognitive behavioral therapy (CBT) is highly effective for social anxiety.
 Social anxiety doesn't have to control your life. With patience and practice, you can learn to feel more comfortable in social situations.`,
     image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?q=80&w=800&auto=format&fit=crop',
     tags: ['social anxiety', 'anxiety', 'confidence', 'mental health'],
-    author: 'Dr. Lisa Park',
+    author: 'Zenith AI',
     publishedAt: '2024-07-01',
     helpful: 267,
     notHelpful: 9
@@ -756,7 +756,7 @@ Social anxiety doesn't have to control your life. With patience and practice, yo
 Technology is a tool, not a master. By being intentional about how we use it, we can enjoy its benefits while protecting our wellbeing.`,
     image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop',
     tags: ['digital wellness', 'self-care', 'screen time', 'mindfulness'],
-    author: 'Tech Wellness Team',
+    author: 'Zenith AI',
     publishedAt: '2024-07-15',
     helpful: 184,
     notHelpful: 5
