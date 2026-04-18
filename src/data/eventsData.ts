@@ -322,6 +322,101 @@ export const wellnessEvents: WellnessEvent[] = [
     ],
   },
 
+  // JULY
+  {
+    id: 'self-care-day',
+    title: 'International Self-Care Day',
+    icon: 'Heart',
+    month: 6,
+    day: 24,
+    gradient: 'from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20',
+    borderColor: 'border-rose-200',
+    accentColor: 'rose',
+    description: 'A reminder that self-care is not selfish — it is essential.',
+    facts: [
+      'July 24 (7/24) symbolizes self-care 24 hours a day, 7 days a week',
+      'Regular self-care reduces burnout by up to 60%',
+      'Even 10 minutes daily can shift your nervous system',
+      'You cannot pour from an empty cup ☕',
+    ],
+    message: 'Today, do one small thing that says: "I matter."',
+    activities: [
+      { title: 'Build Your Self-Care Menu', description: 'Curate go-to rituals for any mood', prompt: "It's International Self-Care Day. Help me build a personalized self-care menu with quick (5 min), medium (30 min), and deep (2+ hr) options for different moods and energy levels.", color: 'rose' },
+      { title: 'Permission Slip Ritual', description: 'Release guilt around resting', prompt: 'Guide me through a "permission slip" ritual where I write myself permission to rest, say no, or take a break without guilt. Help me unpack why self-care feels selfish.', color: 'orange' },
+    ],
+  },
+
+  // AUGUST
+  {
+    id: 'friendship-day',
+    title: 'International Friendship Day',
+    icon: 'HeartHandshake',
+    month: 7,
+    day: 30,
+    gradient: 'from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20',
+    borderColor: 'border-yellow-200',
+    accentColor: 'yellow',
+    description: 'Friendships are a powerful protective factor for mental health.',
+    facts: [
+      'Strong friendships reduce risk of depression by 24%',
+      'Loneliness has the same health impact as smoking 15 cigarettes daily',
+      'Quality matters more than quantity in friendships',
+      'A simple "thinking of you" text can change someone\'s day 🤝',
+    ],
+    message: 'Reach out today. The friend you miss might miss you too.',
+    activities: [
+      { title: 'Reconnection Ritual', description: 'Reach out to a friend you miss', prompt: "It's International Friendship Day. Help me draft a heartfelt message to a friend I've drifted from. I want it to feel genuine, not awkward, and open the door to reconnection.", color: 'yellow' },
+      { title: 'Friendship Audit', description: 'Reflect on your circle with kindness', prompt: 'Guide me through a gentle friendship audit — which relationships energize me, which drain me, and how I can invest more intentionally in the ones that matter.', color: 'orange' },
+    ],
+  },
+
+  // SEPTEMBER (additional)
+  {
+    id: 'self-awareness-month',
+    title: 'September – Self-Awareness Month',
+    icon: 'Sparkles',
+    month: 8,
+    gradient: 'from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20',
+    borderColor: 'border-violet-200',
+    accentColor: 'violet',
+    description: 'Knowing yourself is the beginning of all wisdom.',
+    facts: [
+      'Only 10-15% of people are truly self-aware',
+      'Self-awareness improves decision-making by 32%',
+      'Journaling boosts self-awareness within 2 weeks',
+      'It is the #1 trait of effective leaders 🪞',
+    ],
+    message: 'Turn inward this month. The answers you seek are already within you.',
+    activities: [
+      { title: 'Values Discovery', description: 'Identify what truly matters to you', prompt: "It's Self-Awareness Month. Walk me through a values discovery exercise — help me identify my top 5 core values and how aligned my current life is with them.", color: 'violet' },
+      { title: 'Shadow Work Intro', description: 'Gently meet the parts you avoid', prompt: 'Introduce me gently to shadow work. Help me identify a pattern or trait I dislike in others and explore what it might be teaching me about myself.', color: 'purple' },
+    ],
+  },
+
+  // OCTOBER (additional)
+  {
+    id: 'anxiety-screening-day',
+    title: 'National Anxiety Screening Day',
+    icon: 'Shield',
+    month: 9,
+    day: 11,
+    gradient: 'from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20',
+    borderColor: 'border-cyan-200',
+    accentColor: 'cyan',
+    description: 'Anxiety is the most common mental health condition — and highly treatable.',
+    facts: [
+      '40 million adults in the US alone live with anxiety',
+      'Only 36.9% of those suffering receive treatment',
+      'Anxiety often hides as anger, perfectionism, or exhaustion',
+      'Naming it is the first step to taming it 🌊',
+    ],
+    message: 'You are not your anxiety. Today, get curious about what your nervous system is telling you.',
+    activities: [
+      { title: 'Anxiety Decoder', description: 'Translate symptoms into messages', prompt: "It's Anxiety Screening Day. Help me decode my anxiety — what physical sensations am I noticing, what triggers them, and what might my body be trying to tell me?", color: 'cyan' },
+      { title: 'Window of Tolerance', description: 'Map your nervous system zones', prompt: 'Teach me about the "window of tolerance" and help me map when I feel hyper-aroused, hypo-aroused, or regulated. Give me grounding techniques for each zone.', color: 'blue' },
+    ],
+  },
+
   // DECEMBER
   {
     id: 'holiday-stress',
