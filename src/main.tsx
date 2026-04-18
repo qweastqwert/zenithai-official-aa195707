@@ -1,5 +1,6 @@
 // Import polyfills first for older browser/WebView support
 import './polyfills';
+import './i18n';
 
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'

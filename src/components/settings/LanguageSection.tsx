@@ -42,6 +42,9 @@ const LanguageSection: React.FC = () => {
           <span className="text-sm text-gray-500 dark:text-gray-400">
             Currently: {current?.label} ({current?.native})
           </span>
+          <span className="text-xs text-muted-foreground mt-1">
+            Translates Settings, Dashboard &amp; nav. MindMate AI will reply in this language by default.
+          </span>
         </div>
         <Select value={language} onValueChange={handleChange}>
           <SelectTrigger className="w-44">
