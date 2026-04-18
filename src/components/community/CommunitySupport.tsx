@@ -51,10 +51,10 @@ const CommunitySupport: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-background"
+      className="min-h-screen"
     >
       {/* Mobile-optimized sticky header */}
-      <div className="sticky top-0 z-20 bg-primary text-primary-foreground p-3 sm:p-4 flex items-center gap-3">
+      <div className="sticky top-0 z-20 bg-gradient-to-r from-primary via-primary to-[hsl(160_60%_45%)] text-primary-foreground p-3 sm:p-4 flex items-center gap-3 shadow-lg shadow-primary/20 backdrop-blur-md">
         <Button
           variant="ghost"
           size="sm"

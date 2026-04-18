@@ -49,7 +49,7 @@ export const SleepTracker = () => {
   };
 
   const headerBar = (title: string, backAction?: () => void) => (
-    <div className="p-4 flex items-center text-primary-foreground bg-primary">
+    <div className="p-4 flex items-center text-primary-foreground bg-gradient-to-r from-[hsl(263_70%_55%)] via-primary to-[hsl(220_70%_55%)] shadow-lg shadow-primary/20 backdrop-blur-md">
       {backAction ? (
         <Button variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 p-2 mr-4" onClick={backAction}>
           <ArrowLeft className="h-5 w-5" />
@@ -67,7 +67,7 @@ export const SleepTracker = () => {
 
   if (profileLoading || logsLoading) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Tracker')}
         <div className="flex-1 flex items-center justify-center">
           <motion.div 
@@ -82,7 +82,7 @@ export const SleepTracker = () => {
 
   if (!profile || showSetup) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Tracker')}
         <motion.div {...fadeUp} className="flex-1 flex items-center justify-center p-4">
           <SleepSetupForm onComplete={() => setShowSetup(false)} isOnboarding={!profile} />
@@ -93,7 +93,7 @@ export const SleepTracker = () => {
 
   if (showQualityPrompt) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Quality', () => setShowQualityPrompt(false))}
         <motion.div {...fadeUp} className="flex-1 flex items-center justify-center p-4">
           <SleepQualityPrompt onComplete={() => setShowQualityPrompt(false)} />
@@ -104,7 +104,7 @@ export const SleepTracker = () => {
 
   if (showAnalytics) {
     return (
-      <div className="flex flex-col h-screen bg-background">
+      <div className="flex flex-col h-screen">
         {headerBar('Sleep Analytics', () => setShowAnalytics(false))}
         <motion.div {...fadeUp} className="flex-1 overflow-auto p-4">
           <SleepAnalytics />
@@ -114,7 +114,7 @@ export const SleepTracker = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen">
       {headerBar('Sleep Tracker')}
       
       <motion.div 
