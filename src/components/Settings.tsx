@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
 import ProfileSection from '@/components/settings/ProfileSection';
 import AppearanceSection from '@/components/settings/AppearanceSection';
+import LanguageSection from '@/components/settings/LanguageSection';
 import UICustomizationSection from '@/components/settings/UICustomizationSection';
 import AudioSection from '@/components/settings/AudioSection';
 import NotificationsSection from '@/components/settings/NotificationsSection';
@@ -41,6 +42,8 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           <MindArchiveSection />
           <Separator />
           <AppearanceSection />
+          <Separator />
+          <LanguageSection />
           <Separator />
           <AccessibilitySettingsSection />
           <Separator />
