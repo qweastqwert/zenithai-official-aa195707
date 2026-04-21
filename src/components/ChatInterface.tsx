@@ -508,7 +508,7 @@ const ChatInterface = () => {
                 className="flex flex-col items-center"
               >
                 <motion.img 
-                  src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
+                  src="/zenith-logo.svg" 
                   alt="Zenith AI Logo" 
                   className={`w-16 h-16 mb-3 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
                   onClick={handleLogoClick}
@@ -768,7 +768,7 @@ const ChatInterface = () => {
               className="flex flex-col items-center mb-4"
             >
               <motion.img 
-                src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
+                src="/zenith-logo.svg" 
                 alt="Zenith AI Logo" 
                 className={`w-20 h-20 md:w-24 md:h-24 mb-4 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
                 onClick={handleLogoClick}
@@ -799,7 +799,7 @@ const ChatInterface = () => {
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-4">
                 <motion.img 
-                  src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png" 
+                  src="/zenith-logo.svg" 
                   alt="Zenith AI Logo" 
                   className={`w-12 h-12 md:w-16 md:h-16 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
                   onClick={handleLogoClick}
