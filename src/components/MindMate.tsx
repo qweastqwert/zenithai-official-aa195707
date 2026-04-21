@@ -1204,11 +1204,16 @@ Customize your therapeutic approach based on this information while maintaining 
       },
       onDone: (meta) => {
         const sanitizedContent = sanitizeAssistantMessage(assistantContent);
-        if (sanitizedContent !== assistantContent) {
-          setMessages((prev) =>
-            prev.map((m) => m.id === assistantMessageId ? { ...m, content: sanitizedContent } : m)
-          );
+        const hasWidgets = !!(meta?.toolCalls && Array.isArray(meta.toolCalls) && meta.toolCalls.length > 0);
+        // Fallback: if reply ended up empty AND no widgets, retry via non-streaming
+        if (!sanitizedContent.trim() && !hasWidgets) {
+          fallbackNonStreaming(chatMessages, assistantMessageId);
+          return;
         }
+        const finalContent = sanitizedContent.trim() || (hasWidgets ? '' : "I'm here for you. Could you tell me a little more?");
+        setMessages((prev) =>
+          prev.map((m) => m.id === assistantMessageId ? { ...m, content: finalContent } : m)
+        );
         // Render widgets from streamed tool calls
         if (meta?.toolCalls && Array.isArray(meta.toolCalls)) {
           meta.toolCalls.forEach((toolCall: any, index: number) => {
