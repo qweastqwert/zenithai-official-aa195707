@@ -133,7 +133,7 @@ const IntroAnimation = ({ onComplete }: IntroAnimationProps) => {
               className="mt-8 sm:mt-12"
             >
               <img 
-                src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png"
+                src="/zenith-logo.svg"
                 alt="Zenith AI Logo"
                 className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-4 drop-shadow-2xl"
               />

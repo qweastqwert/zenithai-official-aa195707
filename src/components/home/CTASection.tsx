@@ -30,7 +30,7 @@ const CTASection: React.FC = () => {
               className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full flex items-center justify-center mb-6 premium-glow"
             >
               <img 
-                src="/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png"
+                src="/zenith-logo.svg"
                 alt="Zenith AI Logo"
                 className="w-12 h-12 sm:w-16 sm:h-16"
               />

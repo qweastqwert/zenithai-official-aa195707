@@ -11,13 +11,13 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/lovable-uploads/289cf3ca-64e3-425c-8e29-1e27aae89509.png",
+      "src": "/zenith-logo-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/lovable-uploads/289cf3ca-64e3-425c-8e29-1e27aae89509.png",
+      "src": "/zenith-logo-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -26,7 +26,7 @@
   "categories": ["health", "lifestyle", "wellness"],
   "screenshots": [
     {
-      "src": "/lovable-uploads/289cf3ca-64e3-425c-8e29-1e27aae89509.png",
+      "src": "/zenith-logo-512.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide"

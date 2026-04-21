@@ -142,7 +142,7 @@ export class NotificationService {
       navigator.serviceWorker.ready.then((registration) => {
         registration.showNotification(title, {
           body,
-          icon: '/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png',
+          icon: '/zenith-logo-512.png',
           badge: '/favicon.ico',
           tag,
         });
