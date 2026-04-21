@@ -14,7 +14,7 @@ const Header = () => {
         <Link to="/" className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zenith-purple to-zenith-darkpurple flex items-center justify-center">
             <img 
-              src="/zenith-logo.svg"
+              src="/zenith-logo-mark.png"
               alt="Zenith AI"
               className="w-6 h-6"
             />
