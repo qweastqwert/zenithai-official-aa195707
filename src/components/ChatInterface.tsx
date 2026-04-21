@@ -136,22 +136,17 @@ const ChatInterface = () => {
     }
   }, [user, profile, sleepProfile, hasProfile, sleepProfileLoading]);
 
-  // Check for mood prompt (once per session, plus 4h cookie window)
+  // Check for mood prompt — purely interval-based (user-configurable in Settings)
   useEffect(() => {
     if (!hasProfile) return;
-    if (sessionStorage.getItem('zenith-mood-prompt-shown') === '1') return;
+    if (!shouldShowPrompt()) return;
 
-    const lastPrompt = getCookie('zenith-last-mood-prompt');
-    const now = Date.now();
-    const fourHours = 4 * 60 * 60 * 1000;
-    
-    if (!lastPrompt || (now - parseInt(lastPrompt)) >= fourHours) {
-      const timer = setTimeout(() => {
-        setShowMoodPrompt(true);
-        sessionStorage.setItem('zenith-mood-prompt-shown', '1');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setShowMoodPrompt(true);
+      recordPromptShown();
+    }, 2000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasProfile]);
 
   // Wait for intro animation then show options (skip if already shown this session)
