@@ -3,14 +3,18 @@ import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Bell, Clock, BookOpen, Heart, AlertCircle, Moon } from 'lucide-react';
+import { Bell, Clock, BookOpen, Heart, AlertCircle, Moon, Smile } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useMoodPromptFrequency } from '@/hooks/useMoodPromptFrequency';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const NotificationsSection = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { getSettings, updateFrequency } = useMoodPromptFrequency();
+  const [moodFrequency, setMoodFrequency] = useState<'low' | 'medium' | 'high'>(() => getSettings().frequency);
   const [prefs, setPrefs] = useState({
     mood_reminder_time: '09:00',
     journal_reminder_time: '21:00',
@@ -130,6 +134,38 @@ const NotificationsSection = () => {
               onChange={(e) => savePrefs({ mood_reminder_time: e.target.value })}
               className="w-24 h-8 text-xs"
             />
+          </div>
+        </div>
+
+        {/* In-App Mood Prompt Frequency */}
+        <div className="p-3 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Smile className="h-4 w-4 text-amber-500" />
+              <Label className="text-sm font-medium">Mood Pop-up Frequency</Label>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground pl-6">
+            How often the mood check-in appears while you use the app.
+          </p>
+          <div className="pl-6">
+            <Select
+              value={moodFrequency}
+              onValueChange={(v: 'low' | 'medium' | 'high') => {
+                setMoodFrequency(v);
+                updateFrequency(v);
+                toast({ title: 'Frequency updated', description: `Mood prompt set to ${v} (${v === 'low' ? '~8h' : v === 'medium' ? '~4h' : '~2h'}).` });
+              }}
+            >
+              <SelectTrigger className="w-full h-9 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="high">Frequent — every ~2 hours</SelectItem>
+                <SelectItem value="medium">Balanced — every ~4 hours</SelectItem>
+                <SelectItem value="low">Gentle — every ~8 hours</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
