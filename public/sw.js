@@ -7,8 +7,8 @@ const DYNAMIC_CACHE = 'zenith-dynamic-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/lovable-uploads/289cf3ca-64e3-425c-8e29-1e27aae89509.png',
-  '/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png'
+  '/zenith-logo-512.png',
+  '/zenith-logo-512.png'
 ];
 
 // AI/API routes that always need network
@@ -146,7 +146,7 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/lovable-uploads/44d18942-19e8-4d7b-9106-8c60ad68d16b.png',
+    icon: '/zenith-logo-512.png',
     badge: '/favicon.ico',
     tag: data.tag || 'general',
     vibrate: [100, 50, 100],
