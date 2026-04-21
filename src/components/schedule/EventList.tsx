@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, Calendar, Clock, Moon, Sun, Sparkles, Brain, Repeat } from 'lucide-react';
+import { Trash2, Calendar, Clock, Moon, Sun, Sparkles, Brain, Repeat, Pencil, Check, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScheduleEvent } from '@/hooks/useScheduleEvents';
 import { RecurringEvent } from '@/hooks/useRecurringEvents';
@@ -27,6 +28,8 @@ interface EventListProps {
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
   onDeleteRecurring: (id: string) => void;
+  onEdit?: (id: string, updates: { title?: string; start_time?: string; end_time?: string }) => Promise<boolean> | void;
+  onEditSleepTime?: (category: 'sleep' | 'wake', newTime: string) => Promise<void> | void;
 }
 
 const formatTime = (time: string) => {
@@ -35,7 +38,34 @@ const formatTime = (time: string) => {
   return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
 };
 
-export const EventList = ({ events, recurringEventsForDate, onToggleComplete, onDelete, onDeleteRecurring }: EventListProps) => {
+export const EventList = ({ events, recurringEventsForDate, onToggleComplete, onDelete, onDeleteRecurring, onEdit, onEditSleepTime }: EventListProps) => {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editStart, setEditStart] = useState('');
+  const [editEnd, setEditEnd] = useState('');
+
+  const startEdit = (e: ScheduleEvent) => {
+    setEditingId(e.id);
+    setEditTitle(e.title);
+    setEditStart(e.start_time);
+    setEditEnd(e.end_time || '');
+  };
+  const cancelEdit = () => setEditingId(null);
+  const saveEdit = async (e: ScheduleEvent) => {
+    // Sleep/wake auto-events also propagate to sleep_profiles
+    if ((e.category === 'sleep' || e.category === 'wake') && onEditSleepTime && editStart !== e.start_time) {
+      await onEditSleepTime(e.category as 'sleep' | 'wake', editStart);
+    }
+    if (onEdit) {
+      await onEdit(e.id, {
+        title: editTitle,
+        start_time: editStart,
+        end_time: editEnd || undefined,
+      });
+    }
+    setEditingId(null);
+  };
+
   const sortedEvents = [...events].sort((a, b) => a.start_time.localeCompare(b.start_time));
 
   // Merge recurring events that aren't already in scheduled events
