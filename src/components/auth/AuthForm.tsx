@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Mail, Lock, User, Eye, EyeOff, UserCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import TurnstileWidget from '@/components/TurnstileWidget';
@@ -42,6 +42,32 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         description: error.message,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      if (data.user) {
+        // Mark as guest so Settings can show verification reminder
+        localStorage.setItem('zenith-guest-account', '1');
+        toast({
+          title: "Welcome, Guest! 👋",
+          description: "You're exploring as a guest. Add your email in Settings to keep your account.",
+        });
+        onSuccess();
+      }
+    } catch (error: any) {
+      const msg = error.message?.includes('Anonymous')
+        ? 'Guest sign-in is not enabled. Please enable Anonymous Sign-In in Supabase Auth settings.'
+        : error.message || 'Could not start guest session.';
+      setError(msg);
+      toast({ title: "Guest Sign-In Error", description: msg, variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -300,6 +326,27 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     </svg>
                     Continue with Google
                   </Button>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.65 }}
+                  className="mt-3"
+                >
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleGuestSignIn}
+                    disabled={loading}
+                    className="w-full py-6 border border-dashed border-zenith-primary/40 text-zenith-primary hover:bg-zenith-primary/5"
+                  >
+                    <UserCircle2 className="mr-2 h-5 w-5" />
+                    Continue as Guest
+                  </Button>
+                  <p className="text-[11px] text-muted-foreground text-center mt-2 px-2">
+                    Try Zenith without signing up. You'll be reminded to add your email in Settings — unverified guest accounts may be wiped.
+                  </p>
                 </motion.div>
               </>
             )}
