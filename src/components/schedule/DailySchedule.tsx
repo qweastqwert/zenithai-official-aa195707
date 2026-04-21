@@ -24,9 +24,9 @@ interface AddEventFormState {
 
 export const DailySchedule = () => {
   const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
-  const { events, loading, addEvent, deleteEvent, toggleComplete, fetchEvents } = useScheduleEvents();
+  const { events, loading, addEvent, deleteEvent, toggleComplete, fetchEvents, updateEvent } = useScheduleEvents();
   const { recurringEvents, addRecurringEvent, deleteRecurringEvent, getRecurringEventsForDate } = useRecurringEvents();
-  const { profile: sleepProfile } = useSleepProfile();
+  const { profile: sleepProfile, updateProfile: updateSleepProfile } = useSleepProfile();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showRecurringForm, setShowRecurringForm] = useState(false);
   const [formState, setFormState] = useState<AddEventFormState>({
@@ -108,6 +108,25 @@ export const DailySchedule = () => {
     if (success) toast.success('Recurring event removed');
   };
 
+  const handleEditEvent = async (id: string, updates: { title?: string; start_time?: string; end_time?: string }) => {
+    const ok = await updateEvent(id, updates as any);
+    if (ok) toast.success('Event updated ✨');
+    else toast.error('Could not update event');
+    return ok;
+  };
+
+  const handleEditSleepTime = async (category: 'sleep' | 'wake', newTime: string) => {
+    if (!sleepProfile) return;
+    const sleepTime = category === 'sleep' ? newTime : sleepProfile.sleep_time;
+    const wakeTime = category === 'wake' ? newTime : sleepProfile.wake_time;
+    const result = await updateSleepProfile(sleepTime, wakeTime);
+    if (result?.success) {
+      toast.success(category === 'sleep' ? '🌙 Bedtime updated everywhere' : '☀️ Wake time updated everywhere');
+    } else {
+      toast.error('Could not update sleep schedule');
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr + 'T00:00:00');
     return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
@@ -173,6 +192,8 @@ export const DailySchedule = () => {
               onToggleComplete={toggleComplete}
               onDelete={handleDelete}
               onDeleteRecurring={handleDeleteRecurring}
+              onEdit={handleEditEvent}
+              onEditSleepTime={handleEditSleepTime}
             />
           )}
         </CardContent>
