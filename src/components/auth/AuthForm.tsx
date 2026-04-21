@@ -46,6 +46,15 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   const handleGuestSignIn = async () => {
+    if (!turnstileToken) {
+      setError('Please complete the verification before continuing as guest.');
+      toast({
+        title: 'Verification required',
+        description: 'Complete the captcha below to continue as guest.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setLoading(true);
     setError('');
     try {
