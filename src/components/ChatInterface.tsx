@@ -57,6 +57,18 @@ const ChatInterface = () => {
   const { trackActivity } = useActivityTracker();
   const { getNewlyUnlocked } = useAchievements();
   const { shouldShowPrompt, recordPromptShown, recordPromptDismissed } = useMoodPromptFrequency();
+
+  // One-time: reset stale mood-prompt cooldown so the prompt re-engages users
+  useEffect(() => {
+    if (localStorage.getItem('zenith-mood-prompt-reset-v2') !== '1') {
+      try {
+        document.cookie = 'zenith-mood-prompt-settings=; path=/; max-age=0';
+        document.cookie = 'zenith-last-mood-prompt=; path=/; max-age=0';
+        sessionStorage.removeItem('zenith-mood-prompt-shown');
+      } catch {}
+      localStorage.setItem('zenith-mood-prompt-reset-v2', '1');
+    }
+  }, []);
   const { isSyncing, syncData } = useSyncData();
 
   // Pull-to-refresh handler
