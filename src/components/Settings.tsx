@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { X } from 'lucide-react';
 import ProfileSection from '@/components/settings/ProfileSection';
+import GuestVerificationSection from '@/components/settings/GuestVerificationSection';
 import AppearanceSection from '@/components/settings/AppearanceSection';
 import LanguageSection from '@/components/settings/LanguageSection';
 import UICustomizationSection from '@/components/settings/UICustomizationSection';
@@ -37,6 +38,7 @@ const Settings: React.FC<SettingsProps> = ({ onClose }) => {
           </Button>
         </CardHeader>
         <CardContent className="space-y-6">
+          <GuestVerificationSection />
           <ProfileSection />
           <Separator />
           <MindArchiveSection />
