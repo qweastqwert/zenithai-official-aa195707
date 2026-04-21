@@ -36,7 +36,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
           >
             <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full flex items-center justify-center shadow-xl premium-glow">
               <img 
-                src="/zenith-logo-mark.png"
+                src="/zenith-logo.svg"
                 alt="Zenith AI Logo"
                 className="w-16 h-16 sm:w-20 sm:h-20"
               />
