@@ -10,6 +10,8 @@ import { toast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { useProfile, UserProfile } from '@/hooks/useProfile';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
+import { AlertTriangle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface OnboardingFormProps {
   onComplete: () => void;
@@ -103,6 +105,24 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-6">
+          {typeof window !== 'undefined' && localStorage.getItem('zenith-guest-account') === '1' && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 rounded-xl border-2 border-amber-300 bg-amber-50 p-3 sm:p-4 flex items-start gap-3"
+            >
+              <div className="rounded-full bg-amber-200 p-2 flex-shrink-0">
+                <AlertTriangle className="h-4 w-4 text-amber-700" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-amber-900 text-sm">You're signing up as a Guest</h4>
+                <p className="text-xs text-amber-800/90 mt-1 leading-relaxed">
+                  Unverified guest accounts may be wiped at any time without warning. To save your data permanently,
+                  open <span className="font-semibold">Settings → Verify Account</span> after onboarding and add your email and password.
+                </p>
+              </div>
+            </motion.div>
+          )}
           {step === 1 ? (
             <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="space-y-4 sm:space-y-6">
             <div className="space-y-2">
