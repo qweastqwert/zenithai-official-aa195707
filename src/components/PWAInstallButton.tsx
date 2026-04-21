@@ -87,7 +87,7 @@ const PWAInstallButton = () => {
       className="flex items-center gap-2 bg-white/80 backdrop-blur-sm hover:bg-white/90 border-purple-200 text-purple-700 hover:text-purple-800"
     >
       <img 
-        src="/zenith-logo.svg"
+        src="/zenith-logo-mark.png"
         alt="Zenith AI"
         className="w-4 h-4"
       />
