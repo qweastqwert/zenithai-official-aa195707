@@ -12,11 +12,11 @@ const Header = () => {
     <header className="w-full bg-white/80 backdrop-blur-md fixed top-0 z-50 shadow-sm safe-area-inset-top">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between min-h-[64px]">
         <Link to="/" className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zenith-purple to-zenith-darkpurple flex items-center justify-center">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-zenith-purple to-zenith-darkpurple flex items-center justify-center">
             <img 
               src="/zenith-logo.svg"
               alt="Zenith AI"
-              className="w-6 h-6"
+              className="w-9 h-9 sm:w-11 sm:h-11"
             />
           </div>
           <span className="text-xl sm:text-2xl font-bold text-zenith-darkpurple">Zenith AI</span>
