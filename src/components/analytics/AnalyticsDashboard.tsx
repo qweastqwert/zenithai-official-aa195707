@@ -75,10 +75,7 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className }) =>
       journalUsage: stats.journalUsage,
       moodUsage: stats.moodUsage,
       totalSessions: stats.mindMateUsage + stats.journalUsage + stats.moodUsage,
-      mindMateStreak: (stats as any).mindMateStreak || 0,
-      journalStreak: (stats as any).journalStreak || 0,
-      moodStreak: (stats as any).moodStreak || 0,
-      totalDaysUsed: (stats as any).totalDaysUsed || 0,
+      totalDaysUsed: stats.totalDaysUsed || 0,
     };
   };
 
