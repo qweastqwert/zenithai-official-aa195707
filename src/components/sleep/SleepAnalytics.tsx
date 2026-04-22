@@ -4,11 +4,22 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSleepLogs } from '@/hooks/useSleepLogs';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
+import { Moon, Sun, TrendingUp, Clock, CheckCircle2, Award } from 'lucide-react';
 
 export const SleepAnalytics = () => {
   const { logs } = useSleepLogs();
   const { profile } = useSleepProfile();
+
+  // Compute scheduled sleep duration (hours) from profile sleep_time/wake_time
+  const scheduledDuration = useMemo(() => {
+    if (!profile?.sleep_time || !profile?.wake_time) return null;
+    const [sh, sm] = profile.sleep_time.split(':').map(Number);
+    const [wh, wm] = profile.wake_time.split(':').map(Number);
+    let mins = (wh * 60 + wm) - (sh * 60 + sm);
+    if (mins <= 0) mins += 24 * 60; // wrap past midnight
+    return mins / 60;
+  }, [profile]);
 
   const analytics = useMemo(() => {
     if (!logs.length) return null;
@@ -50,12 +61,31 @@ export const SleepAnalytics = () => {
       }
     }
 
-    // Chart data for last 7 days
+    // Chart data for last 7 days — quality score over time
     const chartData = logs.slice(0, 7).reverse().map(log => ({
       date: new Date(log.date).toLocaleDateString('en-US', { weekday: 'short' }),
-      sleep: log.sleep_confirmed_at ? 1 : 0,
-      quality: log.sleep_quality ? getQualityScore(log.sleep_quality) : 0
+      quality: log.sleep_quality ? getQualityScore(log.sleep_quality) : 0,
+      tracked: log.sleep_confirmed_at ? 1 : 0,
     }));
+
+    // Average quality score (only counting days that have a quality log)
+    const qualityScores = last30Days
+      .filter(l => l.sleep_quality)
+      .map(l => getQualityScore(l.sleep_quality!));
+    const avgQualityScore = qualityScores.length
+      ? qualityScores.reduce((a, b) => a + b, 0) / qualityScores.length
+      : 0;
+
+    // Best & worst day
+    const bestDay = [...last30Days]
+      .filter(l => l.sleep_quality)
+      .sort((a, b) => getQualityScore(b.sleep_quality!) - getQualityScore(a.sleep_quality!))[0];
+    const worstDay = [...last30Days]
+      .filter(l => l.sleep_quality)
+      .sort((a, b) => getQualityScore(a.sleep_quality!) - getQualityScore(b.sleep_quality!))[0];
+
+    // Consistency: % of days where user confirmed sleep within their schedule window
+    const consistency = totalDays > 0 ? Math.round((sleepConfirmedDays / Math.max(totalDays, 7)) * 100) : 0;
 
     return {
       totalDays,
@@ -67,7 +97,11 @@ export const SleepAnalytics = () => {
       currentStreak,
       longestStreak,
       chartData,
-      qualityCounts
+      qualityCounts,
+      avgQualityScore,
+      bestDay,
+      worstDay,
+      consistency,
     };
   }, [logs]);
 
@@ -91,6 +125,48 @@ export const SleepAnalytics = () => {
 
   return (
     <div className="space-y-6">
+      {/* Hero stats row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Clock className="h-3.5 w-3.5" /> Avg Quality
+            </div>
+            <div className="text-2xl font-bold text-primary">
+              {analytics.avgQualityScore ? analytics.avgQualityScore.toFixed(1) : '—'}<span className="text-sm text-muted-foreground">/5</span>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Moon className="h-3.5 w-3.5" /> Scheduled
+            </div>
+            <div className="text-2xl font-bold">
+              {scheduledDuration ? `${scheduledDuration.toFixed(1)}h` : '—'}
+            </div>
+            <div className="text-xs text-muted-foreground">per night</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Consistency
+            </div>
+            <div className="text-2xl font-bold">{analytics.consistency}%</div>
+            <Progress value={analytics.consistency} className="mt-1.5 h-1.5" />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Award className="h-3.5 w-3.5" /> Best Streak
+            </div>
+            <div className="text-2xl font-bold">{analytics.longestStreak}<span className="text-sm text-muted-foreground"> days</span></div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Overview Stats */}
       <div className="grid grid-cols-2 gap-4">
         <Card>
@@ -143,6 +219,42 @@ export const SleepAnalytics = () => {
         </Card>
       </div>
 
+      {/* Best / Worst night */}
+      {(analytics.bestDay || analytics.worstDay) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {analytics.bestDay && (
+            <Card className="border-green-500/30 bg-green-500/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-green-500" /> Best Night
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm capitalize font-medium">{analytics.bestDay.sleep_quality}</div>
+                <div className="text-xs text-muted-foreground">
+                  {new Date(analytics.bestDay.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          {analytics.worstDay && analytics.worstDay !== analytics.bestDay && (
+            <Card className="border-orange-500/30 bg-orange-500/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Sun className="h-4 w-4 text-orange-500" /> Needs Attention
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm capitalize font-medium">{analytics.worstDay.sleep_quality}</div>
+                <div className="text-xs text-muted-foreground">
+                  {new Date(analytics.worstDay.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
       {/* Sleep Quality Distribution */}
       {Object.keys(analytics.qualityCounts).length > 0 && (
         <Card>
@@ -175,24 +287,18 @@ export const SleepAnalytics = () => {
       {/* Last 7 Days Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Last 7 Days</CardTitle>
-          <CardDescription>Sleep tracking and quality over the past week</CardDescription>
+          <CardTitle>Quality Trend (7 days)</CardTitle>
+          <CardDescription>Your sleep quality score over the past week</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={analytics.chartData}>
+            <LineChart data={analytics.chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis domain={[0, 5]} />
-              <Tooltip 
-                formatter={(value, name) => [
-                  name === 'sleep' ? (value ? 'Yes' : 'No') : value,
-                  name === 'sleep' ? 'Sleep Tracked' : 'Quality Score'
-                ]}
-              />
-              <Bar dataKey="sleep" fill="hsl(var(--primary))" name="sleep" />
-              <Bar dataKey="quality" fill="hsl(var(--primary) / 0.6)" name="quality" />
-            </BarChart>
+              <Tooltip />
+              <Line type="monotone" dataKey="quality" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4 }} name="Quality" />
+            </LineChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
