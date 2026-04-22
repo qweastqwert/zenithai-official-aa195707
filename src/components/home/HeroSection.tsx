@@ -34,11 +34,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="mb-6 sm:mb-8"
           >
-            <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-full flex items-center justify-center shadow-xl premium-glow">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mx-auto rounded-full flex items-center justify-center shadow-xl premium-glow">
               <img 
                 src="/zenith-logo.svg"
                 alt="Zenith AI Logo"
-                className="w-16 h-16 sm:w-20 sm:h-20"
+                className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44"
               />
             </div>
           </motion.div>
