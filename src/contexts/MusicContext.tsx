@@ -24,6 +24,7 @@ interface MusicContextType {
   previousSong: () => void;
   playlist: Song[];
   setPlaylist: (songs: Song[]) => void;
+  stopAndClose: () => void;
 }
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
@@ -142,6 +143,18 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     playSong(playlist[prevIndex]);
   };
 
+  const stopAndClose = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current.load();
+    }
+    setIsPlaying(false);
+    setCurrentSong(null);
+    setCurrentTime(0);
+    setDuration(0);
+  };
+
   return (
     <MusicContext.Provider value={{
       currentSong,
@@ -156,7 +169,8 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       nextSong,
       previousSong,
       playlist,
-      setPlaylist
+      setPlaylist,
+      stopAndClose
     }}>
       {children}
     </MusicContext.Provider>
