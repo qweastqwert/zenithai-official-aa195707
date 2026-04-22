@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useSleepLogs } from '@/hooks/useSleepLogs';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Moon, Sun, TrendingUp, Clock, CheckCircle2, Award } from 'lucide-react';
 
 export const SleepAnalytics = () => {
