@@ -808,7 +808,7 @@ const ChatInterface = () => {
                 <motion.img 
                   src="/zenith-logo.svg" 
                   alt="Zenith AI Logo" 
-                  className={`w-12 h-12 md:w-16 md:h-16 cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
+                  className={`w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 object-contain cursor-pointer select-none ${logoSpinning ? 'animate-spin-once' : ''}`}
                   onClick={handleLogoClick}
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.92 }}
