@@ -7,7 +7,6 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, ChevronDown, M
 import { useMusicPlayer } from '@/contexts/MusicContext';
 
 const MusicMinibar: React.FC = () => {
-  const [isHidden, setIsHidden] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   
   const {
@@ -22,7 +21,8 @@ const MusicMinibar: React.FC = () => {
     nextSong,
     previousSong,
     playlist,
-    playSong
+    playSong,
+    stopAndClose
   } = useMusicPlayer();
 
   if (!currentSong) return null;
@@ -50,10 +50,10 @@ const MusicMinibar: React.FC = () => {
   };
 
   const handleClose = () => {
-    if (isPlaying) {
-      togglePlayPause();
-    }
-    setIsHidden(true);
+    // Fully stop playback and clear the current song so audio cannot keep playing
+    // invisibly in the background.
+    stopAndClose();
+    setIsMinimized(false);
   };
 
   const handleMinimize = () => {
@@ -63,9 +63,6 @@ const MusicMinibar: React.FC = () => {
   const handleExpand = () => {
     setIsMinimized(false);
   };
-
-  // Hidden state - completely hidden
-  if (isHidden) return null;
 
   // Minimized state - corner squircle
   if (isMinimized) {

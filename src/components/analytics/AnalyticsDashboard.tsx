@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Calendar, Brain, Activity } from 'lucide-react';
+import { TrendingUp, Calendar, Brain, Activity, Flame, BookOpen, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useJournalSupabase } from '@/hooks/useJournalSupabase';
@@ -74,7 +74,47 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ className }) =>
       mindMateUsage: stats.mindMateUsage,
       journalUsage: stats.journalUsage,
       moodUsage: stats.moodUsage,
-      totalSessions: stats.mindMateUsage + stats.journalUsage + stats.moodUsage
+      totalSessions: stats.mindMateUsage + stats.journalUsage + stats.moodUsage,
+      totalDaysUsed: stats.totalDaysUsed || 0,
+    };
+  };
+
+  // Build a richer breakdown of mood data for the period
+  const getMoodBreakdown = () => {
+    const { start, end } = getDateRange();
+    const periodEntries = moodEntries.filter(e => e.date >= start && e.date <= end);
+    const periodJournals = journalEntries.filter(j => j.date >= start && j.date <= end);
+
+    // Mood positivity score (1-5 mapping)
+    const moodScores: Record<string, number> = {
+      'very-happy': 5, happy: 4, excited: 5, grateful: 5, peaceful: 5, confident: 5,
+      calm: 4, content: 4, energetic: 4, hopeful: 4,
+      neutral: 3,
+      sad: 2, anxious: 2, tired: 2, lonely: 2, worried: 2,
+      'very-sad': 1, stressed: 1, overwhelmed: 1, frustrated: 1,
+    };
+    const scored = periodEntries
+      .map(e => moodScores[e.mood] ?? 3);
+    const avgScore = scored.length ? scored.reduce((a, b) => a + b, 0) / scored.length : 0;
+    const positivePct = scored.length
+      ? Math.round((scored.filter(s => s >= 4).length / scored.length) * 100)
+      : 0;
+    const lowPct = scored.length
+      ? Math.round((scored.filter(s => s <= 2).length / scored.length) * 100)
+      : 0;
+
+    // Unique active days (mood OR journal entry)
+    const uniqueDays = new Set([
+      ...periodEntries.map(e => e.date),
+      ...periodJournals.map(j => j.date),
+    ]).size;
+
+    return {
+      avgScore,
+      positivePct,
+      lowPct,
+      journalCount: periodJournals.length,
+      uniqueDays,
     };
   };
 
@@ -150,6 +190,9 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
 
   const moodAnalytics = getMoodAnalytics();
   const usageAnalytics = getUsageAnalytics();
+  const breakdown = getMoodBreakdown();
+  const periodLabel = timeframe === 'weekly' ? 'this week' : 'this month';
+  const periodDays = timeframe === 'weekly' ? 7 : 30;
 
   if (isMobile) {
     return (
@@ -189,37 +232,47 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
           </div>
 
           {/* Compact horizontal stats */}
-          <div className="flex gap-2 mb-2 overflow-x-auto pb-1">
-            <div className="flex-shrink-0 bg-card rounded-lg px-3 py-2 border border-border min-w-0">
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <div className="bg-card rounded-lg px-3 py-2 border border-border">
               <div className="flex items-center gap-1.5">
-                <Activity className="h-3 w-3 text-green-500" />
-                <span className="text-[10px] text-muted-foreground">Mood</span>
+                <Heart className="h-3 w-3 text-pink-500" />
+                <span className="text-[10px] text-muted-foreground">Avg mood</span>
               </div>
-              <p className="text-xs font-semibold text-foreground mt-0.5">
-                {moodAnalytics.mostCommon 
-                  ? `${moodAnalytics.mostCommon.percentage}% ${moodAnalytics.mostCommon.mood}` 
-                  : 'No data'}
+              <p className="text-xs font-semibold mt-0.5">
+                {breakdown.avgScore ? `${breakdown.avgScore.toFixed(1)}/5` : '—'}
+                <span className="text-[10px] text-muted-foreground ml-1">{breakdown.positivePct}% positive</span>
               </p>
             </div>
-            <div className="flex-shrink-0 bg-card rounded-lg px-3 py-2 border border-border min-w-0">
+            <div className="bg-card rounded-lg px-3 py-2 border border-border">
               <div className="flex items-center gap-1.5">
-                <Brain className="h-3 w-3 text-purple-500" />
-                <span className="text-[10px] text-muted-foreground">AI</span>
+                <Flame className="h-3 w-3 text-orange-500" />
+                <span className="text-[10px] text-muted-foreground">Active days</span>
               </div>
-              <p className="text-xs font-semibold text-foreground mt-0.5">
-                {usageAnalytics.mindMateUsage} sessions
+              <p className="text-xs font-semibold mt-0.5">
+                {breakdown.uniqueDays}/{periodDays}
               </p>
             </div>
-            <div className="flex-shrink-0 bg-card rounded-lg px-3 py-2 border border-border min-w-0">
+            <div className="bg-card rounded-lg px-3 py-2 border border-border">
               <div className="flex items-center gap-1.5">
                 <Calendar className="h-3 w-3 text-blue-500" />
-                <span className="text-[10px] text-muted-foreground">Entries</span>
+                <span className="text-[10px] text-muted-foreground">Mood logs</span>
               </div>
-              <p className="text-xs font-semibold text-foreground mt-0.5">
-                {moodAnalytics.totalEntries} logged
-              </p>
+              <p className="text-xs font-semibold mt-0.5">{moodAnalytics.totalEntries}</p>
+            </div>
+            <div className="bg-card rounded-lg px-3 py-2 border border-border">
+              <div className="flex items-center gap-1.5">
+                <BookOpen className="h-3 w-3 text-indigo-500" />
+                <span className="text-[10px] text-muted-foreground">Journals</span>
+              </div>
+              <p className="text-xs font-semibold mt-0.5">{breakdown.journalCount}</p>
             </div>
           </div>
+
+          {moodAnalytics.mostCommon && (
+            <div className="text-[11px] text-muted-foreground mb-2 px-1">
+              Most common mood: <span className="font-medium text-foreground capitalize">{moodAnalytics.mostCommon.mood}</span> ({moodAnalytics.mostCommon.percentage}%)
+            </div>
+          )}
 
           {/* Compact AI tip */}
           {aiTip && (
@@ -270,44 +323,93 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            {/* Mood Trends */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-2">
-                <Activity className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium">Mood Trends</span>
+              <div className="flex items-center gap-2 mb-1">
+                <Heart className="h-4 w-4 text-pink-500" />
+                <span className="text-xs font-medium text-muted-foreground">Avg Mood</span>
               </div>
-              {moodAnalytics.mostCommon ? (
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  You were <span className="font-semibold text-green-600">{moodAnalytics.mostCommon.percentage}% {moodAnalytics.mostCommon.mood}</span> this {timeframe.replace('ly', '')}
-                </p>
-              ) : (
-                <p className="text-sm text-gray-500">No mood data for this period</p>
-              )}
-            </div>
-
-            {/* Usage Stats */}
-            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-2">
-                <Brain className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium">AI Usage</span>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                <span className="font-semibold text-purple-600">{usageAnalytics.mindMateUsage}</span> AI sessions used
+              <p className="text-xl font-bold">
+                {breakdown.avgScore ? breakdown.avgScore.toFixed(1) : '—'}<span className="text-xs text-muted-foreground">/5</span>
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {breakdown.positivePct}% positive · {breakdown.lowPct}% low
               </p>
             </div>
 
-            {/* Activity Summary */}
             <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium">Activity</span>
+              <div className="flex items-center gap-2 mb-1">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <span className="text-xs font-medium text-muted-foreground">Active days</span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                <span className="font-semibold text-blue-600">{moodAnalytics.totalEntries}</span> mood entries logged
+              <p className="text-xl font-bold">{breakdown.uniqueDays}<span className="text-xs text-muted-foreground"> / {periodDays}</span></p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Total streak: {usageAnalytics.totalDaysUsed}d
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-1">
+                <Calendar className="h-4 w-4 text-blue-500" />
+                <span className="text-xs font-medium text-muted-foreground">Mood logs</span>
+              </div>
+              <p className="text-xl font-bold">{moodAnalytics.totalEntries}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 capitalize">
+                Top: {moodAnalytics.mostCommon ? `${moodAnalytics.mostCommon.mood} (${moodAnalytics.mostCommon.percentage}%)` : '—'}
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-1">
+                <BookOpen className="h-4 w-4 text-indigo-500" />
+                <span className="text-xs font-medium text-muted-foreground">Journals & AI</span>
+              </div>
+              <p className="text-xl font-bold">{breakdown.journalCount}<span className="text-xs text-muted-foreground"> entries</span></p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                {usageAnalytics.mindMateUsage} AI chats
               </p>
             </div>
           </div>
+
+          {/* Mood distribution bar */}
+          {moodAnalytics.totalEntries > 0 && (
+            <div className="mb-4 p-3 bg-white/60 dark:bg-gray-800/40 rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="h-4 w-4 text-green-600" />
+                <span className="text-sm font-medium">Mood Breakdown {periodLabel}</span>
+              </div>
+              <div className="flex h-3 rounded-full overflow-hidden bg-muted">
+                {Object.entries(moodAnalytics.moodCounts)
+                  .sort(([,a], [,b]) => b - a)
+                  .map(([mood, count], i) => {
+                    const pct = (count / moodAnalytics.totalEntries) * 100;
+                    const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500', 'bg-cyan-500'];
+                    return (
+                      <div
+                        key={mood}
+                        className={colors[i % colors.length]}
+                        style={{ width: `${pct}%` }}
+                        title={`${mood}: ${count} (${Math.round(pct)}%)`}
+                      />
+                    );
+                  })}
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground">
+                {Object.entries(moodAnalytics.moodCounts)
+                  .sort(([,a], [,b]) => b - a)
+                  .slice(0, 5)
+                  .map(([mood, count], i) => {
+                    const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500'];
+                    return (
+                      <span key={mood} className="flex items-center gap-1 capitalize">
+                        <span className={`inline-block w-2 h-2 rounded-full ${colors[i]}`} />
+                        {mood} {count}
+                      </span>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
 
           {/* AI Tip */}
           {aiTip && (
