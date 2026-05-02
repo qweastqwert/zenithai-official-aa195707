@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Calendar, Brain, Activity, Flame, BookOpen, Heart } from 'lucide-react';
+import { TrendingUp, Calendar, Brain, Activity, Flame, BookOpen, Heart, Maximize2, Download } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useMoodDataSupabase } from '@/hooks/useMoodDataSupabase';
 import { useJournalSupabase } from '@/hooks/useJournalSupabase';
@@ -207,7 +208,7 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
               <TrendingUp className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">Analytics</h3>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 items-center">
               <button
                 onClick={() => setTimeframe('weekly')}
                 className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${
@@ -228,6 +229,9 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
               >
                 Month
               </button>
+              <Link to="/analytics" aria-label="Open full analytics" className="ml-1 p-1 rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                <Maximize2 className="h-3 w-3" />
+              </Link>
             </div>
           </div>
 
@@ -320,6 +324,11 @@ Reply with ONLY the tip text. No reasoning, no bullet points, no headings, no fo
               >
                 Monthly
               </Button>
+              <Link to="/analytics">
+                <Button variant="outline" size="sm" className="text-xs gap-1" aria-label="Open full analytics">
+                  <Maximize2 className="h-3.5 w-3.5" /> Full view
+                </Button>
+              </Link>
             </div>
           </div>
 

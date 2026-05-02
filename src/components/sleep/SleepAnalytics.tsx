@@ -2,14 +2,22 @@ import React, { useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { useSleepLogs } from '@/hooks/useSleepLogs';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Moon, Sun, TrendingUp, Clock, CheckCircle2, Award } from 'lucide-react';
+import { Moon, Sun, TrendingUp, Clock, CheckCircle2, Award, Maximize2, Download } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
+import { generateSleepReport } from '@/utils/pdfReport';
+import { toast } from 'sonner';
 
 export const SleepAnalytics = () => {
   const { logs } = useSleepLogs();
   const { profile } = useSleepProfile();
+  const { user } = useAuth();
+  const { profile: userProfile } = useProfile();
 
   // Compute scheduled sleep duration (hours) from profile sleep_time/wake_time
   const scheduledDuration = useMemo(() => {
@@ -125,6 +133,51 @@ export const SleepAnalytics = () => {
 
   return (
     <div className="space-y-6">
+      {/* Action bar */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Sleep Analytics</h2>
+          <p className="text-xs text-muted-foreground">Last {analytics.totalDays} nights</p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              try {
+                generateSleepReport({
+                  userName: userProfile?.name || user?.email?.split('@')[0] || 'Friend',
+                  scheduledDuration,
+                  sleepTime: profile?.sleep_time,
+                  wakeTime: profile?.wake_time,
+                  avgQualityScore: analytics.avgQualityScore,
+                  consistency: analytics.consistency,
+                  currentStreak: analytics.currentStreak,
+                  longestStreak: analytics.longestStreak,
+                  trackingRate: analytics.sleepTrackingRate,
+                  qualityLoggingRate: analytics.qualityLoggingRate,
+                  totalDays: analytics.totalDays,
+                  qualityCounts: analytics.qualityCounts,
+                  recentLogs: logs.slice(0, 30).map(l => ({ date: l.date, confirmed: !!l.sleep_confirmed_at, quality: l.sleep_quality })),
+                });
+                toast.success('Sleep report downloaded');
+              } catch (e) {
+                console.error(e);
+                toast.error('Failed to export report');
+              }
+            }}
+            className="gap-1"
+          >
+            <Download className="h-3.5 w-3.5" /> Export PDF
+          </Button>
+          <Link to="/analytics">
+            <Button variant="outline" size="sm" className="gap-1">
+              <Maximize2 className="h-3.5 w-3.5" /> Full view
+            </Button>
+          </Link>
+        </div>
+      </div>
+
       {/* Hero stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
