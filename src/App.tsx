@@ -27,6 +27,7 @@ import SleepTrackingPage from "./pages/SleepTracking";
 import DailySchedulePage from "./pages/DailySchedule";
 import CommunityPage from "./pages/Community";
 import AdminPage from "./pages/Admin";
+import AnalyticsPage from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 import ChatInterface from "./components/ChatInterface";
 import MoodTracker from "./components/MoodTracker";
@@ -148,6 +149,7 @@ const AppContent = () => {
             <Route path="/community" element={<CommunityPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/chat" element={<ChatInterface />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
