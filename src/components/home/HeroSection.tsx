@@ -41,7 +41,6 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
                 className="w-full h-full object-contain"
                 width={256}
                 height={256}
-                fetchPriority="high"
                 decoding="async"
               />
             </div>
