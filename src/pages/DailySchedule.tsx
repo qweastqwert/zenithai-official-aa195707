@@ -5,10 +5,16 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarHeart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { WarmBackground } from '@/components/ui/WarmBackground';
+import SEO from '@/components/SEO';
 
 const DailySchedulePage = () => {
   return (
     <WarmBackground variant="dawn">
+      <SEO
+        title="Daily Schedule — Zenith AI"
+        description="Plan recurring wellness routines, schedule check-ins, and stay consistent with your self-care."
+        path="/daily-schedule"
+      />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

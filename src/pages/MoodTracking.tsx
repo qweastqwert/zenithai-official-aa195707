@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import SEO from '@/components/SEO';
 import MoodSanctuary from '@/components/mood/MoodSanctuary';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,11 @@ const MoodTracking = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
+      <SEO
+        title="Mood Tracking — Zenith AI"
+        description="Log your moods, discover trends and triggers, and build emotional self-awareness with the Mood Sanctuary."
+        path="/mood-tracking"
+      />
       {/* Mobile Header */}
       {isMobile && (
         <div className="flex items-center gap-3 p-4 border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-40">

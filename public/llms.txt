@@ -1,0 +1,23 @@
+# Zenith AI
+
+> AI-powered mental wellness companion with meditation, mood tracking, sleep tracking, journaling, community support, and personalized resources.
+
+Zenith AI ("MindMate") is an empathetic conversational wellness platform for teens and adults. It combines an AI chat companion with structured tools for self-care: guided breathing, soothing music, sleep analytics, mood logging, journaling, and a moderated community.
+
+## Pages
+
+- [Home](/): Overview of Zenith AI and entry to the wellness companion.
+- [MindMate Chat](/chat): AI wellness chat with tool-driven exercises (breathing, grounding, music).
+- [Meditation](/meditation): Guided meditation timer and sessions.
+- [Mood Tracking](/mood-tracking): Log moods, view trends, and reasons.
+- [Resources](/resources): Library of mental wellness articles.
+- [Breathing Exercises](/breathing-exercises): Box, 4-7-8, and other breathing patterns.
+- [Soothing Music](/soothing-music): Curated relaxation tracks.
+- [Sleep Tracking](/sleep-tracking): Sleep schedule, quality logs, and analytics.
+- [Daily Schedule](/daily-schedule): Recurring wellness routines.
+- [Community](/community): Anonymous-friendly peer support forum.
+- [Analytics](/analytics): Full wellness analytics dashboard with PDF export.
+
+## Optional
+
+- [Admin](/admin): Internal moderation console.

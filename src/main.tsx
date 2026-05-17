@@ -4,6 +4,7 @@ import './i18n';
 
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
+import { HelmetProvider } from 'react-helmet-async'
 import '@fontsource/opendyslexic/400.css';
 import './index.css'
 
@@ -12,7 +13,11 @@ const rootElement = document.getElementById("root");
 
 if (rootElement) {
   try {
-    createRoot(rootElement).render(<App />);
+    createRoot(rootElement).render(
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>
+    );
   } catch (error) {
     // Fallback render for very old browsers
     console.error('React 18 createRoot failed, app may not work on this browser:', error);

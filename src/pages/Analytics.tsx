@@ -19,6 +19,7 @@ import { useSleepLogs } from '@/hooks/useSleepLogs';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { generateWellnessReport, generateSleepReport } from '@/utils/pdfReport';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 const MOOD_SCORES: Record<string, number> = {
   'very-happy': 5, happy: 4, excited: 5, grateful: 5, peaceful: 5, confident: 5,
@@ -205,6 +206,11 @@ const AnalyticsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background pb-12">
+      <SEO
+        title="Wellness Analytics — Zenith AI"
+        description="Full wellness analytics: mood trends, sleep quality, activity patterns, and exportable PDF reports."
+        path="/analytics"
+      />
       <div className="container max-w-6xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">

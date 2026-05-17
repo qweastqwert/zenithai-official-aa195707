@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import HeroSection from '@/components/home/HeroSection';
 import PhilosophySection from '@/components/home/PhilosophySection';
 import FeaturesSection from '@/components/home/FeaturesSection';
@@ -22,6 +23,11 @@ const Index = () => {
 
   return (
     <>
+      <SEO
+        title="Zenith AI — Your Mental Wellness Companion"
+        description="AI-powered mental wellness platform with meditation, mood tracking, sleep analytics, journaling, and a supportive community."
+        path="/"
+      />
       <Header />
       <main className="min-h-screen bg-background text-foreground overflow-hidden">
         <HeroSection

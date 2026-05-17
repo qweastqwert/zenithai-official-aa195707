@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Clock, Heart, ThumbsDown, User, Calendar, ArrowLeft, Share2, Bookmark, BookmarkCheck, Eye } from 'lucide-react';
 import { resources } from '@/data/resources';
 import { useToast } from '@/hooks/use-toast';
+import SEO from '@/components/SEO';
 
 const STORAGE_LIKES = 'zenith-article-likes';
 const STORAGE_VOTED = 'zenith-voted-resources';
@@ -199,6 +200,23 @@ const ArticleView = () => {
 
   return (
     <>
+      <SEO
+        title={`${article.title} — Zenith AI`}
+        description={article.description}
+        path={`/article/${article.id}`}
+        type="article"
+        image={article.image}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: article.title,
+          description: article.description,
+          image: article.image,
+          author: { '@type': 'Organization', name: article.author },
+          datePublished: article.publishedAt,
+          mainEntityOfPage: `https://zenithai-official.lovable.app/article/${article.id}`,
+        }}
+      />
       <Header />
       <main className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-b from-background via-background to-muted/30">
         <div className="container mx-auto max-w-4xl">
