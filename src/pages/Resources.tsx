@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SEO from '@/components/SEO';
 import ResourceCard from '@/components/ResourceCard';
 import { resources, categories } from '@/data/resources';
 import { Input } from '@/components/ui/input';
