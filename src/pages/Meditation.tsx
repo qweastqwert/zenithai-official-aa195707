@@ -31,6 +31,11 @@ const guidedMeditations = [
 const MeditationPage = () => {
   return (
     <>
+      <SEO
+        title="Meditation — Zenith AI"
+        description="Guided meditation timer with breath awareness, body scan, and loving-kindness practices to calm the mind."
+        path="/meditation"
+      />
       <Header />
       <main className="min-h-screen pt-24 pb-16 px-4">
         <div className="container mx-auto">
