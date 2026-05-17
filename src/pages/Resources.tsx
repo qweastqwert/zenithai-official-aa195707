@@ -37,6 +37,11 @@ const ResourcesPage = () => {
   
   return (
     <>
+      <SEO
+        title="Mental Wellness Resources — Zenith AI"
+        description="Browse a curated library of mental wellness articles on anxiety, sleep, mindfulness, stress, and self-care."
+        path="/resources"
+      />
       <Header />
       <main className="min-h-screen pt-20 pb-16 px-3 sm:px-4 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto max-w-6xl">

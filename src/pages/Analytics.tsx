@@ -19,6 +19,7 @@ import { useSleepLogs } from '@/hooks/useSleepLogs';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { generateWellnessReport, generateSleepReport } from '@/utils/pdfReport';
 import { toast } from 'sonner';
+import SEO from '@/components/SEO';
 
 const MOOD_SCORES: Record<string, number> = {
   'very-happy': 5, happy: 4, excited: 5, grateful: 5, peaceful: 5, confident: 5,
