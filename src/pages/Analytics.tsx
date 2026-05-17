@@ -206,6 +206,11 @@ const AnalyticsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-background pb-12">
+      <SEO
+        title="Wellness Analytics — Zenith AI"
+        description="Full wellness analytics: mood trends, sleep quality, activity patterns, and exportable PDF reports."
+        path="/analytics"
+      />
       <div className="container max-w-6xl mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
