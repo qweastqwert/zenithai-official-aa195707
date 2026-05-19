@@ -9,7 +9,10 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="w-full bg-white/80 backdrop-blur-md fixed top-0 z-50 shadow-sm safe-area-inset-top">
+    <header
+      className="w-full bg-white/80 backdrop-blur-md fixed z-50 shadow-sm safe-area-inset-top"
+      style={{ top: 'var(--kao-banner-h, 0px)' }}
+    >
       <div className="container mx-auto px-4 py-3 flex items-center justify-between min-h-[64px]">
         <Link to="/" className="flex items-center space-x-3">
           <img
