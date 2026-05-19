@@ -43,6 +43,36 @@
   <body>
     <div id="root"></div>
     <script src="https://keepandroidopen.org/banner.js"></script>
+    <script>
+      // Expose the keepandroidopen banner height as a CSS variable so fixed
+      // top-anchored UI (header, toasts) can offset itself below the banner.
+      (function () {
+        var root = document.documentElement;
+        function setVar(px) {
+          root.style.setProperty('--kao-banner-h', (px || 0) + 'px');
+        }
+        setVar(0);
+        function track() {
+          var el = document.querySelector('.kao-banner');
+          if (!el) { setVar(0); return; }
+          var update = function () {
+            setVar(el.offsetParent === null ? 0 : el.getBoundingClientRect().height);
+          };
+          update();
+          if (window.ResizeObserver) {
+            new ResizeObserver(update).observe(el);
+          }
+          window.addEventListener('resize', update);
+          // Re-check after dismiss (banner sets display:none)
+          new MutationObserver(update).observe(el, { attributes: true, attributeFilter: ['style'] });
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () { setTimeout(track, 0); });
+        } else {
+          setTimeout(track, 0);
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     <script>
       // Register service worker for PWA offline functionality
