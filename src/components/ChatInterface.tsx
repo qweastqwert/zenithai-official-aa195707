@@ -498,7 +498,7 @@ const ChatInterface = () => {
   // Main Menu - Mobile View
   if (useMobileInterface) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-zenith-softpurple to-white dark:from-gray-900 dark:to-gray-800 overflow-hidden">
+      <div className="min-h-screen bg-sunrise-warm overflow-hidden">
         <AnimatePresence mode="wait">
           {showIntro ? (
             <motion.div 
@@ -758,7 +758,7 @@ const ChatInterface = () => {
 
   // Main Menu - Desktop View
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-zenith-softpurple to-white dark:from-gray-900 dark:to-gray-800 p-2 md:p-4 overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-sunrise-warm p-2 md:p-4 overflow-hidden">
       <AnimatePresence mode="wait">
         {showIntro ? (
           <motion.div 
