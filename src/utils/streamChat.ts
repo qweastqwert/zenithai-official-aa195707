@@ -28,13 +28,35 @@ export async function streamChat({ functionName, body, onDelta, onDone, onError,
     });
 
     if (!resp.ok || !resp.body) {
-      // Try to parse error JSON
-      const errorText = await resp.text();
+      // Edge function may return SSE even on error; try both JSON and SSE.
+      const contentType = resp.headers.get('content-type') || '';
+      const errorText = resp.body ? await resp.text() : '';
+      if (contentType.includes('text/event-stream') && errorText) {
+        // Parse SSE manually to recover the fallback reply text
+        let recovered = '';
+        for (let line of errorText.split('\n')) {
+          if (line.endsWith('\r')) line = line.slice(0, -1);
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (!payload || payload === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(payload);
+            const c = parsed.choices?.[0]?.delta?.content;
+            if (c) recovered += c;
+          } catch { /* ignore */ }
+        }
+        if (recovered) {
+          onDelta(recovered);
+          onDone({});
+          return;
+        }
+      }
       try {
         const errorJson = JSON.parse(errorText);
-        throw new Error(errorJson.reply || errorJson.error || `Stream failed: ${resp.status}`);
-      } catch {
-        throw new Error(`Stream failed: ${resp.status}`);
+        throw new Error(errorJson.reply || errorJson.error || `Request failed (${resp.status})`);
+      } catch (parseErr) {
+        if (parseErr instanceof Error && parseErr.message.startsWith('Request failed')) throw parseErr;
+        throw new Error(`We couldn't reach MindMate (status ${resp.status}). Please check your connection and try again.`);
       }
     }
 
