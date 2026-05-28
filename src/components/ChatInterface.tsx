@@ -893,7 +893,7 @@ const ChatInterface = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Card 
-                  className="bg-white dark:bg-gray-800 border-none shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation border-gray-200 dark:border-gray-700"
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none lively-card cursor-pointer touch-manipulation rounded-2xl"
                   onClick={() => handleNavigation('mindmate')}
                 >
                   <CardContent className="p-4 md:p-6 flex flex-col items-center">
@@ -920,7 +920,7 @@ const ChatInterface = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Card 
-                  className="bg-white dark:bg-gray-800 border-none shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation border-gray-200 dark:border-gray-700"
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none lively-card cursor-pointer touch-manipulation rounded-2xl"
                   onClick={() => handleNavigation('characters')}
                 >
                   <CardContent className="p-4 md:p-6 flex flex-col items-center">
@@ -941,7 +941,7 @@ const ChatInterface = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Card 
-                  className="bg-white dark:bg-gray-800 border-none shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation border-gray-200 dark:border-gray-700"
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none lively-card cursor-pointer touch-manipulation rounded-2xl"
                   onClick={() => handleNavigation('journal')}
                 >
                   <CardContent className="p-4 md:p-6 flex flex-col items-center">
@@ -962,7 +962,7 @@ const ChatInterface = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Card 
-                  className="bg-white dark:bg-gray-800 border-none shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation border-gray-200 dark:border-gray-700"
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none lively-card cursor-pointer touch-manipulation rounded-2xl"
                   onClick={() => handleNavigation('meditation')}
                 >
                   <CardContent className="p-4 md:p-6 flex flex-col items-center">
@@ -983,7 +983,7 @@ const ChatInterface = () => {
                 transition={{ duration: 0.2 }}
               >
                 <Card 
-                  className="bg-white dark:bg-gray-800 border-none shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer touch-manipulation border-gray-200 dark:border-gray-700"
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none lively-card cursor-pointer touch-manipulation rounded-2xl"
                   onClick={() => handleNavigation('mood')}
                 >
                   <CardContent className="p-4 md:p-6 flex flex-col items-center">
