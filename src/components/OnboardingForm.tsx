@@ -91,7 +91,7 @@ const OnboardingForm = ({ onComplete }: OnboardingFormProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-zenith-softpurple to-white p-2 sm:p-4">
+    <div className="min-h-screen flex items-center justify-center bg-sunrise-warm p-2 sm:p-4">
       <Card className="w-full max-w-2xl mx-2 sm:mx-4 border-0 shadow-lg bg-white/95 backdrop-blur-sm">
         <CardHeader className="text-center pb-4 sm:pb-6">
           <CardTitle className="text-2xl sm:text-3xl font-bold text-zenith-darkpurple mb-2">

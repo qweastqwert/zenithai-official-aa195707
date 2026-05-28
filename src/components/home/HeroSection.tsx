@@ -13,7 +13,7 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures, parallaxOffset }) => {
   return (
-    <section className="relative pt-20 sm:pt-24 pb-12 sm:pb-20 px-3 sm:px-4 min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="bg-sunrise-warm relative pt-20 sm:pt-24 pb-12 sm:pb-20 px-3 sm:px-4 min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated CSS Background */}
       <div 
         className="absolute inset-0 z-0 pointer-events-none"

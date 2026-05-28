@@ -18,6 +18,14 @@ const config: Config = {
         "2xl": "1400px",
       },
     },
+    screens: {
+      xs: "375px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
     extend: {
       fontFamily: {
         'inter': ['Inter', 'sans-serif'],
@@ -75,6 +83,12 @@ const config: Config = {
           softgray: '#F9FAFB',
           pink: '#EC4899',
           softpink: '#FCE7F3',
+        },
+        warm: {
+          peach: '#FFD6A5',
+          blush: '#FFADAD',
+          cream: '#FFF4E6',
+          lavender: '#A78BFA',
         },
       },
       borderRadius: {
