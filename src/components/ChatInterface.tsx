@@ -424,7 +424,7 @@ const ChatInterface = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="min-h-screen bg-gradient-to-b from-zenith-softpurple to-white dark:from-gray-900 dark:to-gray-800"
+            className="min-h-screen bg-sunrise-warm"
           >
             <MobileHeader
               title="Meditation Center"
@@ -467,7 +467,7 @@ const ChatInterface = () => {
               onNavigate={handleNavigation}
               onSettings={() => setShowSettings(true)}
             />
-            <div className="ml-16 md:ml-20 min-h-screen bg-gradient-to-b from-zenith-softpurple to-white dark:from-gray-900 dark:to-gray-800">
+            <div className="ml-16 md:ml-20 min-h-screen bg-sunrise-warm">
               <div className="p-4 border-b bg-white dark:bg-gray-800">
                 <Button
                   onClick={() => setActiveChatbot(null)}
