@@ -29,7 +29,7 @@ const Index = () => {
         path="/"
       />
       <Header />
-      <main className="min-h-screen bg-background text-foreground overflow-hidden">
+      <main className="min-h-screen text-foreground overflow-hidden">
         <HeroSection
           showFeatures={showFeatures}
           setShowFeatures={setShowFeatures}
