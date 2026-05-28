@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, ArrowLeft, MoreVertical, Brain, X } from 'lucide-react';
+import { Send, ArrowLeft, MoreVertical, Brain, X, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +24,7 @@ import AffirmationWidget from '@/components/widgets/AffirmationWidget';
 import ProgressiveMuscleWidget from '@/components/widgets/ProgressiveMuscleWidget';
 import FormattedMessage from '@/components/chat/FormattedMessage';
 import { ScheduleConfirmDialog } from '@/components/schedule/ScheduleConfirmDialog';
+import VoiceMode from '@/components/mindmate/VoiceMode';
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
 Stress is the body and mind's response to any demand or challenge, whether physical, mental, emotional, or environmental. While stress often gets a negative reputation, it's important to recognize it as a natural part of being human. In moderation, stress can motivate us, enhance performance, and help us meet goals (what researchers call eustress). However, when stress becomes intense, chronic, or overwhelming, it can severely impact physical health, emotional wellbeing, cognitive functioning, and overall quality of life.
