@@ -1473,7 +1473,7 @@ Customize your therapeutic approach based on this information while maintaining 
             style={isDeepThinkEnabled ? { paddingLeft: '140px' } : {}}
           />
           <Button 
-            onClick={handleSend}
+            onClick={() => handleSend()}
             disabled={isLoading || !input.trim()}
             style={{ backgroundColor: 'var(--zenith-primary)' }}
           >
