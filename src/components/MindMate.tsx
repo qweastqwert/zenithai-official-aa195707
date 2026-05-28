@@ -1352,6 +1352,14 @@ Customize your therapeutic approach based on this information while maintaining 
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button
+          variant="ghost"
+          className="text-white hover:bg-black/20 p-2 ml-1"
+          aria-label="Start voice mode"
+          onClick={() => setVoiceMode(true)}
+        >
+          <Phone className="h-5 w-5" />
+        </Button>
       </div>
       
       {/* Chat Messages Area - with padding for music minibar */}
