@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, ArrowLeft, MoreVertical, Brain, X } from 'lucide-react';
+import { Send, ArrowLeft, MoreVertical, Brain, X, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +24,7 @@ import AffirmationWidget from '@/components/widgets/AffirmationWidget';
 import ProgressiveMuscleWidget from '@/components/widgets/ProgressiveMuscleWidget';
 import FormattedMessage from '@/components/chat/FormattedMessage';
 import { ScheduleConfirmDialog } from '@/components/schedule/ScheduleConfirmDialog';
+import VoiceMode from '@/components/mindmate/VoiceMode';
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
 Stress is the body and mind's response to any demand or challenge, whether physical, mental, emotional, or environmental. While stress often gets a negative reputation, it's important to recognize it as a natural part of being human. In moderation, stress can motivate us, enhance performance, and help us meet goals (what researchers call eustress). However, when stress becomes intense, chronic, or overwhelming, it can severely impact physical health, emotional wellbeing, cognitive functioning, and overall quality of life.
@@ -1005,6 +1006,8 @@ const MindMate = ({ profile, initialPrompt, onBack }: MindMateProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [scheduleProposals, setScheduleProposals] = useState<any[] | null>(null);
   const [scheduleDate, setScheduleDate] = useState<string | undefined>();
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [lastAssistantSpoken, setLastAssistantSpoken] = useState('');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1166,14 +1169,15 @@ Customize your therapeutic approach based on this information while maintaining 
     return baseInstruction;
   };
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    
+  const handleSend = async (overrideText?: string) => {
+    const textToSend = (overrideText ?? input).trim();
+    if (!textToSend) return;
+
     const userMessageId = `user-${Date.now()}`;
-    const userMessage: Message = { role: 'user', content: input, id: userMessageId };
+    const userMessage: Message = { role: 'user', content: textToSend, id: userMessageId };
     const currentMessages = [...messages];
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    if (!overrideText) setInput('');
     setIsLoading(true);
 
     const assistantMessageId = `assistant-${Date.now()}`;
@@ -1214,6 +1218,7 @@ Customize your therapeutic approach based on this information while maintaining 
         setMessages((prev) =>
           prev.map((m) => m.id === assistantMessageId ? { ...m, content: finalContent } : m)
         );
+        if (finalContent) setLastAssistantSpoken(finalContent);
         // Render widgets from streamed tool calls
         if (meta?.toolCalls && Array.isArray(meta.toolCalls)) {
           meta.toolCalls.forEach((toolCall: any, index: number) => {
@@ -1286,15 +1291,16 @@ Customize your therapeutic approach based on this information while maintaining 
       }
     } catch (error) {
       console.error('Fallback error:', error);
+      const msg = error instanceof Error ? error.message : 'I had trouble reaching MindMate.';
       setMessages((prev) =>
         prev.map((m) => m.id === assistantMessageId
-          ? { ...m, content: 'I apologize, but I had trouble generating a response. Please try again.' }
+          ? { ...m, content: `⚠️ ${msg}\n\nTap send to retry, or check your internet connection.` }
           : m
         )
       );
       toast({
-        title: "Error",
-        description: "Failed to get a response. Please try again.",
+        title: "Connection issue",
+        description: msg,
         variant: "destructive",
       });
     } finally {
@@ -1346,6 +1352,14 @@ Customize your therapeutic approach based on this information while maintaining 
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button
+          variant="ghost"
+          className="text-white hover:bg-black/20 p-2 ml-1"
+          aria-label="Start voice mode"
+          onClick={() => setVoiceMode(true)}
+        >
+          <Phone className="h-5 w-5" />
+        </Button>
       </div>
       
       {/* Chat Messages Area - with padding for music minibar */}
@@ -1467,7 +1481,7 @@ Customize your therapeutic approach based on this information while maintaining 
             style={isDeepThinkEnabled ? { paddingLeft: '140px' } : {}}
           />
           <Button 
-            onClick={handleSend}
+            onClick={() => handleSend()}
             disabled={isLoading || !input.trim()}
             style={{ backgroundColor: 'var(--zenith-primary)' }}
           >
@@ -1487,6 +1501,13 @@ Customize your therapeutic approach based on this information while maintaining 
           date={scheduleDate}
         />
       )}
+      <VoiceMode
+        open={voiceMode}
+        onClose={() => setVoiceMode(false)}
+        isAssistantThinking={isLoading}
+        lastAssistantMessage={lastAssistantSpoken}
+        onUserUtterance={(text) => handleSend(text)}
+      />
     </div>
   );
 };

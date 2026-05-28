@@ -16,6 +16,9 @@ import { MusicProvider } from "@/contexts/MusicContext";
 import MusicMinibar from "@/components/MusicMinibar";
 import AchievementNotification from "@/components/achievements/AchievementNotification";
 import PWAInstallDialog from "@/components/PWAInstallDialog";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import ErrorReportPanel from "@/components/ErrorReportPanel";
+import { installGlobalErrorHandlers } from "@/utils/errorReporter";
 import Index from "./pages/Index";
 import MeditationPage from "./pages/Meditation";
 import MoodTrackingPage from "./pages/MoodTracking";
@@ -38,6 +41,9 @@ import AccessibilityWidget from "./components/accessibility/AccessibilityWidget"
 import OnboardingForm from "./components/OnboardingForm";
 
 const queryClient = new QueryClient();
+
+// Install once at module load so errors during boot are captured
+installGlobalErrorHandlers();
 
 const AppContent = () => {
   // Initialize theme and UI customization
@@ -158,6 +164,7 @@ const AppContent = () => {
       <MusicMinibar />
       <AccessibilityWidget />
       <PWAInstallDialog />
+      <ErrorReportPanel />
 
       {/* Achievement Notification */}
       <AchievementNotification 
@@ -181,15 +188,17 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <MusicProvider>
-        <Toaster />
-        <Sonner />
-        <AppContent />
-      </MusicProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <MusicProvider>
+          <Toaster />
+          <Sonner />
+          <AppContent />
+        </MusicProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
