@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Bug, Copy, Trash2, X } from 'lucide-react';
+import { Bug, Copy, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   ErrorReport,
