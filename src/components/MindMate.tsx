@@ -1006,6 +1006,8 @@ const MindMate = ({ profile, initialPrompt, onBack }: MindMateProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [scheduleProposals, setScheduleProposals] = useState<any[] | null>(null);
   const [scheduleDate, setScheduleDate] = useState<string | undefined>();
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [lastAssistantSpoken, setLastAssistantSpoken] = useState('');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
