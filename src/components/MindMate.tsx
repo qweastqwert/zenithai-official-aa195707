@@ -1286,15 +1286,16 @@ Customize your therapeutic approach based on this information while maintaining 
       }
     } catch (error) {
       console.error('Fallback error:', error);
+      const msg = error instanceof Error ? error.message : 'I had trouble reaching MindMate.';
       setMessages((prev) =>
         prev.map((m) => m.id === assistantMessageId
-          ? { ...m, content: 'I apologize, but I had trouble generating a response. Please try again.' }
+          ? { ...m, content: `⚠️ ${msg}\n\nTap send to retry, or check your internet connection.` }
           : m
         )
       );
       toast({
-        title: "Error",
-        description: "Failed to get a response. Please try again.",
+        title: "Connection issue",
+        description: msg,
         variant: "destructive",
       });
     } finally {
