@@ -1169,14 +1169,15 @@ Customize your therapeutic approach based on this information while maintaining 
     return baseInstruction;
   };
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    
+  const handleSend = async (overrideText?: string) => {
+    const textToSend = (overrideText ?? input).trim();
+    if (!textToSend) return;
+
     const userMessageId = `user-${Date.now()}`;
-    const userMessage: Message = { role: 'user', content: input, id: userMessageId };
+    const userMessage: Message = { role: 'user', content: textToSend, id: userMessageId };
     const currentMessages = [...messages];
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    if (!overrideText) setInput('');
     setIsLoading(true);
 
     const assistantMessageId = `assistant-${Date.now()}`;
@@ -1217,6 +1218,7 @@ Customize your therapeutic approach based on this information while maintaining 
         setMessages((prev) =>
           prev.map((m) => m.id === assistantMessageId ? { ...m, content: finalContent } : m)
         );
+        if (finalContent) setLastAssistantSpoken(finalContent);
         // Render widgets from streamed tool calls
         if (meta?.toolCalls && Array.isArray(meta.toolCalls)) {
           meta.toolCalls.forEach((toolCall: any, index: number) => {
