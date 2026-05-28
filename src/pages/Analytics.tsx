@@ -205,7 +205,7 @@ const AnalyticsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-12">
+    <div className="min-h-screen bg-sunrise-warm pb-12">
       <SEO
         title="Wellness Analytics — Zenith AI"
         description="Full wellness analytics: mood trends, sleep quality, activity patterns, and exportable PDF reports."

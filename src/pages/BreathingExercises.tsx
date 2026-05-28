@@ -8,7 +8,7 @@ import SEO from '@/components/SEO';
 
 const BreathingExercisesPage = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-sunrise-warm">
       <SEO
         title="Breathing Exercises — Zenith AI"
         description="Guided box breathing, 4-7-8, and calming patterns to reduce stress and regulate your nervous system."

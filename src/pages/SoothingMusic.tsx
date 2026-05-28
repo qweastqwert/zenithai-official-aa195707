@@ -28,7 +28,7 @@ const SoothingMusicPage = () => {
         path="/soothing-music"
       />
       <Header />
-      <main className="min-h-screen pt-24 pb-16 px-4">
+      <main className="min-h-screen pt-24 pb-16 px-4 bg-sunrise-warm">
         <div className="container mx-auto max-w-6xl">
           <SoothingMusic suggestedSong={suggestedSong} />
         </div>

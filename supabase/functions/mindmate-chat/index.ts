@@ -151,6 +151,60 @@ serve(async (req) => {
       ? `\n\nUSER'S SLEEP SCHEDULE: Bedtime ${sleepProfile.sleep_time}, Wake time ${sleepProfile.wake_time}`
       : '';
 
+    // Fetch recent sleep logs (last 7 days) for trend awareness
+    const { data: sleepLogs } = await supabaseClient
+      .from('sleep_logs')
+      .select('date, sleep_quality, sleep_confirmed_at, wake_response_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(7);
+
+    let sleepHistoryContext = '';
+    if (sleepLogs && sleepLogs.length > 0) {
+      const qualities = sleepLogs.filter(l => l.sleep_quality).map(l => l.sleep_quality as string);
+      const goodNights = qualities.filter(q => q === 'good' || q === 'great').length;
+      sleepHistoryContext = `\n\nUSER'S SLEEP HISTORY (last ${sleepLogs.length} nights):\n${sleepLogs.map(l => `- ${l.date}: ${l.sleep_quality || 'not rated'}`).join('\n')}\nSleep quality summary: ${goodNights}/${qualities.length} nights rated good or great.`;
+    }
+
+    // Fetch recent journal entries (last 5) for emotional pattern awareness
+    const { data: journalEntries } = await supabaseClient
+      .from('journal_entries')
+      .select('date, mood, content')
+      .eq('user_id', user.id)
+      .order('timestamp', { ascending: false })
+      .limit(5);
+
+    const journalContext = journalEntries && journalEntries.length > 0
+      ? `\n\nUSER'S RECENT JOURNAL ENTRIES (private — handle with care, do not quote verbatim unless they bring it up):\n${journalEntries.map(j => `- ${j.date} (${j.mood}): ${j.content.slice(0, 200)}${j.content.length > 200 ? '…' : ''}`).join('\n')}`
+      : '';
+
+    // Fetch upcoming recurring events for routine awareness
+    const { data: recurringEvents } = await supabaseClient
+      .from('recurring_events')
+      .select('title, start_time, end_time, category, recurrence_type')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .limit(20);
+
+    const recurringContext = recurringEvents && recurringEvents.length > 0
+      ? `\n\nUSER'S RECURRING ROUTINES:\n${recurringEvents.map(r => `- ${r.title} at ${r.start_time}${r.end_time ? `-${r.end_time}` : ''} [${r.category}, ${r.recurrence_type}]`).join('\n')}`
+      : '';
+
+    // Compute lightweight analytics from the data we already pulled
+    let analyticsContext = '';
+    if (moodEntries && moodEntries.length > 0) {
+      const moodCounts: Record<string, number> = {};
+      moodEntries.forEach(m => { moodCounts[m.mood] = (moodCounts[m.mood] || 0) + 1; });
+      const topMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0];
+      analyticsContext += `\n\nUSER'S WELLNESS ANALYTICS:\n- Most frequent recent mood: ${topMood[0]} (${topMood[1]}/${moodEntries.length} entries)`;
+      if (journalEntries && journalEntries.length > 0) {
+        analyticsContext += `\n- Journaled ${journalEntries.length} times recently`;
+      }
+      if (sleepLogs && sleepLogs.length > 0) {
+        analyticsContext += `\n- Logged sleep ${sleepLogs.length} of last 7 nights`;
+      }
+    }
+
     // Fetch user profile for onboarding info
     const { data: userProfile } = await supabaseClient
       .from('profiles')
@@ -179,7 +233,7 @@ serve(async (req) => {
     }
 
     // Append all context to the system instruction
-    systemInstruction += memoryContext + moodContext + scheduleContext + sleepContext + profileContext;
+    systemInstruction += memoryContext + moodContext + scheduleContext + sleepContext + sleepHistoryContext + journalContext + recurringContext + analyticsContext + profileContext;
 
     // Add tool instructions and safety rules to system instruction
     systemInstruction += `

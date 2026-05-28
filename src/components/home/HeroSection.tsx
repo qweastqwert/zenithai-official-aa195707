@@ -34,7 +34,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="mb-6 sm:mb-8"
           >
-            <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 mx-auto flex items-center justify-center premium-glow">
+            <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-64 md:h-64 mx-auto flex items-center justify-center premium-glow animate-soft-breathe">
               <img 
                 src="/zenith-logo.svg"
                 alt="Zenith AI Logo"
@@ -84,7 +84,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ showFeatures, setShowFeatures
           >
             <Button 
               asChild 
-              className="zenith-button-primary text-base sm:text-lg font-semibold px-8 sm:px-10 py-5 sm:py-6 shadow-xl w-full sm:w-auto min-h-[52px]"
+              className="zenith-button-primary soft-glow text-base sm:text-lg font-semibold px-8 sm:px-10 py-5 sm:py-6 w-full sm:w-auto min-h-[52px]"
               onClick={() => setShowFeatures(true)}
             >
               <Link to="/chat">

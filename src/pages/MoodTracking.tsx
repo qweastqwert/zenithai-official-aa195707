@@ -36,7 +36,7 @@ const MoodTracking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-pink-900/20">
+    <div className="min-h-screen bg-sunrise-warm">
       <SEO
         title="Mood Tracking — Zenith AI"
         description="Log your moods, discover trends and triggers, and build emotional self-awareness with the Mood Sanctuary."
