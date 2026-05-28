@@ -1501,6 +1501,13 @@ Customize your therapeutic approach based on this information while maintaining 
           date={scheduleDate}
         />
       )}
+      <VoiceMode
+        open={voiceMode}
+        onClose={() => setVoiceMode(false)}
+        isAssistantThinking={isLoading}
+        lastAssistantMessage={lastAssistantSpoken}
+        onUserUtterance={(text) => handleSend(text)}
+      />
     </div>
   );
 };
