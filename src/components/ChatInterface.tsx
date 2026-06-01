@@ -30,6 +30,7 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useMoodPromptFrequency } from '@/hooks/useMoodPromptFrequency';
 import { useSyncData } from '@/hooks/useSyncData';
 import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
+import SmartRecommendations from '@/components/home/SmartRecommendations';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
