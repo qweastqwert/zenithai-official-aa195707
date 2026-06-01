@@ -48,7 +48,7 @@ export const useMoodDataSupabase = () => {
     }
   };
 
-  const addEntry = async (mood: string, reason: string = '') => {
+  const addEntry = async (mood: string, reason: string = '', contextTags: string[] = []) => {
     if (!user) return;
 
     const now = new Date();
@@ -63,7 +63,8 @@ export const useMoodDataSupabase = () => {
         time,
         mood,
         reason,
-        timestamp
+        timestamp,
+        context_tags: contextTags,
       };
 
       const { data, error } = await supabase
