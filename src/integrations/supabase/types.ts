@@ -469,6 +469,7 @@ export type Database = {
       }
       mood_entries: {
         Row: {
+          context_tags: string[]
           created_at: string
           date: string
           id: string
@@ -480,6 +481,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          context_tags?: string[]
           created_at?: string
           date: string
           id?: string
@@ -491,6 +493,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          context_tags?: string[]
           created_at?: string
           date?: string
           id?: string
@@ -544,6 +547,7 @@ export type Database = {
           admin_notes: string | null
           confirmation_phrase: string
           created_at: string
+          expires_at: string
           id: string
           reason: string
           reviewed_at: string | null
@@ -558,6 +562,7 @@ export type Database = {
           admin_notes?: string | null
           confirmation_phrase: string
           created_at?: string
+          expires_at?: string
           id?: string
           reason: string
           reviewed_at?: string | null
@@ -572,6 +577,7 @@ export type Database = {
           admin_notes?: string | null
           confirmation_phrase?: string
           created_at?: string
+          expires_at?: string
           id?: string
           reason?: string
           reviewed_at?: string | null
@@ -628,6 +634,8 @@ export type Database = {
           age: string
           age_number: number | null
           created_at: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
           gender: string
           hobbies: string | null
           id: string
@@ -642,6 +650,8 @@ export type Database = {
           age: string
           age_number?: number | null
           created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           gender: string
           hobbies?: string | null
           id?: string
@@ -656,6 +666,8 @@ export type Database = {
           age?: string
           age_number?: number | null
           created_at?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
           gender?: string
           hobbies?: string | null
           id?: string
