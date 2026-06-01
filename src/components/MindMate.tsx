@@ -25,6 +25,8 @@ import ProgressiveMuscleWidget from '@/components/widgets/ProgressiveMuscleWidge
 import FormattedMessage from '@/components/chat/FormattedMessage';
 import { ScheduleConfirmDialog } from '@/components/schedule/ScheduleConfirmDialog';
 import VoiceMode from '@/components/mindmate/VoiceMode';
+import { detectCrisis } from '@/utils/crisisDetection';
+import CrisisHelpCard from '@/components/safety/CrisisHelpCard';
 // MindMate Knowledge Base
 const MINDMATE_KNOWLEDGE = `STRESS – MindMate Knowledge Base
 Stress is the body and mind's response to any demand or challenge, whether physical, mental, emotional, or environmental. While stress often gets a negative reputation, it's important to recognize it as a natural part of being human. In moderation, stress can motivate us, enhance performance, and help us meet goals (what researchers call eustress). However, when stress becomes intense, chronic, or overwhelming, it can severely impact physical health, emotional wellbeing, cognitive functioning, and overall quality of life.
@@ -1008,6 +1010,7 @@ const MindMate = ({ profile, initialPrompt, onBack }: MindMateProps) => {
   const [scheduleDate, setScheduleDate] = useState<string | undefined>();
   const [voiceMode, setVoiceMode] = useState(false);
   const [lastAssistantSpoken, setLastAssistantSpoken] = useState('');
+  const [crisisDetected, setCrisisDetected] = useState(false);
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -1172,6 +1175,11 @@ Customize your therapeutic approach based on this information while maintaining 
   const handleSend = async (overrideText?: string) => {
     const textToSend = (overrideText ?? input).trim();
     if (!textToSend) return;
+
+    // Surface a gentle helpline card if the user's message contains crisis language.
+    if (detectCrisis(textToSend).triggered) {
+      setCrisisDetected(true);
+    }
 
     const userMessageId = `user-${Date.now()}`;
     const userMessage: Message = { role: 'user', content: textToSend, id: userMessageId };
@@ -1451,6 +1459,11 @@ Customize your therapeutic approach based on this information while maintaining 
       
       {/* Input Area - with padding for music minibar */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pb-24">
+        {crisisDetected && (
+          <div className="mb-3">
+            <CrisisHelpCard compact onDismiss={() => setCrisisDetected(false)} />
+          </div>
+        )}
         <div className="flex gap-2 relative">
           {/* DeepThink indicator */}
           {isDeepThinkEnabled && (
