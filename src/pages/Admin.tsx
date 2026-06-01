@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/hooks/useAuth';
-import { Loader2, Shield, Users, FileCheck, BarChart3, MessageSquare, Activity, Settings as SettingsIcon, Flag } from 'lucide-react';
+import { Loader2, Shield, Users, FileCheck, BarChart3, MessageSquare, Activity, Settings as SettingsIcon, Flag, KeyRound } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminDashboard from '@/components/admin/AdminDashboard';
@@ -13,6 +13,8 @@ import ActivityLogs from '@/components/admin/ActivityLogs';
 import SystemSettings from '@/components/admin/SystemSettings';
 import SecurityTips from '@/components/admin/SecurityTips';
 import ReportsManagement from '@/components/admin/ReportsManagement';
+import PinResetRequests from '@/components/admin/PinResetRequests';
+import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 
 const Admin: React.FC = () => {
@@ -20,6 +22,22 @@ const Admin: React.FC = () => {
   const { role, loading, isAdmin } = useUserRole();
   const navigate = useNavigate();
   const [verifying, setVerifying] = useState(true);
+  const [pendingResets, setPendingResets] = useState(0);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let cancelled = false;
+    const load = async () => {
+      const { count } = await supabase
+        .from('pin_reset_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending');
+      if (!cancelled) setPendingResets(count ?? 0);
+    };
+    load();
+    const i = setInterval(load, 30000);
+    return () => { cancelled = true; clearInterval(i); };
+  }, [isAdmin]);
 
   useEffect(() => {
     // Redirect if not logged in
@@ -75,7 +93,7 @@ const Admin: React.FC = () => {
 
         {/* Admin Tabs */}
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-9 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -107,6 +125,15 @@ const Admin: React.FC = () => {
             <TabsTrigger value="system" className="flex items-center gap-2">
               <SettingsIcon className="h-4 w-4" />
               <span className="hidden sm:inline">System</span>
+            </TabsTrigger>
+            <TabsTrigger value="pin-resets" className="flex items-center gap-2 relative">
+              <KeyRound className="h-4 w-4" />
+              <span className="hidden sm:inline">PIN Resets</span>
+              {pendingResets > 0 && (
+                <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-destructive text-destructive-foreground">
+                  {pendingResets}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -141,6 +168,10 @@ const Admin: React.FC = () => {
 
           <TabsContent value="system" className="space-y-4 mt-6">
             <SystemSettings />
+          </TabsContent>
+
+          <TabsContent value="pin-resets" className="space-y-4 mt-6">
+            <PinResetRequests />
           </TabsContent>
         </Tabs>
       </motion.div>
