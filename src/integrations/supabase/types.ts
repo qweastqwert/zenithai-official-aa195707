@@ -539,6 +539,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pin_reset_requests: {
+        Row: {
+          admin_notes: string | null
+          confirmation_phrase: string
+          created_at: string
+          id: string
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_display_name: string | null
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          confirmation_phrase: string
+          created_at?: string
+          id?: string
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_display_name?: string | null
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          confirmation_phrase?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_display_name?: string | null
+          user_email?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_votes: {
         Row: {
           created_at: string
@@ -1065,6 +1110,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_clear_journal_pin: {
+        Args: { _request_id: string; _target_user: string }
+        Returns: undefined
+      }
       admin_get_community_comments: {
         Args: never
         Returns: {
