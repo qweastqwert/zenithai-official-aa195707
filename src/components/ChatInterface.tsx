@@ -569,6 +569,8 @@ const ChatInterface = () => {
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
                 </div>
 
+                {user && <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />}
+
                 {/* Daily Schedule Widget */}
                 <div className="relative">
                   <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
@@ -835,6 +837,8 @@ const ChatInterface = () => {
             
             {user && <AnalyticsDashboard />}
             
+            {user && <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {/* Daily Schedule Card */}
               <motion.div

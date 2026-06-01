@@ -36,7 +36,13 @@ const PrivateSpaceGate: React.FC<PrivateSpaceGateProps> = ({ onUnlocked }) => {
   const [ack2, setAck2] = useState(false);
   const [ack3, setAck3] = useState(false);
   const [resetBusy, setResetBusy] = useState(false);
-  const [existingRequest, setExistingRequest] = useState<{ id: string; status: string; created_at: string } | null>(null);
+  const [existingRequest, setExistingRequest] = useState<{ id: string; status: string; created_at: string; expires_at?: string | null } | null>(null);
+  const [nowTick, setNowTick] = useState(Date.now());
+
+  useEffect(() => {
+    const t = setInterval(() => setNowTick(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
   const REQUIRED_PHRASE = 'I understand my private entries will remain inaccessible until reset';
 
@@ -46,13 +52,13 @@ const PrivateSpaceGate: React.FC<PrivateSpaceGateProps> = ({ onUnlocked }) => {
     (async () => {
       const { data } = await supabase
         .from('pin_reset_requests')
-        .select('id, status, created_at')
+        .select('id, status, created_at, expires_at')
         .eq('user_id', user.id)
         .in('status', ['pending'])
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (!cancelled) setExistingRequest(data ?? null);
+      if (!cancelled) setExistingRequest((data as any) ?? null);
     })();
     return () => { cancelled = true; };
   }, [user, resetOpen]);
@@ -214,10 +220,37 @@ const PrivateSpaceGate: React.FC<PrivateSpaceGateProps> = ({ onUnlocked }) => {
             <Mail className="h-3.5 w-3.5" /> Forgot your PIN?
           </div>
           {existingRequest ? (
-            <p className="text-foreground/80">
-              You have a <strong>pending reset request</strong> submitted{' '}
-              {new Date(existingRequest.created_at).toLocaleDateString()}. An admin will review it soon.
-            </p>
+            (() => {
+              const exp = existingRequest.expires_at ? new Date(existingRequest.expires_at).getTime() : null;
+              const msLeft = exp ? exp - nowTick : null;
+              const expired = msLeft != null && msLeft <= 0;
+              const hrs = msLeft != null ? Math.max(0, Math.floor(msLeft / 3_600_000)) : 0;
+              const mins = msLeft != null ? Math.max(0, Math.floor((msLeft % 3_600_000) / 60_000)) : 0;
+              return (
+                <div className="space-y-1.5">
+                  <p className="text-foreground/80">
+                    You have a <strong>pending reset request</strong> submitted{' '}
+                    {new Date(existingRequest.created_at).toLocaleDateString()}.
+                  </p>
+                  {expired ? (
+                    <p className="text-destructive font-medium">
+                      This request has expired. You can submit a new one below.
+                    </p>
+                  ) : msLeft != null ? (
+                    <p className="text-[10px] text-muted-foreground">
+                      Expires in <strong>{hrs}h {mins}m</strong>. An admin will review it soon.
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-muted-foreground">An admin will review it soon.</p>
+                  )}
+                  {expired && (
+                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => setResetOpen(true)}>
+                      <KeyRound className="h-3 w-3 mr-1" /> Submit new request
+                    </Button>
+                  )}
+                </div>
+              );
+            })()
           ) : (
             <>
               <p>

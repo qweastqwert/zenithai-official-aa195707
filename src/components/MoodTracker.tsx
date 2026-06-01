@@ -23,7 +23,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
   const [showPrompt, setShowPrompt] = useState(showPromptOnly);
   const { user } = useAuth();
   const { profile } = useProfile();
-  const userAge = profile?.age_number ?? (profile?.age ? parseInt(profile.age, 10) : null);
+  const userAge = profile?.age ? parseInt(profile.age, 10) : null;
   
   // Use appropriate hook based on authentication status
   const cookieMoodData = useMoodData();
