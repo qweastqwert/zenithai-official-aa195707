@@ -116,14 +116,14 @@ export const useProfile = () => {
   const getPersonalizedSystemInstruction = () => {
     if (!profile) return '';
 
-    return `\n\nPersonalization Context:
-- User's name: ${profile.name} (use $name when addressing them)
-- Age: ${profile.age} years old (use $age when relevant)
-- Gender: ${profile.gender} (use $gender for appropriate pronouns and context)
-- Hobbies/Interests: ${profile.hobbies || 'Not specified'} (use $hobbies to relate advice to their interests)
-- Areas seeking support: ${profile.problems || 'General wellness'} (use $problems to focus on their specific concerns)
+    return `\n\nABOUT THE USER (private context — never mention these labels or that you have a "profile"):
+- Name: ${profile.name}
+- Age: ${profile.age}
+- Gender: ${profile.gender}
+- Interests: ${profile.hobbies || 'Not specified'}
+- Focus areas: ${profile.problems || 'General wellness'}
 
-When chatting, personalize your responses using this information. Address them by name, consider their age and interests when giving advice, and focus on their specific areas of concern.`;
+Speak to them naturally by their actual name (${profile.name}). NEVER output placeholders like "$name", "$age", "$hobbies", or "$problems" — always substitute the real values above. Tailor tone and examples to their age and interests when natural; do not list this info back to them.`;
   };
 
   return {

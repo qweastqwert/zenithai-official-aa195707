@@ -534,6 +534,15 @@ RESPONSE SAFETY RULES:
       reply = 'I apologize, but I had trouble generating a response. Please try again.';
     }
 
+    // If the model only returned a tool call (e.g. schedule_events) without text,
+    // give the user a friendly acknowledgement so the chat doesn't appear broken.
+    if (!reply && toolCallsData.length > 0) {
+      const hasSchedule = toolCallsData.some(t => t.type === 'schedule_events');
+      reply = hasSchedule
+        ? "I've drafted a few events for your schedule — review them below and tap confirm to add them. ✨"
+        : "Here's something that might help. 💛";
+    }
+
     const tokensUsed = data.usageMetadata?.totalTokenCount || 0;
 
     // Log AI usage
@@ -546,14 +555,13 @@ RESPONSE SAFETY RULES:
       const encoder = new TextEncoder();
       const readable = new ReadableStream({
         start(controller) {
-          // Emit the reply as a single SSE chunk
-          if (reply) {
-            const openaiChunk = {
-              choices: [{ delta: { content: reply } }],
-              toolCalls: toolCallsData.length > 0 ? toolCallsData : undefined
-            };
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
-          }
+          // Always emit a chunk so tool calls (e.g. schedule_events) reach the client,
+          // even if the model produced no spoken reply.
+          const openaiChunk = {
+            choices: [{ delta: { content: reply || '' } }],
+            toolCalls: toolCallsData.length > 0 ? toolCallsData : undefined
+          };
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
         }
