@@ -360,7 +360,16 @@ const CharactersChat: React.FC<CharactersChatProps> = ({ onBack }) => {
     setAnimatingMessageId(assistantMessageId);
 
     const personalizedContext = getPersonalizedSystemInstruction();
-    let enhancedSystemPrompt = `${selectedCharacter.systemPrompt}\n\n${personalizedContext}\n\nResponse Guidelines:\n- Always stay in character\n- Keep responses engaging, helpful, and authentic\n- Never break character or acknowledge that you are an AI`;
+    // Substitute any creator-defined placeholders ($name, {{name}}, [age], etc.)
+    // BEFORE the prompt reaches the model so characters never parrot them.
+    const personalizedPrompt = substitutePlaceholders(selectedCharacter.systemPrompt, {
+      name: profile?.name,
+      age: (profile as any)?.age,
+      gender: (profile as any)?.gender,
+      hobbies: (profile as any)?.hobbies,
+      problems: (profile as any)?.problems,
+    });
+    let enhancedSystemPrompt = `${personalizedPrompt}\n\n${personalizedContext}\n\nResponse Guidelines:\n- Always stay in character\n- Keep responses engaging, helpful, and authentic\n- Never break character or acknowledge that you are an AI`;
     if (selectedCharacter.moodTone) {
       enhancedSystemPrompt += `\n\nTone/Mood: ${selectedCharacter.moodTone}`;
     }
