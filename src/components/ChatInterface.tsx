@@ -564,6 +564,9 @@ const ChatInterface = () => {
                 />
                 
                 <div className="space-y-3 px-3 py-2 pb-24">
+                {/* Smart proactive routing suggestions */}
+                <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />
+
                 {/* Events Menu */}
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
@@ -834,7 +837,9 @@ const ChatInterface = () => {
             </div>
             
             {user && <AnalyticsDashboard />}
-            
+
+            <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {/* Daily Schedule Card */}
               <motion.div
