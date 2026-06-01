@@ -1,56 +1,112 @@
+## Scope
 
+Seven related changes spanning achievements, journal, meditation, nav, and a small homepage fix.
 
-## Plan: Fix Borders, Dashboard Re-mount Reloads, Schedule Animations & Community Posts
+### 1. Night Owl achievement — local-time correctness
+- `useAchievements.ts > checkTimeBasedEasterEgg` already uses `Date.getHours()` (local), but the achievement is *evaluated on every render*, so once the user opens the app at 2–4 AM it gets unlocked + synced to cloud, and the next morning `isCloudUnlocked('night-owl')` makes the toast/notification re-fire as if "just earned".
+- Fix: split "currently in window" from "already unlocked". Only trigger the unlock notification when `checkTimeBasedEasterEgg()` is true; show the badge as already-earned (no toast) when only `isCloudUnlocked` is true. Track last-notified id in localStorage so refreshes don't re-toast. Same treatment for `time-traveler`.
 
-### 1. Remove Purple Borders (Mobile + General)
+### 2. Achievements menu + rewards + leaderboard
+- Revamp `src/components/achievements/Achievements.tsx`:
+  - Tabs: Overview · All · Rewards · Leaderboard · Insights.
+  - Overview: level ring, EXP bar, next milestone, top 3 nearly-complete.
+  - All: filter chips (Streak / Milestone / Special / Easter-egg), rarity color borders, animated unlock badges.
+  - Rewards: spendable-points shop using EXP (cosmetic only — theme accents, profile frames, sound-pack toggles). Persist redemptions in `localStorage` under `zenith_rewards_v1` (no schema change needed; cosmetic).
+  - Leaderboard: new `public.leaderboard_entries` view + table? Simpler: aggregate from `user_activity_data` + achievements count. Create a SECURITY DEFINER RPC `get_leaderboard(limit)` returning `display_name, level, total_exp, achievements_count` for the top N. Show user's own rank highlighted. Names masked unless user has set a public `username` in profiles.
+  - Insights: pull from existing mood/journal hooks — top mood, mood trend (7d), most common journal time-of-day, dominant journal sentiment proxy (mood field), streak summary. Pure client aggregation.
 
-**Cause**: `src/App.css` adds `padding: 2rem` on `#root` for desktop and `max-width: 1280px` centering, which combined with body background creates side gutters that look like a "purple border". Some sub-pages (Community, SleepTracking, BreathingExercises, DailySchedule) use full-width `bg-background`, but the `#root` desktop padding still pushes them inward.
+### 3. Journal Private Space (PIN-locked)
+- New table `journal_private_pins`:
+  - `user_id uuid PK`, `pin_hash text`, `salt text`, `created_at`, `failed_attempts int default 0`, `locked_until timestamptz null`.
+  - RLS: user can SELECT/INSERT own row; UPDATE only via RPC `verify_and_update_journal_pin`. No client-side UPDATE/DELETE policy → forces dev reset.
+- Add `is_private boolean default false` to `journal_entries`.
+- UI:
+  - JournalWriteView: toggle "Private entry" (lock icon).
+  - JournalHistoryView: filter excludes private entries unless inside Private Space.
+  - New `PrivateSpaceGate` component: prompts to set PIN first time, then asks PIN. 5 wrong attempts → 1 hour lockout. Reset only via "Contact developer" mailto with account info.
+- Sanity: hash PIN client-side with SHA-256(salt + pin) before sending; store hash only.
 
-**Fix**: In `src/App.css`, remove the `2rem` padding for desktop and remove `max-width: 1280px` constraint (let pages own their max-width). Also drop `text-align: center` on `#root` since it's a global anti-pattern.
+### 4. Meditation Center — more joyful
+- Update `src/pages/Meditation.tsx` + `MeditationTimer.tsx`:
+  - Warm sunrise backdrop + gentle floating orbs (reuse `.bg-sunrise-warm`, `animate-soft-breathe`).
+  - Friendly intro card with rotating affirmation.
+  - Preset cards (Calm 5m, Focus 10m, Sleep 15m, Gratitude 3m) with emoji + soft gradient.
+  - Completion celebration: confetti-lite (CSS), kind one-liner, EXP +25.
 
-### 2. Stop Dashboard Re-mount (intro animation + mood prompt re-firing)
+### 5. Restore Breathing Exercises tile on dashboard
+- `ChatInterface.tsx` desktop feature cards + mobile quick actions: ensure a "Breathing" lively-card linking to `/breathing` is present (it was lost in the warm redesign sweep). Verify mobile grid still includes it.
 
-**Cause**: Sub-pages (`/community`, `/sleep-tracking`, `/breathing-exercises`, `/daily-schedule`, `/mood-tracking`) are separate routes. When the user navigates back to `/chat`, `ChatInterface` fully remounts → `showIntro` resets to `true`, mood prompt re-fires, sleep prompt re-fires.
+### 6. Mobile navigation — give it room to breathe
+- `MobileNavigation.tsx`: 8 items in one row at 9px font is squished on small phones.
+  - Reduce to 5 primary items: Home, MindMate, Journal, Mood, More.
+  - "More" opens a bottom sheet with the rest (Meditate, Sleep, Breathing, Rewards, Settings).
+  - Bump icon to 5x5, label to 10px, taller hit area, rounded-2xl active pill.
+  - Hide labels under 360px (icon-only) for ultra-small screens.
 
-**Fix (two-part)**:
+### 7. Wiring + memory
+- Update `mem://index.md` core to note: local-time gating for time-based achievements; private-journal PIN flow is dev-reset only; mobile nav uses 5+More pattern.
 
-**a) Persist intro state across mounts** in `ChatInterface.tsx`:
-- Initialize `showIntro` from `sessionStorage.getItem('zenith-chat-intro-shown')`. Set the flag once intro completes. So subsequent mounts skip the 3s intro animation.
-- Same persistence for mood prompt: only show once per session/4h window (it already uses cookie — check that the timer doesn't re-fire when cookie was just set; gate the `setTimeout` properly).
-- Same for sleep prompt: add a `sessionStorage` flag `zenith-sleep-prompt-shown`.
+## Technical notes
 
-**b) Update sub-page back buttons** to navigate to `/chat` explicitly (they already do via `<Link to="/chat">`), so no changes needed there — the persistence above is what fixes the perceived "reload".
+- New migration:
+  ```sql
+  ALTER TABLE public.journal_entries ADD COLUMN IF NOT EXISTS is_private boolean NOT NULL DEFAULT false;
 
-### 3. Daily Schedule Page — Add Animations
+  CREATE TABLE public.journal_private_pins (
+    user_id uuid PRIMARY KEY,
+    pin_hash text NOT NULL,
+    salt text NOT NULL,
+    failed_attempts int NOT NULL DEFAULT 0,
+    locked_until timestamptz,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now()
+  );
+  GRANT SELECT, INSERT ON public.journal_private_pins TO authenticated;
+  GRANT ALL ON public.journal_private_pins TO service_role;
+  ALTER TABLE public.journal_private_pins ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "own pin select" ON public.journal_private_pins FOR SELECT TO authenticated USING (auth.uid() = user_id);
+  CREATE POLICY "own pin insert" ON public.journal_private_pins FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
+  -- No UPDATE/DELETE policies → only service_role (dev) can reset.
 
-In `src/components/schedule/DailySchedule.tsx` and `src/pages/DailySchedule.tsx`:
-- Wrap the page in a `motion.div` with fade+slide-up enter (`initial={{ opacity: 0, y: 20 }}`).
-- Wrap calendar, header, and event card with staggered `motion` children using framer-motion variants.
-- Add `AnimatePresence` around the `EventList` so adding/removing events animates.
-- Animate dialog opening with the existing Radix transitions (already present) — just ensure the Add Event dialog content uses motion fade.
+  -- Leaderboard RPC (SECURITY DEFINER, returns top N with masked names)
+  CREATE OR REPLACE FUNCTION public.get_leaderboard(_limit int DEFAULT 50)
+  RETURNS TABLE(user_id uuid, display_name text, total_days_used int, longest_streak int, achievements_count bigint)
+  LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+    SELECT
+      a.user_id,
+      COALESCE(NULLIF(p.username,''), 'Zen-' || substr(a.user_id::text,1,4)) as display_name,
+      a.total_days_used,
+      GREATEST(a.mindmate_streak, a.journal_streak, a.mood_streak, a.meditation_streak, a.sleep_streak) as longest_streak,
+      (SELECT count(*) FROM public.user_achievements ua WHERE ua.user_id = a.user_id) as achievements_count
+    FROM public.user_activity_data a
+    LEFT JOIN public.profiles p ON p.user_id = a.user_id
+    ORDER BY achievements_count DESC, longest_streak DESC, total_days_used DESC
+    LIMIT _limit;
+  $$;
+  GRANT EXECUTE ON FUNCTION public.get_leaderboard(int) TO authenticated;
+  ```
+- Hashing: `crypto.subtle.digest('SHA-256', utf8(salt + pin))`.
+- No edge-function changes needed.
 
-### 4. Community Posts "Fail to Load"
+## Files to create
+- `src/components/achievements/RewardsShop.tsx`
+- `src/components/achievements/Leaderboard.tsx`
+- `src/components/achievements/InsightsPanel.tsx`
+- `src/components/journal/PrivateSpaceGate.tsx`
+- `src/hooks/useJournalPin.ts`
+- `src/hooks/useLeaderboard.ts`
+- One new migration file
 
-**Likely cause**: `useCommunityPosts.fetchPosts` queries `community_posts` directly. If RLS requires authentication or a specific policy, anonymous/unauth or session-mismatched calls silently fail and toast errors. Also the hook subscribes to `sharedPosts` and may show stale empty state.
+## Files to edit
+- `src/hooks/useAchievements.ts` (time gating + toast dedupe)
+- `src/components/achievements/Achievements.tsx` (tabs, rewards, leaderboard, insights)
+- `src/components/journal/JournalWriteView.tsx` (private toggle)
+- `src/components/journal/JournalHistoryView.tsx` (filter + entry to Private Space)
+- `src/components/Journal.tsx` (add Private tab/route)
+- `src/hooks/useJournalSupabase.ts` (pass `is_private` through)
+- `src/pages/Meditation.tsx` + `src/components/MeditationTimer.tsx` (joyful)
+- `src/components/ChatInterface.tsx` (restore Breathing card)
+- `src/components/navigation/MobileNavigation.tsx` (5 + More pattern)
+- `mem://index.md`
 
-**Fix**:
-- Add proper error logging that surfaces the Supabase error message in the toast (currently swallows it).
-- Guard `fetchPosts` to wait until `useAuth` has resolved (currently it runs immediately and may race with auth init).
-- Add a "Retry" button in the empty/error state in `CommunitySupport.tsx`.
-- Verify RLS policy on `community_posts` allows authenticated SELECT (run a quick check via Supabase tools post-approval).
-
-### 5. Sub-page Background Consistency
-
-Pages with the colored header (Community, SleepTracking, BreathingExercises, DailySchedule, MoodTracking) use `bg-primary` headers — once `#root` padding is removed they'll go edge-to-edge correctly. No further changes required beyond Step 1.
-
-### Files to Edit
-- `src/App.css` — remove root padding/max-width (purple border fix)
-- `src/components/ChatInterface.tsx` — persist intro/sleep prompt across mounts via sessionStorage
-- `src/components/schedule/DailySchedule.tsx` — add framer-motion enter/stagger animations
-- `src/pages/DailySchedule.tsx` — wrap header in motion
-- `src/hooks/useCommunityPosts.ts` — better error reporting, await auth
-- `src/components/community/CommunitySupport.tsx` — add retry button on empty/error
-
-### Files to Create
-- None
-
+This is large; I'll implement in order: migration → achievements fix → mobile nav → breathing tile → meditation polish → private journal → achievements revamp.
