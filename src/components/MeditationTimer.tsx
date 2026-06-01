@@ -41,6 +41,21 @@ const MeditationTimer = () => {
     }
   }, []);
 
+  // Listen for preset duration changes from the page (e.g. Calm 5m, Focus 10m).
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const minutes = (e as CustomEvent<{ minutes: number }>).detail?.minutes;
+      if (!minutes || minutes < 1) return;
+      const secs = minutes * 60;
+      setDuration(secs);
+      setTimeLeft(secs);
+      setIsActive(false);
+      setIsCompleted(false);
+    };
+    window.addEventListener('zenith:set-meditation-duration', handler as EventListener);
+    return () => window.removeEventListener('zenith:set-meditation-duration', handler as EventListener);
+  }, []);
+
   useEffect(() => {
     if (audioRef.current) {
       if (isActive && musicEnabled) {
