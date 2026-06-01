@@ -34,6 +34,7 @@ import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
 import SosButton from '@/components/safety/SosButton';
+import SmartRecommendations from '@/components/home/SmartRecommendations';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
@@ -563,6 +564,9 @@ const ChatInterface = () => {
                 />
                 
                 <div className="space-y-3 px-3 py-2 pb-24">
+                {/* Proactive suggestions based on recent mood & sleep */}
+                <SmartRecommendations onOpenMindMate={() => setActiveChatbot('mindmate')} />
+
                 {/* Events Menu */}
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
@@ -833,7 +837,11 @@ const ChatInterface = () => {
             </div>
             
             {user && <AnalyticsDashboard />}
-            
+
+            <div className="max-w-3xl mx-auto w-full">
+              <SmartRecommendations onOpenMindMate={() => setActiveChatbot('mindmate')} />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {/* Daily Schedule Card */}
               <motion.div
