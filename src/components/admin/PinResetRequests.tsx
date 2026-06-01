@@ -18,6 +18,7 @@ interface ResetRow {
   admin_notes: string | null;
   created_at: string;
   reviewed_at: string | null;
+  expires_at: string | null;
 }
 
 const PinResetRequests: React.FC = () => {
@@ -103,12 +104,22 @@ const PinResetRequests: React.FC = () => {
                 <div className="text-[10px] text-muted-foreground font-mono">uid: {r.user_id}</div>
               </div>
               <div className="text-right">
-                <Badge variant={r.status === 'pending' ? 'default' : r.status === 'approved' ? 'secondary' : 'outline'}>
-                  {r.status}
-                </Badge>
+                {(() => {
+                  const expired = r.status === 'pending' && r.expires_at && new Date(r.expires_at).getTime() <= Date.now();
+                  return (
+                    <Badge variant={expired ? 'destructive' : r.status === 'pending' ? 'default' : r.status === 'approved' ? 'secondary' : 'outline'}>
+                      {expired ? 'expired' : r.status}
+                    </Badge>
+                  );
+                })()}
                 <div className="text-[10px] text-muted-foreground mt-1">
                   {new Date(r.created_at).toLocaleString()}
                 </div>
+                {r.status === 'pending' && r.expires_at && (
+                  <div className="text-[10px] text-muted-foreground">
+                    expires {new Date(r.expires_at).toLocaleString()}
+                  </div>
+                )}
               </div>
             </div>
 

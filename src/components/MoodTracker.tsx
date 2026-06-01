@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import MoodPromptWidget from '@/components/mood/MoodPromptWidget';
 import { setCookie } from '@/utils/cookieUtils';
+import { useProfile } from '@/hooks/useProfile';
 
 interface MoodTrackerProps {
   showPromptOnly?: boolean;
@@ -21,6 +22,8 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
   const [selectedMood, setSelectedMood] = useState('');
   const [showPrompt, setShowPrompt] = useState(showPromptOnly);
   const { user } = useAuth();
+  const { profile } = useProfile();
+  const userAge = profile?.age ? parseInt(profile.age, 10) : null;
   
   // Use appropriate hook based on authentication status
   const cookieMoodData = useMoodData();
@@ -35,12 +38,12 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
     }
   }, [showPromptOnly]);
 
-  const handleMoodSubmit = async (reason?: string) => {
+  const handleMoodSubmit = async (reason?: string, tags?: string[]) => {
     if (!selectedMood) return;
 
     // Handle both cookie and Supabase data saving
     if (user) {
-      await supabaseMoodData.addEntry(selectedMood, reason || '');
+      await supabaseMoodData.addEntry(selectedMood, reason || '', tags || []);
     } else {
       // For cookie-based storage, use saveMoodEntry method
       cookieMoodData.saveMoodEntry(selectedMood, reason || '');
@@ -87,6 +90,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
           onClose={handleClose}
           isMobile={isMobile}
           isTablet={isTablet}
+          userAge={Number.isFinite(userAge as number) ? (userAge as number) : null}
         />
       )}
     </AnimatePresence>

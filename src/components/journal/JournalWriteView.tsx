@@ -11,6 +11,8 @@ import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
 import { Save, RotateCcw, Mic, Square, Lock, LockOpen } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { detectCrisis } from '@/utils/crisisDetection';
+import CrisisHelpCard from '@/components/safety/CrisisHelpCard';
 
 interface JournalWriteViewProps {
   todaysEntry: JournalEntry | undefined;
@@ -25,6 +27,7 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
   const [mood, setMood] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isPrivate, setIsPrivate] = useState<boolean>(privateMode);
+  const [crisisDetected, setCrisisDetected] = useState(false);
   const { saveEntry } = journalHook;
   const { toast } = useToast();
   const { loadDraft, clearDraft } = useJournalAutosave(content, mood);
@@ -65,6 +68,12 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       }
     }
   }, [todaysEntry]);
+
+  // Crisis detection on content changes (debounced via length gate)
+  useEffect(() => {
+    if (content.length < 12) { setCrisisDetected(false); return; }
+    setCrisisDetected(detectCrisis(content).triggered);
+  }, [content]);
 
   useEffect(() => {
     if (todaysEntry) {
@@ -185,6 +194,10 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       )}
 
       <div className="space-y-4">
+        {crisisDetected && (
+          <CrisisHelpCard onDismiss={() => setCrisisDetected(false)} compact />
+        )}
+
         {/* Private toggle — hidden in privateMode (already implied) */}
         {!privateMode && (
           <div className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/30 px-3 py-2.5">
