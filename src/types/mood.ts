@@ -9,4 +9,5 @@ export interface MoodEntry {
   user_id?: string;
   formattedDate: string;
   dayOfWeek: string;
+  context_tags?: string[];
 }
