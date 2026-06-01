@@ -10,10 +10,11 @@ import MoodReasonInput from './MoodReasonInput';
 interface MoodPromptWidgetProps {
   selectedMood: string;
   onMoodSelect: (mood: string) => void;
-  onSubmit: (reason?: string) => void;
+  onSubmit: (reason?: string, tags?: string[]) => void;
   onClose: () => void;
   isMobile?: boolean;
   isTablet?: boolean;
+  userAge?: number | null;
 }
 
 // Animation variants for smoother, more refined transitions
@@ -65,7 +66,8 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
   onSubmit, 
   onClose,
   isMobile = false,
-  isTablet = false
+  isTablet = false,
+  userAge = null,
 }) => {
   const [step, setStep] = useState<'select' | 'reason'>('select');
   const [isMinimized, setIsMinimized] = useState(false);
@@ -84,8 +86,8 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
     setTimeout(() => setStep('reason'), 200);
   };
 
-  const handleReasonSubmit = (reason: string) => {
-    onSubmit(reason);
+  const handleReasonSubmit = (reason: string, tags: string[]) => {
+    onSubmit(reason, tags);
   };
 
   const handleSkipReason = () => {
@@ -217,6 +219,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                             onSubmit={handleReasonSubmit}
                             onSkip={handleSkipReason}
                             compact
+                            userAge={userAge}
                           />
                         </motion.div>
                       )}
@@ -357,6 +360,7 @@ const MoodPromptWidget: React.FC<MoodPromptWidgetProps> = ({
                         selectedMood={selectedMood}
                         onSubmit={handleReasonSubmit}
                         onSkip={handleSkipReason}
+                        userAge={userAge}
                       />
                     </motion.div>
                   )}

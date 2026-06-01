@@ -5,19 +5,22 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sparkles, SkipForward } from 'lucide-react';
+import MoodContextTags from './MoodContextTags';
 
 interface MoodReasonInputProps {
   selectedMood: string;
-  onSubmit: (reason: string) => void;
+  onSubmit: (reason: string, tags: string[]) => void;
   onSkip: () => void;
   compact?: boolean;
+  userAge?: number | null;
 }
 
-const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmit, onSkip, compact = false }) => {
+const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmit, onSkip, compact = false, userAge = null }) => {
   const [reason, setReason] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
 
   const handleSubmit = () => {
-    onSubmit(reason.trim());
+    onSubmit(reason.trim(), tags);
   };
 
   const moodLabels: { [key: string]: string } = {
@@ -62,6 +65,8 @@ const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmi
           className="min-h-[60px] text-sm resize-none bg-background/50"
           maxLength={500}
         />
+
+        <MoodContextTags selected={tags} onChange={setTags} userAge={userAge} />
 
         <div className="flex gap-2">
           <Button
@@ -132,6 +137,14 @@ const MoodReasonInput: React.FC<MoodReasonInputProps> = ({ selectedMood, onSubmi
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
               {reason.length}/500
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <MoodContextTags selected={tags} onChange={setTags} userAge={userAge} />
           </motion.div>
 
           <motion.div

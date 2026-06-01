@@ -34,6 +34,7 @@ import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
 import SosButton from '@/components/safety/SosButton';
+import SmartRecommendations from '@/components/home/SmartRecommendations';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
