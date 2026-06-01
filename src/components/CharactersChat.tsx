@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import FormattedMessage from '@/components/chat/FormattedMessage';
 import { sanitizeAssistantMessage } from '@/utils/sanitizeAI';
+import { substitutePlaceholders } from '@/utils/characterTemplate';
 import AvatarEditor, { getColorFromName } from '@/components/characters/AvatarEditor';
 import ConversationManager from '@/components/characters/ConversationManager';
 
