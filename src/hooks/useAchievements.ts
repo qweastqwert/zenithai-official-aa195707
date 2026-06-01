@@ -30,6 +30,10 @@ export const useAchievements = () => {
   const { user } = useAuth();
   const [cloudAchievements, setCloudAchievements] = useState<CloudAchievement[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  // Snapshot of IDs already unlocked in the cloud when this session started.
+  // Anything in here was earned in a previous session and must NEVER trigger a
+  // "newly unlocked" notification this session.
+  const [initialCloudIds, setInitialCloudIds] = useState<Set<string> | null>(null);
 
   // Load achievements from cloud
   useEffect(() => {
@@ -42,8 +46,16 @@ export const useAchievements = () => {
 
         if (data && !error) {
           setCloudAchievements(data);
+          if (initialCloudIds === null) {
+            setInitialCloudIds(new Set(data.map(d => d.achievement_id)));
+          }
           console.log('🏆 Loaded achievements from cloud:', data.length);
         }
+      }
+      // Even unauthenticated/guest users get an empty snapshot so guest-only
+      // achievements don't repeatedly re-notify across refreshes.
+      if (initialCloudIds === null) {
+        setInitialCloudIds(new Set());
       }
       setIsLoaded(true);
     };
@@ -51,11 +63,12 @@ export const useAchievements = () => {
     loadCloudAchievements();
   }, [user]);
 
-  // Check for easter egg conditions
+  // Check for easter egg conditions — all use LOCAL device time so a user's
+  // wall-clock decides eligibility (we don't try to defeat clock-cheating).
   const checkTimeBasedEasterEgg = () => {
     const now = new Date();
-    const hours = now.getHours();
-    // Night Owl: Using app between 2-4 AM
+    const hours = now.getHours(); // local hours, 0-23
+    // Night Owl: Using app between 2-4 AM LOCAL time
     return (hours >= 2 && hours < 4) && activities.totalDaysUsed > 0;
   };
 
@@ -419,10 +432,15 @@ export const useAchievements = () => {
     };
   }, [achievements]);
 
-  // Get newly unlocked achievements
+  // Get newly unlocked achievements — ONLY ones earned in this session.
+  // Anything already in the cloud snapshot from a previous session is excluded
+  // so we never re-fire "🎉 you unlocked Night Owl!" the morning after.
   const getNewlyUnlocked = useCallback(() => {
-    return achievements.filter(a => a.isUnlocked && !a.hidden);
-  }, [achievements]);
+    if (!initialCloudIds) return [];
+    return achievements.filter(
+      a => a.isUnlocked && !a.hidden && !initialCloudIds.has(a.id)
+    );
+  }, [achievements, initialCloudIds]);
 
   return {
     achievements: achievements.filter(a => !a.hidden),
