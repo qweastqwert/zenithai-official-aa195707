@@ -1021,6 +1021,30 @@ const ChatInterface = () => {
               </motion.div>
             </div>
 
+            {/* Breathing exercises — restored to the desktop dashboard */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card
+                  className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-none lively-card cursor-pointer touch-manipulation rounded-2xl"
+                  onClick={() => handleNavigation('breathing')}
+                >
+                  <CardContent className="p-4 md:p-6 flex flex-col items-center">
+                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-cyan-100 dark:bg-cyan-900/20 flex items-center justify-center mb-3 md:mb-4">
+                      <Wind className="h-6 w-6 md:h-8 md:w-8 text-cyan-600 dark:text-cyan-400" />
+                    </div>
+                    <h2 className="text-lg md:text-xl font-bold mb-2 text-gray-900 dark:text-gray-100">Breathing</h2>
+                    <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 text-center leading-relaxed">
+                      Calming patterns to relax &amp; focus
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
             <div className="mt-8 flex justify-center">
               <SongMenu />
             </div>
