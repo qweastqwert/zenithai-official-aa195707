@@ -4,10 +4,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Star, Crown, Gem, Target, Sparkles, Lock, Zap } from 'lucide-react';
+import { ArrowLeft, Trophy, Star, Crown, Gem, Target, Sparkles, Lock, Zap, Users, Brain } from 'lucide-react';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useQuests } from '@/hooks/useQuests';
 import { motion } from 'framer-motion';
+import Leaderboard from './Leaderboard';
+import InsightsPanel from './InsightsPanel';
 
 interface AchievementsProps {
   onClose: () => void;
@@ -16,7 +18,7 @@ interface AchievementsProps {
 const Achievements: React.FC<AchievementsProps> = ({ onClose }) => {
   const { achievements, stats } = useAchievements();
   const { quests, totalExp, level, expIntoLevel, expToNext, completedToday, dailyTotal } = useQuests();
-  const [tab, setTab] = useState<'achievements' | 'quests' | 'rewards'>('quests');
+  const [tab, setTab] = useState<'achievements' | 'quests' | 'rewards' | 'leaderboard' | 'insights'>('quests');
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -101,6 +103,8 @@ const Achievements: React.FC<AchievementsProps> = ({ onClose }) => {
             {([
               { id: 'quests', label: 'Quests', icon: Target },
               { id: 'achievements', label: 'Achievements', icon: Trophy },
+              { id: 'leaderboard', label: 'Leaderboard', icon: Users },
+              { id: 'insights', label: 'Insights', icon: Brain },
               { id: 'rewards', label: 'Rewards', icon: Sparkles },
             ] as const).map(t => {
               const Icon = t.icon;
@@ -108,12 +112,12 @@ const Achievements: React.FC<AchievementsProps> = ({ onClose }) => {
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-md text-xs sm:text-sm font-medium transition ${
                     tab === t.id ? 'bg-white text-purple-700' : 'text-white hover:bg-white/10'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
-                  {t.label}
+                  <span className="hidden sm:inline">{t.label}</span>
                 </button>
               );
             })}
@@ -122,6 +126,8 @@ const Achievements: React.FC<AchievementsProps> = ({ onClose }) => {
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          {tab === 'leaderboard' && <Leaderboard />}
+          {tab === 'insights' && <InsightsPanel />}
           {tab === 'quests' && (
             <div className="space-y-4">
               <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
