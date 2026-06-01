@@ -33,6 +33,7 @@ import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
+import SosButton from '@/components/safety/SosButton';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
