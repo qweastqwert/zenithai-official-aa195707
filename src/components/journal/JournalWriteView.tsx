@@ -8,19 +8,23 @@ import { JournalEntry } from '@/hooks/useJournal';
 import { useToast } from '@/hooks/use-toast';
 import { useJournalAutosave } from '@/hooks/useJournalAutosave';
 import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
-import { Save, RotateCcw, Mic, MicOff, Square } from 'lucide-react';
+import { Save, RotateCcw, Mic, Square, Lock, LockOpen } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 
 interface JournalWriteViewProps {
   todaysEntry: JournalEntry | undefined;
   journalHook: any;
   isMobile?: boolean;
+  /** When true, save the entry into the Private Space (is_private = true). */
+  privateMode?: boolean;
 }
 
-const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journalHook, isMobile }) => {
+const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journalHook, isMobile, privateMode = false }) => {
   const [content, setContent] = useState('');
   const [mood, setMood] = useState('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isPrivate, setIsPrivate] = useState<boolean>(privateMode);
   const { saveEntry } = journalHook;
   const { toast } = useToast();
   const { loadDraft, clearDraft } = useJournalAutosave(content, mood);
@@ -87,13 +91,15 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       stopListening();
     }
 
-    await saveEntry(content, mood);
+    await saveEntry(content, mood, isPrivate);
     clearDraft();
     setHasUnsavedChanges(false);
     
     toast({
-      title: "Journal Saved! 📝",
-      description: "Your daily reflection has been recorded.",
+      title: isPrivate ? 'Saved to Private Space 🔒' : 'Journal Saved! 📝',
+      description: isPrivate
+        ? 'Only you can see this entry when unlocked.'
+        : 'Your daily reflection has been recorded.',
     });
     
     if (!todaysEntry) {
@@ -179,6 +185,30 @@ const JournalWriteView: React.FC<JournalWriteViewProps> = ({ todaysEntry, journa
       )}
 
       <div className="space-y-4">
+        {/* Private toggle — hidden in privateMode (already implied) */}
+        {!privateMode && (
+          <div className="flex items-center justify-between rounded-xl border border-border/40 bg-muted/30 px-3 py-2.5">
+            <div className="flex items-center gap-2 min-w-0">
+              {isPrivate ? (
+                <Lock className="h-4 w-4 text-primary flex-shrink-0" />
+              ) : (
+                <LockOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              )}
+              <div className="min-w-0">
+                <div className="text-sm font-medium leading-tight">
+                  {isPrivate ? 'Private entry' : 'Public to your journal'}
+                </div>
+                <div className="text-[11px] text-muted-foreground leading-tight">
+                  {isPrivate
+                    ? 'Stored in Private Space — PIN required to view.'
+                    : 'Visible in your normal journal history.'}
+                </div>
+              </div>
+            </div>
+            <Switch checked={isPrivate} onCheckedChange={setIsPrivate} />
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="mood" className="text-foreground">How are you feeling today?</Label>
           <Select value={mood} onValueChange={setMood}>

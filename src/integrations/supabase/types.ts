@@ -380,6 +380,7 @@ export type Database = {
           created_at: string
           date: string
           id: string
+          is_private: boolean
           mood: string
           timestamp: number
           updated_at: string
@@ -390,6 +391,7 @@ export type Database = {
           created_at?: string
           date: string
           id?: string
+          is_private?: boolean
           mood: string
           timestamp: number
           updated_at?: string
@@ -400,8 +402,39 @@ export type Database = {
           created_at?: string
           date?: string
           id?: string
+          is_private?: boolean
           mood?: string
           timestamp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journal_private_pins: {
+        Row: {
+          created_at: string
+          failed_attempts: number
+          locked_until: string | null
+          pin_hash: string
+          salt: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          failed_attempts?: number
+          locked_until?: string | null
+          pin_hash: string
+          salt: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          failed_attempts?: number
+          locked_until?: string | null
+          pin_hash?: string
+          salt?: string
           updated_at?: string
           user_id?: string
         }
@@ -1070,6 +1103,16 @@ export type Database = {
       }
       cleanup_old_conversations: { Args: never; Returns: undefined }
       delete_user_account: { Args: never; Returns: undefined }
+      get_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          achievements_count: number
+          display_name: string
+          longest_streak: number
+          total_days_used: number
+          user_id: string
+        }[]
+      }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["app_role"]

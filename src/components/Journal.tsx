@@ -2,22 +2,25 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { X, BookOpen, ArrowLeft } from 'lucide-react';
+import { X, BookOpen, ArrowLeft, Lock, LockOpen } from 'lucide-react';
 import { useJournal } from '@/hooks/useJournal';
 import { useJournalSupabase } from '@/hooks/useJournalSupabase';
 import { useAuth } from '@/hooks/useAuth';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import JournalWriteView from '@/components/journal/JournalWriteView';
 import JournalHistoryView from '@/components/journal/JournalHistoryView';
+import PrivateSpaceGate from '@/components/journal/PrivateSpaceGate';
+import { useJournalPin } from '@/hooks/useJournalPin';
 
 interface JournalProps {
   onClose: () => void;
 }
 
 const Journal: React.FC<JournalProps> = ({ onClose }) => {
-  const [view, setView] = useState<'write' | 'history'>('write');
+  const [view, setView] = useState<'write' | 'history' | 'private'>('write');
   const { user } = useAuth();
   const { isMobile } = useDeviceDetection();
+  const { isUnlocked, lock } = useJournalPin();
   
   // Use appropriate hook based on authentication status
   const cookieJournal = useJournal();
@@ -26,7 +29,55 @@ const Journal: React.FC<JournalProps> = ({ onClose }) => {
   const journalHook = user ? supabaseJournal : cookieJournal;
   const { getTodaysEntry } = journalHook;
 
-  const todaysEntry = getTodaysEntry();
+  const todaysEntry = getTodaysEntry(false);
+  const todaysPrivateEntry = view === 'private' && isUnlocked ? getTodaysEntry(true) : undefined;
+
+  const tabs: Array<{ id: 'write' | 'history' | 'private'; label: string }> = [
+    { id: 'write', label: 'Write' },
+    { id: 'history', label: 'History' },
+    { id: 'private', label: 'Private' },
+  ];
+
+  const renderContent = (mobile: boolean) => (
+    <AnimatePresence mode="wait">
+      {view === 'write' && (
+        <JournalWriteView key="write" todaysEntry={todaysEntry} journalHook={journalHook} isMobile={mobile} />
+      )}
+      {view === 'history' && (
+        <JournalHistoryView key="history" journalHook={journalHook} isMobile={mobile} />
+      )}
+      {view === 'private' && (
+        user ? (
+          isUnlocked ? (
+            <motion.div
+              key="private-unlocked"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className={mobile ? 'h-full overflow-y-auto' : 'max-h-[calc(90vh-120px)] overflow-y-auto'}
+            >
+              <div className="flex items-center justify-between px-4 pt-3">
+                <div className="flex items-center gap-1.5 text-xs text-primary">
+                  <Lock className="h-3.5 w-3.5" /> Private Space — only visible to you
+                </div>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={lock}>
+                  <LockOpen className="h-3.5 w-3.5 mr-1" /> Lock
+                </Button>
+              </div>
+              <JournalWriteView todaysEntry={todaysPrivateEntry} journalHook={journalHook} isMobile={mobile} privateMode />
+              <JournalHistoryView journalHook={journalHook} isMobile={mobile} privateOnly />
+            </motion.div>
+          ) : (
+            <PrivateSpaceGate key="private-gate" onUnlocked={() => { /* re-render via hook state */ }} />
+          )
+        ) : (
+          <div key="private-no-auth" className="p-6 text-center text-sm text-muted-foreground">
+            Sign in to use the Private Space.
+          </div>
+        )
+      )}
+    </AnimatePresence>
+  );
 
   // Mobile fullscreen view
   if (isMobile) {
@@ -54,34 +105,22 @@ const Journal: React.FC<JournalProps> = ({ onClose }) => {
 
         {/* View Toggle */}
         <div className="flex gap-2 px-4 py-3 border-b border-border/20 flex-shrink-0">
-          <Button
-            variant={view === 'write' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setView('write')}
-            className="flex-1"
-          >
-            Write
-          </Button>
-          <Button
-            variant={view === 'history' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setView('history')}
-            className="flex-1"
-          >
-            History
-          </Button>
+          {tabs.map(t => (
+            <Button
+              key={t.id}
+              variant={view === t.id ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setView(t.id)}
+              className="flex-1 gap-1.5"
+            >
+              {t.id === 'private' && <Lock className="h-3.5 w-3.5" />}
+              {t.label}
+            </Button>
+          ))}
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <AnimatePresence mode="wait">
-            {view === 'write' ? (
-              <JournalWriteView key="write" todaysEntry={todaysEntry} journalHook={journalHook} isMobile />
-            ) : (
-              <JournalHistoryView key="history" journalHook={journalHook} isMobile />
-            )}
-          </AnimatePresence>
-        </div>
+        <div className="flex-1 overflow-hidden">{renderContent(true)}</div>
       </motion.div>
     );
   }
@@ -104,20 +143,18 @@ const Journal: React.FC<JournalProps> = ({ onClose }) => {
                 Daily Journal {user && <span className="text-sm font-normal text-muted-foreground">(Synced)</span>}
               </CardTitle>
               <div className="flex space-x-2">
-                <Button
-                  variant={view === 'write' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setView('write')}
-                >
-                  Write
-                </Button>
-                <Button
-                  variant={view === 'history' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setView('history')}
-                >
-                  History
-                </Button>
+                {tabs.map(t => (
+                  <Button
+                    key={t.id}
+                    variant={view === t.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setView(t.id)}
+                    className="gap-1.5"
+                  >
+                    {t.id === 'private' && <Lock className="h-3.5 w-3.5" />}
+                    {t.label}
+                  </Button>
+                ))}
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose}>
@@ -125,15 +162,7 @@ const Journal: React.FC<JournalProps> = ({ onClose }) => {
             </Button>
           </CardHeader>
           
-          <CardContent className="p-0">
-            <AnimatePresence mode="wait">
-              {view === 'write' ? (
-                <JournalWriteView key="write" todaysEntry={todaysEntry} journalHook={journalHook} />
-              ) : (
-                <JournalHistoryView key="history" journalHook={journalHook} />
-              )}
-            </AnimatePresence>
-          </CardContent>
+          <CardContent className="p-0">{renderContent(false)}</CardContent>
         </Card>
       </motion.div>
     </div>

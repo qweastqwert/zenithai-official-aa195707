@@ -10,6 +10,7 @@ export interface JournalEntry {
   mood: string;
   timestamp: number;
   user_id?: string;
+  is_private?: boolean;
 }
 
 export const useJournalSupabase = () => {
@@ -46,21 +47,24 @@ export const useJournalSupabase = () => {
     }
   };
 
-  const saveEntry = async (content: string, mood: string) => {
+  const saveEntry = async (content: string, mood: string, isPrivate: boolean = false) => {
     if (!user) return;
 
     const today = new Date().toISOString().split('T')[0];
     const timestamp = Date.now();
 
-    // Check if entry exists for today
-    const existingEntry = entries.find(entry => entry.date === today);
+    // Check if entry exists for today MATCHING the same privacy bucket so a
+    // public entry and a private entry can coexist on the same day.
+    const existingEntry = entries.find(
+      entry => entry.date === today && !!entry.is_private === isPrivate
+    );
 
     try {
       if (existingEntry) {
         // Update existing entry
         const { data, error } = await supabase
           .from('journal_entries')
-          .update({ content, mood, timestamp })
+          .update({ content, mood, timestamp, is_private: isPrivate })
           .eq('id', existingEntry.id)
           .select()
           .single();
@@ -77,7 +81,8 @@ export const useJournalSupabase = () => {
           date: today,
           content,
           mood,
-          timestamp
+          timestamp,
+          is_private: isPrivate,
         };
 
         const { data, error } = await supabase
@@ -95,9 +100,9 @@ export const useJournalSupabase = () => {
     }
   };
 
-  const getTodaysEntry = () => {
+  const getTodaysEntry = (isPrivate: boolean = false) => {
     const today = new Date().toISOString().split('T')[0];
-    return entries.find(entry => entry.date === today);
+    return entries.find(entry => entry.date === today && !!entry.is_private === isPrivate);
   };
 
   const deleteEntry = async (id: string) => {

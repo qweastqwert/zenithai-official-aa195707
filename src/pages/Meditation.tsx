@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SEO from '@/components/SEO';
 import MeditationTimer from '@/components/MeditationTimer';
 import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import { Sparkles } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const guidedMeditations = [
@@ -28,7 +30,32 @@ const guidedMeditations = [
   },
 ];
 
+const AFFIRMATIONS = [
+  "You're allowed to slow down. 🌿",
+  "Every breath is a fresh start. 🌅",
+  "Be gentle with yourself today. 💛",
+  "Stillness is a kind of strength. ✨",
+  "You don't have to fix anything right now. 🤍",
+];
+
+const PRESETS = [
+  { label: 'Calm', minutes: 5, emoji: '🌿', tint: 'from-emerald-200/60 to-teal-100/40' },
+  { label: 'Focus', minutes: 10, emoji: '🎯', tint: 'from-amber-200/60 to-orange-100/40' },
+  { label: 'Sleep', minutes: 15, emoji: '🌙', tint: 'from-indigo-200/60 to-purple-100/40' },
+  { label: 'Gratitude', minutes: 3, emoji: '💛', tint: 'from-pink-200/60 to-rose-100/40' },
+];
+
 const MeditationPage = () => {
+  const [affirmation, setAffirmation] = useState(AFFIRMATIONS[0]);
+  useEffect(() => {
+    setAffirmation(AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)]);
+  }, []);
+
+  const handlePreset = (minutes: number) => {
+    window.dispatchEvent(new CustomEvent('zenith:set-meditation-duration', { detail: { minutes } }));
+    document.getElementById('meditation-timer-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
   return (
     <>
       <SEO
@@ -39,12 +66,36 @@ const MeditationPage = () => {
       <Header />
       <main className="min-h-screen pt-24 pb-16 px-4 bg-sunrise-warm">
         <div className="container mx-auto">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">Meditation Center</h1>
-            <p className="text-xl text-gray-600">
-              Find peace and clarity through mindfulness practice
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-3xl mx-auto text-center mb-10"
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/60 dark:bg-white/10 backdrop-blur text-xs text-primary mb-4">
+              <Sparkles className="h-3.5 w-3.5 animate-soft-breathe" />
+              {affirmation}
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-3">Meditation Center</h1>
+            <p className="text-base md:text-xl text-muted-foreground">
+              Pick a vibe, take a breath, and meet yourself where you are.
             </p>
-          </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+              {PRESETS.map(p => (
+                <motion.button
+                  key={p.label}
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handlePreset(p.minutes)}
+                  className={`rounded-2xl p-4 text-left bg-gradient-to-br ${p.tint} backdrop-blur border border-white/40 shadow-sm`}
+                >
+                  <div className="text-2xl mb-1">{p.emoji}</div>
+                  <div className="font-semibold text-sm text-foreground">{p.label}</div>
+                  <div className="text-[11px] text-muted-foreground">{p.minutes} min</div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
           
           <Tabs defaultValue="timer" className="max-w-3xl mx-auto">
             <TabsList className="grid w-full grid-cols-2 mb-8">
@@ -53,6 +104,7 @@ const MeditationPage = () => {
             </TabsList>
             
             <TabsContent value="timer" className="space-y-8">
+              <div id="meditation-timer-anchor" />
               <MeditationTimer />
               
               <Card>
