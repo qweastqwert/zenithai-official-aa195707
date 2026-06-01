@@ -1069,6 +1069,8 @@ const ChatInterface = () => {
         achievement={newAchievement} 
         onClose={() => setNewAchievement(null)} 
       />
+      {/* Persistent SOS — hidden while a fullscreen sub-flow is open */}
+      <SosButton hidden={!!activeChatbot || showSettings || showAchievements} />
     </div>
   );
 };
