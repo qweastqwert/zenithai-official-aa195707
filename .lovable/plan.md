@@ -1,112 +1,60 @@
-## Scope
+# Plan
 
-Seven related changes spanning achievements, journal, meditation, nav, and a small homepage fix.
+Large scope — grouping into 5 work areas. I'll implement sequentially in one pass after approval.
 
-### 1. Night Owl achievement — local-time correctness
-- `useAchievements.ts > checkTimeBasedEasterEgg` already uses `Date.getHours()` (local), but the achievement is *evaluated on every render*, so once the user opens the app at 2–4 AM it gets unlocked + synced to cloud, and the next morning `isCloudUnlocked('night-owl')` makes the toast/notification re-fire as if "just earned".
-- Fix: split "currently in window" from "already unlocked". Only trigger the unlock notification when `checkTimeBasedEasterEgg()` is true; show the badge as already-earned (no toast) when only `isCloudUnlocked` is true. Track last-notified id in localStorage so refreshes don't re-toast. Same treatment for `time-traveler`.
+## 1. PIN Reset Hardening
+- **Migration**: Add `expires_at timestamptz` (default `now() + 24h`) to `pin_reset_requests`. Add partial unique index ensuring max **1 active** pending request per user (`WHERE status='pending' AND expires_at > now()`).
+- Update `useJournalPin` / `PrivateSpaceGate.tsx` reset flow to:
+  - Pre-check for an existing pending+unexpired request and show its status + countdown instead of allowing a new one.
+  - Surface "Request expired — submit a new one" when past `expires_at`.
+- Update `admin/PinResetRequests.tsx` to filter out expired requests (status auto-shown as "Expired") and show time remaining.
 
-### 2. Achievements menu + rewards + leaderboard
-- Revamp `src/components/achievements/Achievements.tsx`:
-  - Tabs: Overview · All · Rewards · Leaderboard · Insights.
-  - Overview: level ring, EXP bar, next milestone, top 3 nearly-complete.
-  - All: filter chips (Streak / Milestone / Special / Easter-egg), rarity color borders, animated unlock badges.
-  - Rewards: spendable-points shop using EXP (cosmetic only — theme accents, profile frames, sound-pack toggles). Persist redemptions in `localStorage` under `zenith_rewards_v1` (no schema change needed; cosmetic).
-  - Leaderboard: new `public.leaderboard_entries` view + table? Simpler: aggregate from `user_activity_data` + achievements count. Create a SECURITY DEFINER RPC `get_leaderboard(limit)` returning `display_name, level, total_exp, achievements_count` for the top N. Show user's own rank highlighted. Names masked unless user has set a public `username` in profiles.
-  - Insights: pull from existing mood/journal hooks — top mood, mood trend (7d), most common journal time-of-day, dominant journal sentiment proxy (mood field), streak summary. Pure client aggregation.
+## 2. Universal Character Personalization Fix
+- Currently the `$name` / placeholder leak fix lives partially in `useProfile.ts` and char-chat sanitizer. Move enforcement into `supabase/functions/characters-chat/index.ts`:
+  - Always inject a hidden `USER_CONTEXT` block (name, age, pronouns, hobbies) at the start of every character system prompt — **regardless** of whether the creator referenced it.
+  - Add a pre-pass that substitutes `{{name}}`, `$name`, `[name]`, `<name>` tokens in the creator-defined `system_prompt` before sending.
+  - Strengthen `sanitizeAI.ts` to strip leaked scaffolding ("It seems there isn't much…", "Context:", "$name", bullet meta-lists) from **all** character outputs.
 
-### 3. Journal Private Space (PIN-locked)
-- New table `journal_private_pins`:
-  - `user_id uuid PK`, `pin_hash text`, `salt text`, `created_at`, `failed_attempts int default 0`, `locked_until timestamptz null`.
-  - RLS: user can SELECT/INSERT own row; UPDATE only via RPC `verify_and_update_journal_pin`. No client-side UPDATE/DELETE policy → forces dev reset.
-- Add `is_private boolean default false` to `journal_entries`.
-- UI:
-  - JournalWriteView: toggle "Private entry" (lock icon).
-  - JournalHistoryView: filter excludes private entries unless inside Private Space.
-  - New `PrivateSpaceGate` component: prompts to set PIN first time, then asks PIN. 5 wrong attempts → 1 hour lockout. Reset only via "Contact developer" mailto with account info.
-- Sanity: hash PIN client-side with SHA-256(salt + pin) before sending; store hash only.
+## 3. Contextual Mood Tags + Correlation Insights
+- **Migration**: Add `context_tags text[]` to `mood_entries`.
+- **Tag taxonomy** (age-aware — under-16 hides Work/Caffeine):
+  - Activities: study, exercise, gaming, screen-time, hobby, *work* (16+)
+  - Social: alone, family, friends, online, conflict
+  - Physical: good-sleep, poor-sleep, skipped-meal, *caffeine* (16+), sick, hydrated
+  - Plus user-defined custom tags (saved to localStorage per user).
+- **UI**:
+  - Extend `MoodPromptWidget` with a horizontally-scrollable chip selector (multi-select, max 5).
+  - In Mood Tracking page, add a "Manage Tags" sheet for custom tag CRUD.
+- **Correlation Engine** (`src/hooks/useMoodCorrelations.ts`):
+  - Pure client-side analysis over last 30 days of mood + sleep + tags.
+  - Compute: avg mood per tag, sleep-vs-mood correlation, top negative/positive tags.
+  - Render in `InsightsPanel` and Analytics page: "Your mood is 22% lower on days tagged `poor-sleep`."
 
-### 4. Meditation Center — more joyful
-- Update `src/pages/Meditation.tsx` + `MeditationTimer.tsx`:
-  - Warm sunrise backdrop + gentle floating orbs (reuse `.bg-sunrise-warm`, `animate-soft-breathe`).
-  - Friendly intro card with rotating affirmation.
-  - Preset cards (Calm 5m, Focus 10m, Sleep 15m, Gratitude 3m) with emoji + soft gradient.
-  - Completion celebration: confetti-lite (CSS), kind one-liner, EXP +25.
+## 4. Smart Routing / Dynamic Interventions
+- New hook `useSmartRouting.ts` that watches latest mood + sleep entries via existing hooks and emits suggestions.
+- **Proactive MindMate check-in**: when latest mood is in {sad, very-sad, stressed, overwhelmed, anxious} and last MindMate use > 2h ago, show a dismissible toast/card on dashboard with two CTAs: "Vent to MindMate" (deep-links to /chat with a pre-seeded opener) and "2-min Breathing".
+- **Context-aware recommendations**: on dashboard mount, if last `sleep_logs.sleep_quality` is poor, pin a "Focus & Energy" card (links to breathing 4-7-8 + a specific soothing track id) above the feature grid. Implemented as a `RecommendationsRail` component, dismissible per-day via localStorage.
 
-### 5. Restore Breathing Exercises tile on dashboard
-- `ChatInterface.tsx` desktop feature cards + mobile quick actions: ensure a "Breathing" lively-card linking to `/breathing` is present (it was lost in the warm redesign sweep). Verify mobile grid still includes it.
+## 5. Clinical Safety Net & Crisis Routing
+- **Crisis detection**: extend existing keyword/phrase checks (already partly in EmergencyHelpWidget) into a shared `src/utils/crisisDetection.ts` with weighted phrase list (self-harm, hopelessness, suicide ideation). Hook into:
+  - `MindMate` send pipeline (client side) — if user message triggers, render an inline `CrisisHelpCard` above the assistant reply.
+  - `JournalWriteView` autosave — debounced check; on trigger, show non-blocking banner with helpline + grounding shortcut.
+- **SOS Button**: persistent floating button (bottom-right, `z-50`, 56×56 mobile / 64×64 desktop, distinct red-tinted glass style) on `/` (Index) and `/chat` (Dashboard). Opens a sheet with:
+  - India helpline (iCall 9152987821, Vandrevala 1860-2662-345) + "International" expand.
+  - 60-sec grounding (5-4-3-2-1) launcher.
+  - Pre-filled SMS template to a saved emergency contact (new `profiles.emergency_contact` field — migration).
+- Hidden during meditation/breathing fullscreen modes to avoid breaking immersion.
 
-### 6. Mobile navigation — give it room to breathe
-- `MobileNavigation.tsx`: 8 items in one row at 9px font is squished on small phones.
-  - Reduce to 5 primary items: Home, MindMate, Journal, Mood, More.
-  - "More" opens a bottom sheet with the rest (Meditate, Sleep, Breathing, Rewards, Settings).
-  - Bump icon to 5x5, label to 10px, taller hit area, rounded-2xl active pill.
-  - Hide labels under 360px (icon-only) for ultra-small screens.
+## Mobile considerations
+- All new sheets use existing `Sheet` component (bottom slide-up on <768px).
+- SOS button respects safe-area inset and sits above MobileNavigation bottom bar.
+- Tag chips horizontally scroll with snap on mobile.
+- Recommendation rail collapses to single card on mobile.
 
-### 7. Wiring + memory
-- Update `mem://index.md` core to note: local-time gating for time-based achievements; private-journal PIN flow is dev-reset only; mobile nav uses 5+More pattern.
+## Technical Notes
+- 2 migrations: pin_reset expiry + mood context_tags + profiles.emergency_contact.
+- ~3 new components, ~3 new hooks, 1 new util.
+- No new external deps.
+- All colors via semantic tokens; crisis card uses `--destructive` tinted glass.
 
-## Technical notes
-
-- New migration:
-  ```sql
-  ALTER TABLE public.journal_entries ADD COLUMN IF NOT EXISTS is_private boolean NOT NULL DEFAULT false;
-
-  CREATE TABLE public.journal_private_pins (
-    user_id uuid PRIMARY KEY,
-    pin_hash text NOT NULL,
-    salt text NOT NULL,
-    failed_attempts int NOT NULL DEFAULT 0,
-    locked_until timestamptz,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
-  );
-  GRANT SELECT, INSERT ON public.journal_private_pins TO authenticated;
-  GRANT ALL ON public.journal_private_pins TO service_role;
-  ALTER TABLE public.journal_private_pins ENABLE ROW LEVEL SECURITY;
-  CREATE POLICY "own pin select" ON public.journal_private_pins FOR SELECT TO authenticated USING (auth.uid() = user_id);
-  CREATE POLICY "own pin insert" ON public.journal_private_pins FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
-  -- No UPDATE/DELETE policies → only service_role (dev) can reset.
-
-  -- Leaderboard RPC (SECURITY DEFINER, returns top N with masked names)
-  CREATE OR REPLACE FUNCTION public.get_leaderboard(_limit int DEFAULT 50)
-  RETURNS TABLE(user_id uuid, display_name text, total_days_used int, longest_streak int, achievements_count bigint)
-  LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
-    SELECT
-      a.user_id,
-      COALESCE(NULLIF(p.username,''), 'Zen-' || substr(a.user_id::text,1,4)) as display_name,
-      a.total_days_used,
-      GREATEST(a.mindmate_streak, a.journal_streak, a.mood_streak, a.meditation_streak, a.sleep_streak) as longest_streak,
-      (SELECT count(*) FROM public.user_achievements ua WHERE ua.user_id = a.user_id) as achievements_count
-    FROM public.user_activity_data a
-    LEFT JOIN public.profiles p ON p.user_id = a.user_id
-    ORDER BY achievements_count DESC, longest_streak DESC, total_days_used DESC
-    LIMIT _limit;
-  $$;
-  GRANT EXECUTE ON FUNCTION public.get_leaderboard(int) TO authenticated;
-  ```
-- Hashing: `crypto.subtle.digest('SHA-256', utf8(salt + pin))`.
-- No edge-function changes needed.
-
-## Files to create
-- `src/components/achievements/RewardsShop.tsx`
-- `src/components/achievements/Leaderboard.tsx`
-- `src/components/achievements/InsightsPanel.tsx`
-- `src/components/journal/PrivateSpaceGate.tsx`
-- `src/hooks/useJournalPin.ts`
-- `src/hooks/useLeaderboard.ts`
-- One new migration file
-
-## Files to edit
-- `src/hooks/useAchievements.ts` (time gating + toast dedupe)
-- `src/components/achievements/Achievements.tsx` (tabs, rewards, leaderboard, insights)
-- `src/components/journal/JournalWriteView.tsx` (private toggle)
-- `src/components/journal/JournalHistoryView.tsx` (filter + entry to Private Space)
-- `src/components/Journal.tsx` (add Private tab/route)
-- `src/hooks/useJournalSupabase.ts` (pass `is_private` through)
-- `src/pages/Meditation.tsx` + `src/components/MeditationTimer.tsx` (joyful)
-- `src/components/ChatInterface.tsx` (restore Breathing card)
-- `src/components/navigation/MobileNavigation.tsx` (5 + More pattern)
-- `mem://index.md`
-
-This is large; I'll implement in order: migration → achievements fix → mobile nav → breathing tile → meditation polish → private journal → achievements revamp.
+Approve and I'll execute end-to-end.
