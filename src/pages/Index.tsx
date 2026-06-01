@@ -8,6 +8,7 @@ import FeaturesSection from '@/components/home/FeaturesSection';
 import StatsSection from '@/components/home/StatsSection';
 import ResourcesPreview from '@/components/home/ResourcesPreview';
 import CTASection from '@/components/home/CTASection';
+import SosButton from '@/components/safety/SosButton';
 
 const Index = () => {
   const [showFeatures, setShowFeatures] = useState(false);
@@ -48,6 +49,7 @@ const Index = () => {
         <CTASection />
       </main>
       <Footer />
+      <SosButton />
     </>
   );
 };

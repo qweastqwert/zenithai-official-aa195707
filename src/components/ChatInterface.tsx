@@ -33,6 +33,7 @@ import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
 import { SleepPrompt } from './sleep/SleepPrompt';
 import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
+import SosButton from '@/components/safety/SosButton';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
@@ -1068,6 +1069,8 @@ const ChatInterface = () => {
         achievement={newAchievement} 
         onClose={() => setNewAchievement(null)} 
       />
+      {/* Persistent SOS — hidden while a fullscreen sub-flow is open */}
+      <SosButton hidden={!!activeChatbot || showSettings || showAchievements} />
     </div>
   );
 };
