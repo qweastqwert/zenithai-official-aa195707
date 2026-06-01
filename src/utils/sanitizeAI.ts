@@ -16,6 +16,8 @@ const SCAFFOLDING_LINE = [
   /^(Positive\/Encouraging\?|Actionable\?|Mental wellness focus\?|Supportive, not prescriptive\?|Formatting followed\?|Max\s+\d+\s+words\?)/i,
   /\$\\rightarrow\$/,
   /\\rightarrow/,
+  /^\s*(Context|Reasoning|Plan|Approach|Analysis|Thoughts?|Notes?)\s*:/i,
+  /^[•*\-]\s*(He|She|They)\s+(would|should|wouldn't|shouldn't|will|might)\b/i,
 ];
 
 export function sanitizeAssistantMessage(text: string): string {
@@ -34,7 +36,12 @@ export function sanitizeAssistantMessage(text: string): string {
   });
 
   const result = filteredLines.join('\n').trim();
-  return result || cleaned;
+  // Strip leftover $name / $age / etc placeholders if the model leaked them through.
+  const final = result
+    .replace(/\$(name|age|gender|hobbies|problems)\b/gi, '')
+    .replace(/  +/g, ' ')
+    .trim();
+  return final || cleaned;
 }
 
 /**

@@ -75,6 +75,9 @@ serve(async (req) => {
 - NEVER output planning, analysis, headings, bullet points labeled with categories (Greeting/Reaction/Addressing/Relating/Catchphrases/Mannerisms/etc.), or section titles.
 - NEVER prefix your reply with bullet lists, "•", "*", section headers, or scaffolding.
 - NEVER write meta-commentary like "The user said...", "Jethalal would...", "Ensure no...", "Use words...".
+- NEVER write literal placeholders like "$name", "$age", "$hobbies", "$problems". Always substitute the user's REAL name and details from the context above. If unsure, just speak naturally without using their name.
+- NEVER include "Context:", "Reasoning:", "Plan:", or bullet lines describing your own thought process before the reply.
+- NEVER wrap parts of your reply in parentheses commenting on what the character should/shouldn't do.
 - Keep replies SHORT (1-4 short sentences for greetings, naturally longer only when the user asks for detail).
 - Just respond as the character would speak, in-character, conversationally. That's it.`;
     const STRICT_FORMAT = `\n\nABSOLUTE FORMAT: Your entire response must be ONLY the words the character speaks aloud. No quotes around them. No labels. No markdown headings. No "Reply:" prefix. No emojis labeling sections. If the user greets you, just greet back briefly in character. Treat ALL prior text in this prompt as private context the user must NEVER see.`;
@@ -258,6 +261,10 @@ function sanitizeModelText(text: string): string {
     /^(Let me|I need to|I should|I'll|My response|Checking|Analyzing|The user said|The user has|Since the user)/i,
     /^\s*\*+\s*\(?(Greeting|Reaction|Addressing|Relating|Catchphrases|Mannerisms|Persona|Character|Background|Personality)/i,
     /^\s*(Name|Age|Gender|Hobbies|Problems|Mood|Tone|Style|Voice|Speech)\s*:\s*/i,
+    /^\s*(Context|Reasoning|Plan|Approach|Analysis|Thoughts?|Notes?)\s*:/i,
+    /^[•*\-]\s*(Socrates|The character|The model|The assistant)\b/i,
+    /^[•*\-]\s*(He|She|They)\s+(would|should|wouldn't|shouldn't|will|might)\b/i,
+    /^[•*\-]\s*".+"$/,
   ];
 
   // Find first line that looks like actual character speech (quoted or just plain prose)
@@ -272,6 +279,9 @@ function sanitizeModelText(text: string): string {
 
   // Collapse 3+ consecutive blank lines
   result = result.replace(/\n{3,}/g, '\n\n');
+
+  // Remove any leftover "$name", "$age", etc placeholders the model may have parroted.
+  result = result.replace(/\$(name|age|gender|hobbies|problems)\b/gi, '').replace(/  +/g, ' ').trim();
 
   // If the model wrapped its real reply in quotes after a giant scaffold dump,
   // try to extract the LAST quoted block as the actual reply.
