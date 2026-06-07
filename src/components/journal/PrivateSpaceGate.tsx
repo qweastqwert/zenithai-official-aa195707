@@ -73,8 +73,6 @@ const PrivateSpaceGate: React.FC<PrivateSpaceGateProps> = ({ onUnlocked }) => {
     try {
       const { error } = await supabase.from('pin_reset_requests').insert({
         user_id: user.id,
-        user_email: user.email ?? null,
-        user_display_name: user.user_metadata?.name ?? null,
         reason: resetReason.trim().slice(0, 1000),
         confirmation_phrase: resetPhrase.trim(),
       });
