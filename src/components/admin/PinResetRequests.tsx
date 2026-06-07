@@ -10,8 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 interface ResetRow {
   id: string;
   user_id: string;
-  user_email: string | null;
-  user_display_name: string | null;
   reason: string;
   confirmation_phrase: string;
   status: string;
@@ -46,7 +44,7 @@ const PinResetRequests: React.FC = () => {
   useEffect(() => { load(); }, [load]);
 
   const approve = async (row: ResetRow) => {
-    if (!confirm(`Clear PIN for ${row.user_email ?? row.user_id}?\n\nThis cannot be undone. The user will need to set a new PIN.`)) return;
+    if (!confirm(`Clear PIN for user ${row.user_id.slice(0, 8)}?\n\nThis cannot be undone. The user will need to set a new PIN.`)) return;
     setBusyId(row.id);
     const { error } = await supabase.rpc('admin_clear_journal_pin', {
       _target_user: row.user_id,
@@ -99,8 +97,7 @@ const PinResetRequests: React.FC = () => {
           <div key={r.id} className="border rounded-lg p-3 space-y-2 text-sm">
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <div>
-                <div className="font-semibold">{r.user_display_name || r.user_email || r.user_id.slice(0, 8)}</div>
-                <div className="text-xs text-muted-foreground">{r.user_email}</div>
+                <div className="font-semibold">User {r.user_id.slice(0, 8)}</div>
                 <div className="text-[10px] text-muted-foreground font-mono">uid: {r.user_id}</div>
               </div>
               <div className="text-right">
