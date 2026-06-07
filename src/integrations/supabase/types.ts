@@ -554,8 +554,6 @@ export type Database = {
           reviewed_by: string | null
           status: string
           updated_at: string
-          user_display_name: string | null
-          user_email: string | null
           user_id: string
         }
         Insert: {
@@ -569,8 +567,6 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           updated_at?: string
-          user_display_name?: string | null
-          user_email?: string | null
           user_id: string
         }
         Update: {
@@ -584,8 +580,6 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           updated_at?: string
-          user_display_name?: string | null
-          user_email?: string | null
           user_id?: string
         }
         Relationships: []
