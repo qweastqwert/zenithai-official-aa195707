@@ -35,6 +35,7 @@ import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { ScheduleWidget } from '@/components/schedule/ScheduleWidget';
 import SosButton from '@/components/safety/SosButton';
 import SmartRecommendations from '@/components/home/SmartRecommendations';
+import BirthdayLetter from '@/components/birthday/BirthdayLetter';
 import { toast } from 'sonner';
 
 const ChatInterface = () => {
@@ -571,6 +572,8 @@ const ChatInterface = () => {
 
                 {user && <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />}
 
+                {user && <BirthdayLetter />}
+
                 {/* Daily Schedule Widget */}
                 <div className="relative">
                   <ScheduleWidget onNavigate={() => handleNavigation('schedule')} />
@@ -838,6 +841,8 @@ const ChatInterface = () => {
             {user && <AnalyticsDashboard />}
             
             {user && <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />}
+
+            {user && <BirthdayLetter />}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
               {/* Daily Schedule Card */}
