@@ -627,6 +627,7 @@ export type Database = {
         Row: {
           age: string
           age_number: number | null
+          birth_date: string | null
           created_at: string
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
@@ -643,6 +644,7 @@ export type Database = {
         Insert: {
           age: string
           age_number?: number | null
+          birth_date?: string | null
           created_at?: string
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
@@ -659,6 +661,7 @@ export type Database = {
         Update: {
           age?: string
           age_number?: number | null
+          birth_date?: string | null
           created_at?: string
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
