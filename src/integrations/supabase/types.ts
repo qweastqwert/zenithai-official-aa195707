@@ -440,6 +440,91 @@ export type Database = {
         }
         Relationships: []
       }
+      mail_deleted: {
+        Row: {
+          deleted_at: string
+          mail_id: string
+          user_id: string
+        }
+        Insert: {
+          deleted_at?: string
+          mail_id: string
+          user_id: string
+        }
+        Update: {
+          deleted_at?: string
+          mail_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mail_deleted_mail_id_fkey"
+            columns: ["mail_id"]
+            isOneToOne: false
+            referencedRelation: "mail_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mail_messages: {
+        Row: {
+          body_html: string
+          category: string
+          created_at: string
+          id: string
+          is_welcome: boolean
+          recipient_user_id: string | null
+          sender_user_id: string | null
+          title: string
+        }
+        Insert: {
+          body_html: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_welcome?: boolean
+          recipient_user_id?: string | null
+          sender_user_id?: string | null
+          title: string
+        }
+        Update: {
+          body_html?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_welcome?: boolean
+          recipient_user_id?: string | null
+          sender_user_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      mail_reads: {
+        Row: {
+          mail_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          mail_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          mail_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mail_reads_mail_id_fkey"
+            columns: ["mail_id"]
+            isOneToOne: false
+            referencedRelation: "mail_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mind_archive: {
         Row: {
           category: string | null
