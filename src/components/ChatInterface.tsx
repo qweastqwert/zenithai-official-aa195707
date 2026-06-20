@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCookie } from '@/utils/cookieUtils';
 import EventsMenu from '@/components/events/EventsMenu';
 import Achievements from '@/components/achievements/Achievements';
+import Mailbox from '@/components/mail/Mailbox';
 import { useActivityTracker } from '@/hooks/useActivityTracker';
 import AchievementNotification from '@/components/achievements/AchievementNotification';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -827,6 +828,7 @@ const ChatInterface = () => {
               </div>
               <div className="flex items-center gap-2">
                 <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
+                <Mailbox />
                 <Button 
                   onClick={() => setShowSettings(true)}
                   variant="outline"
