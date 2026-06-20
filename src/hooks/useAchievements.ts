@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useCallback, useState } from 'react';
 import { useActivityTracker } from './useActivityTracker';
 import { useAuth } from './useAuth';
+import { useProfile } from './useProfile';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Achievement {
@@ -28,6 +29,7 @@ interface CloudAchievement {
 export const useAchievements = () => {
   const { activities } = useActivityTracker();
   const { user } = useAuth();
+  const { profile } = useProfile();
   const [cloudAchievements, setCloudAchievements] = useState<CloudAchievement[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   // Snapshot of IDs already unlocked in the cloud when this session started.
@@ -90,6 +92,15 @@ export const useAchievements = () => {
   const isCloudUnlocked = useCallback((achievementId: string) => {
     return cloudAchievements.some(a => a.achievement_id === achievementId);
   }, [cloudAchievements]);
+
+  // Real birthday check using profile.birth_date (YYYY-MM-DD).
+  const isBirthdayToday = useCallback(() => {
+    if (!profile?.birth_date) return false;
+    const bd = new Date(profile.birth_date);
+    if (isNaN(bd.getTime())) return false;
+    const now = new Date();
+    return bd.getUTCMonth() === now.getMonth() && bd.getUTCDate() === now.getDate();
+  }, [profile?.birth_date]);
 
   const achievements = useMemo<Achievement[]>(() => [
     // Streak Achievements
@@ -361,19 +372,19 @@ export const useAchievements = () => {
     },
     {
       id: 'time-traveler',
-      title: 'Time Traveler',
-      description: 'Use Zenith AI on your birthday (simulated)',
+      title: 'Birthday Bloom',
+      description: 'Open Zenith AI on your birthday 🎂',
       icon: '🎂',
       category: 'easter-egg',
       rarity: 'legendary',
-      isUnlocked: (new Date().getDate() === 1 && activities.totalDaysUsed > 0) || isCloudUnlocked('time-traveler'),
-      progress: (new Date().getDate() === 1 && activities.totalDaysUsed > 0) ? 1 : 0,
+      isUnlocked: (isBirthdayToday() && activities.totalDaysUsed > 0) || isCloudUnlocked('time-traveler'),
+      progress: (isBirthdayToday() && activities.totalDaysUsed > 0) ? 1 : 0,
       maxProgress: 1,
       reward: 'Birthday surprise features',
       isEasterEgg: true,
-      hidden: !(new Date().getDate() === 1 && activities.totalDaysUsed > 0) && !isCloudUnlocked('time-traveler')
+      hidden: !(isBirthdayToday() && activities.totalDaysUsed > 0) && !isCloudUnlocked('time-traveler')
     }
-  ], [activities, isCloudUnlocked]);
+  ], [activities, isCloudUnlocked, isBirthdayToday]);
 
   // Sync newly unlocked achievements to cloud
   useEffect(() => {
