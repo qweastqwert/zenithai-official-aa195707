@@ -570,6 +570,9 @@ const ChatInterface = () => {
                 <div className="flex justify-center">
                   <EventsMenu onNavigateToMindMate={handleNavigateToMindMate} />
                 </div>
+                <div className="flex justify-center">
+                  <Mailbox />
+                </div>
 
                 {user && <SmartRecommendations onOpenMindMate={() => handleNavigation('mindmate')} />}
 
