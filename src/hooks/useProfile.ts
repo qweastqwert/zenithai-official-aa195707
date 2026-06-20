@@ -11,6 +11,7 @@ export interface UserProfile {
   hobbies: string;
   problems: string;
   username?: string;
+  birth_date?: string | null;
   created_at?: string;
   updated_at?: string;
 }

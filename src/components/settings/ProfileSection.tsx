@@ -20,7 +20,8 @@ const ProfileSection = () => {
     gender: '',
     hobbies: '',
     problems: '',
-    username: ''
+    username: '',
+    birth_date: ''
   });
 
   const handleProfileUpdate = () => {
@@ -75,6 +76,17 @@ const ProfileSection = () => {
               onChange={(e) => setEditedProfile({ ...editedProfile, age: e.target.value })}
             />
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="birth_date" className="text-gray-700 dark:text-gray-300">Birthday 🎂</Label>
+          <Input
+            id="birth_date"
+            type="date"
+            value={editedProfile.birth_date || ''}
+            onChange={(e) => setEditedProfile({ ...editedProfile, birth_date: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">We'll send you a special letter on your birthday ✨</p>
         </div>
 
         <div className="space-y-2">
