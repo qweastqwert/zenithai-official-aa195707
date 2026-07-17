@@ -525,6 +525,38 @@ export type Database = {
           },
         ]
       }
+      mail_replies: {
+        Row: {
+          body_html: string
+          created_at: string
+          id: string
+          mail_id: string
+          sender_user_id: string
+        }
+        Insert: {
+          body_html: string
+          created_at?: string
+          id?: string
+          mail_id: string
+          sender_user_id: string
+        }
+        Update: {
+          body_html?: string
+          created_at?: string
+          id?: string
+          mail_id?: string
+          sender_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mail_replies_mail_id_fkey"
+            columns: ["mail_id"]
+            isOneToOne: false
+            referencedRelation: "mail_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mind_archive: {
         Row: {
           category: string | null
@@ -1006,6 +1038,51 @@ export type Database = {
           reviewed_by?: string | null
           specialization?: string
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      treatment_plans: {
+        Row: {
+          ai_context: string | null
+          cbt_summary: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          goals: Json
+          id: string
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_context?: string | null
+          cbt_summary?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          goals?: Json
+          id?: string
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_context?: string | null
+          cbt_summary?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          goals?: Json
+          id?: string
+          start_date?: string | null
+          status?: string
+          title?: string
           updated_at?: string
           user_id?: string
         }
