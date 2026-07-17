@@ -346,6 +346,11 @@ const AnalyticsPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* CBT Clinical Analysis + Treatment Plan */}
+        <div className="mb-6">
+          <CBTAnalysis />
+        </div>
+
         {/* Sleep section */}
         <div className="flex items-center justify-between mb-3 mt-10">
           <h2 className="text-xl font-bold flex items-center gap-2"><Moon className="h-5 w-5 text-primary" /> Sleep Analytics</h2>
