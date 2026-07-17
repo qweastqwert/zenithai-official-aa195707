@@ -597,9 +597,12 @@ RESPONSE SAFETY RULES:
     // give the user a friendly acknowledgement so the chat doesn't appear broken.
     if (!reply && toolCallsData.length > 0) {
       const hasSchedule = toolCallsData.some(t => t.type === 'schedule_events');
-      reply = hasSchedule
-        ? "I've drafted a few events for your schedule — review them below and tap confirm to add them. ✨"
-        : "Here's something that might help. 💛";
+      const hasPlan = toolCallsData.some(t => t.type === 'treatment_plan_saved');
+      reply = hasPlan
+        ? "Your treatment plan is saved 💜 — I'll adapt our future chats around it. You can view or edit it any time in Wellness Analytics."
+        : hasSchedule
+          ? "I've drafted a few events for your schedule — review them below and tap confirm to add them. ✨"
+          : "Here's something that might help. 💛";
     }
 
     const tokensUsed = data.usageMetadata?.totalTokenCount || 0;
