@@ -13,6 +13,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import TurnstileWidget from '@/components/TurnstileWidget';
+import { Textarea } from '@/components/ui/textarea';
 
 type MailRow = {
   id: string;
@@ -127,7 +129,7 @@ const Mailbox: React.FC<MailboxProps> = ({ variant = 'outline' }) => {
 
             <TabsContent value="inbox" className="flex-1 overflow-hidden mt-3 px-5 pb-5">
               {active ? (
-                <MailReader mail={active} sanitized={sanitized} onBack={() => setActive(null)} onHide={() => hideMail(active)} />
+                <MailReader mail={active} sanitized={sanitized} onBack={() => setActive(null)} onHide={() => hideMail(active)} isAdmin={isAdmin} />
               ) : (
                 <ScrollArea className="h-[55vh] pr-2">
                   {loading && <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>}
@@ -179,21 +181,79 @@ const Mailbox: React.FC<MailboxProps> = ({ variant = 'outline' }) => {
   );
 };
 
-const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; onBack: () => void; onHide: () => void }> = ({ mail, sanitized, onBack, onHide }) => (
-  <div className="flex flex-col h-[55vh]">
-    <div className="flex items-center justify-between mb-3">
-      <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="h-4 w-4 mr-1" /> Back</Button>
-      <Button variant="ghost" size="sm" onClick={onHide} className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4 mr-1" /> Delete</Button>
+const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; onBack: () => void; onHide: () => void; isAdmin: boolean }> = ({ mail, sanitized, onBack, onHide, isAdmin }) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [replies, setReplies] = useState<any[]>([]);
+  const [replyText, setReplyText] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+
+  const loadReplies = async () => {
+    const { data } = await supabase.from('mail_replies').select('*').eq('mail_id', mail.id).order('created_at', { ascending: true });
+    setReplies(data || []);
+  };
+  useEffect(() => { loadReplies(); /* eslint-disable-next-line */ }, [mail.id]);
+
+  const sendReply = async () => {
+    if (!user || !replyText.trim()) return;
+    if (!turnstileToken) { toast({ title: 'Please complete the verification', variant: 'destructive' }); return; }
+    setSending(true);
+    const safe = DOMPurify.sanitize(replyText.replace(/\n/g, '<br/>'));
+    const { error } = await supabase.from('mail_replies').insert({
+      mail_id: mail.id, sender_user_id: user.id, body_html: safe,
+    });
+    setSending(false);
+    if (error) { toast({ title: 'Reply failed', description: error.message, variant: 'destructive' }); return; }
+    setReplyText('');
+    setTurnstileToken(null);
+    toast({ title: 'Reply sent 💌' });
+    loadReplies();
+  };
+
+  return (
+    <div className="flex flex-col h-[55vh]">
+      <div className="flex items-center justify-between mb-3">
+        <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="h-4 w-4 mr-1" /> Back</Button>
+        <Button variant="ghost" size="sm" onClick={onHide} className="text-destructive hover:text-destructive"><Trash2 className="h-4 w-4 mr-1" /> Delete</Button>
+      </div>
+      <div className="mb-2">
+        <h2 className="text-xl font-bold">{mail.title}</h2>
+        <p className="text-xs text-muted-foreground">{new Date(mail.created_at).toLocaleString()}</p>
+      </div>
+      <ScrollArea className="flex-1 border rounded-xl p-4 bg-background">
+        <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitized(mail.body_html) }} />
+
+        {replies.length > 0 && (
+          <div className="mt-6 border-t pt-4 space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Replies</p>
+            {replies.map(r => (
+              <div key={r.id} className="p-3 rounded-lg bg-muted/50 border">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>{isAdmin ? `User ${r.sender_user_id.slice(0, 8)}` : 'You'}</span>
+                  <span>{formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}</span>
+                </div>
+                <div className="text-sm" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(r.body_html) }} />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-6 border-t pt-4 space-y-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Reply to the developers</p>
+          <Textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type your reply..." rows={3} maxLength={2000} />
+          <TurnstileWidget onVerify={setTurnstileToken} onExpire={() => setTurnstileToken(null)} theme="auto" size="compact" />
+          <div className="flex justify-end">
+            <Button size="sm" onClick={sendReply} disabled={sending || !replyText.trim() || !turnstileToken}>
+              {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+              Send reply
+            </Button>
+          </div>
+        </div>
+      </ScrollArea>
     </div>
-    <div className="mb-2">
-      <h2 className="text-xl font-bold">{mail.title}</h2>
-      <p className="text-xs text-muted-foreground">{new Date(mail.created_at).toLocaleString()}</p>
-    </div>
-    <ScrollArea className="flex-1 border rounded-xl p-4 bg-background">
-      <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: sanitized(mail.body_html) }} />
-    </ScrollArea>
-  </div>
-);
+  );
+};
 
 const ComposeMail: React.FC<{ onSent: () => void }> = ({ onSent }) => {
   const { user } = useAuth();

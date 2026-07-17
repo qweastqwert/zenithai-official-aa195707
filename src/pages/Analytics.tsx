@@ -20,6 +20,7 @@ import { useSleepProfile } from '@/hooks/useSleepProfile';
 import { generateWellnessReport, generateSleepReport } from '@/utils/pdfReport';
 import { toast } from 'sonner';
 import SEO from '@/components/SEO';
+import CBTAnalysis from '@/components/analytics/CBTAnalysis';
 
 const MOOD_SCORES: Record<string, number> = {
   'very-happy': 5, happy: 4, excited: 5, grateful: 5, peaceful: 5, confident: 5,
@@ -344,6 +345,11 @@ const AnalyticsPage: React.FC = () => {
             </ResponsiveContainer>
           </CardContent>
         </Card>
+
+        {/* CBT Clinical Analysis + Treatment Plan */}
+        <div className="mb-6">
+          <CBTAnalysis />
+        </div>
 
         {/* Sleep section */}
         <div className="flex items-center justify-between mb-3 mt-10">

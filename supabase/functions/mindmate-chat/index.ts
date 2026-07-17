@@ -216,6 +216,18 @@ serve(async (req) => {
       ? `\n\nUSER PROFILE: Name: ${userProfile.name}, Age: ${userProfile.age}, Hobbies: ${userProfile.hobbies || 'N/A'}, Challenges: ${userProfile.problems || 'N/A'}`
       : '';
 
+    // Fetch active treatment plan
+    const { data: treatmentPlans } = await supabaseClient
+      .from('treatment_plans')
+      .select('title, description, goals, cbt_summary, start_date, end_date, status')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .limit(1);
+    const activePlan = treatmentPlans?.[0];
+    const treatmentContext = activePlan
+      ? `\n\nUSER'S ACTIVE TREATMENT PLAN:\nTitle: ${activePlan.title}\n${activePlan.description ? `Description: ${activePlan.description}\n` : ''}Goals:\n${(activePlan.goals as any[]).map((g: any, i: number) => `  ${i + 1}. ${g.title}${g.measurable ? ` — measure: ${g.measurable}` : ''}${g.done ? ' [done]' : ''}`).join('\n')}\n${activePlan.cbt_summary ? `CBT summary snippet: ${String(activePlan.cbt_summary).slice(0, 400)}` : ''}\n\nWhen the user mentions goals, progress, setbacks, or planning — refer to this plan by name and adapt suggestions to support it. Use save_treatment_plan to create/update plans when collaborating on one.`
+      : `\n\nUSER'S TREATMENT PLAN: None active. If the user wants to build one (or arrives via "collaborate with MindMate"), gently ask about current struggles, ideal outcomes, and 3-5 measurable goals — then call save_treatment_plan.`;
+
     const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
     if (!googleApiKey) {
       throw new Error('Google AI Studio API key not configured');
@@ -233,7 +245,7 @@ serve(async (req) => {
     }
 
     // Append all context to the system instruction
-    systemInstruction += memoryContext + moodContext + scheduleContext + sleepContext + sleepHistoryContext + journalContext + recurringContext + analyticsContext + profileContext;
+    systemInstruction += memoryContext + moodContext + scheduleContext + sleepContext + sleepHistoryContext + journalContext + recurringContext + analyticsContext + profileContext + treatmentContext;
 
     // Add tool instructions and safety rules to system instruction
     systemInstruction += `
@@ -440,6 +452,35 @@ RESPONSE SAFETY RULES:
             required: ["events"]
           }
         }
+      },
+      {
+        type: "function",
+        function: {
+          name: "save_treatment_plan",
+          description: "Create or update the user's CBT-informed treatment plan. Use ONLY when the user has clearly agreed on goals with you. Replaces the active plan.",
+          parameters: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "Short plan title, e.g. 'Managing exam anxiety'" },
+              description: { type: "string", description: "1-3 sentence overview the user agreed on" },
+              goals: {
+                type: "array",
+                description: "3-6 measurable goals",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    rationale: { type: "string" },
+                    measurable: { type: "string", description: "How progress will be measured" }
+                  },
+                  required: ["title"]
+                }
+              },
+              end_date: { type: "string", description: "Optional target completion date (YYYY-MM-DD)" }
+            },
+            required: ["title", "goals"]
+          }
+        }
       }
     ];
 
@@ -513,6 +554,24 @@ RESPONSE SAFETY RULES:
           else console.log('Memory saved:', args.category);
         } else if (fc.name === 'add_schedule_events') {
           toolCallsData.push({ type: 'schedule_events', events: args.events, date: args.date });
+        } else if (fc.name === 'save_treatment_plan') {
+          // Deactivate previous active plans, then insert the new one
+          await supabaseClient
+            .from('treatment_plans')
+            .update({ status: 'archived' })
+            .eq('user_id', user.id)
+            .eq('status', 'active');
+          const { error: tpErr } = await supabaseClient.from('treatment_plans').insert({
+            user_id: user.id,
+            title: args.title || 'My Treatment Plan',
+            description: args.description || null,
+            goals: args.goals || [],
+            end_date: args.end_date || null,
+            status: 'active',
+            ai_context: `Created via MindMate collaboration on ${new Date().toISOString()}`,
+          });
+          if (tpErr) console.error('Error saving treatment plan:', tpErr);
+          toolCallsData.push({ type: 'treatment_plan_saved', title: args.title, goals: args.goals });
         } else {
           const typeMap: Record<string, string> = {
             'show_breathing_exercise': 'breathing_exercise',
@@ -538,9 +597,12 @@ RESPONSE SAFETY RULES:
     // give the user a friendly acknowledgement so the chat doesn't appear broken.
     if (!reply && toolCallsData.length > 0) {
       const hasSchedule = toolCallsData.some(t => t.type === 'schedule_events');
-      reply = hasSchedule
-        ? "I've drafted a few events for your schedule — review them below and tap confirm to add them. ✨"
-        : "Here's something that might help. 💛";
+      const hasPlan = toolCallsData.some(t => t.type === 'treatment_plan_saved');
+      reply = hasPlan
+        ? "Your treatment plan is saved 💜 — I'll adapt our future chats around it. You can view or edit it any time in Wellness Analytics."
+        : hasSchedule
+          ? "I've drafted a few events for your schedule — review them below and tap confirm to add them. ✨"
+          : "Here's something that might help. 💛";
     }
 
     const tokensUsed = data.usageMetadata?.totalTokenCount || 0;
