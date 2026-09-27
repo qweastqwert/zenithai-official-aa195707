@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2, Mail, Lock, User, Eye, EyeOff, UserCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import TurnstileWidget from '@/components/TurnstileWidget';
+import CapWidget from '@/components/CapWidget';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 
 interface AuthFormProps {
@@ -23,7 +23,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [capToken, setCapToken] = useState<string | null>(null);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -46,7 +46,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   const handleGuestSignIn = async () => {
-    if (!turnstileToken) {
+    if (!capToken) {
       setError('Please complete the verification before continuing as guest.');
       toast({
         title: 'Verification required',
@@ -83,7 +83,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!turnstileToken) {
+    if (!capToken) {
       setError('Please complete the verification');
       return;
     }
@@ -166,7 +166,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     setError('');
     setEmail('');
     setPassword('');
-    setTurnstileToken(null);
+    setCapToken(null);
   };
 
   return (
@@ -270,9 +270,9 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 transition={{ duration: 0.4, delay: 0.5 }}
                 className="space-y-3"
               >
-                <TurnstileWidget
-                  onVerify={(token) => setTurnstileToken(token)}
-                  onExpire={() => setTurnstileToken(null)}
+                <CapWidget resetKey={capReset}
+                  onVerify={(token) => setCapToken(token)}
+                  onExpire={() => setCapToken(null)}
                 />
                 
                 <Button

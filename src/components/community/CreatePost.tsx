@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCommunityPosts } from '@/hooks/useCommunityPosts';
 import { validateContentWithToast } from '@/utils/validateContent';
 import { motion } from 'framer-motion';
-import TurnstileWidget from '@/components/TurnstileWidget';
+import CapWidget from '@/components/CapWidget';
 import BanNotice from './BanNotice';
 import { Shield, Send } from 'lucide-react';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
@@ -25,7 +25,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [description, setDescription] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [capToken, setCapToken] = useState<string | null>(null);
   const { createPost } = useCommunityPosts();
   const { user } = useAuth();
   const { isBanned, checkingBan } = useCommunityBans();
@@ -33,7 +33,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!turnstileToken) {
+    if (!capToken) {
       toast.error('Please complete the verification');
       return;
     }
@@ -138,9 +138,9 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
               <Shield className="h-4 w-4 text-[#7950f2]" />
               <span>Verify you're human to post</span>
             </div>
-            <TurnstileWidget
-              onVerify={(token) => setTurnstileToken(token)}
-              onExpire={() => setTurnstileToken(null)}
+            <CapWidget resetKey={capReset}
+              onVerify={(token) => setCapToken(token)}
+              onExpire={() => setCapToken(null)}
             />
           </div>
           <div className="flex gap-2 justify-end">
@@ -155,7 +155,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
             </Button>
             <Button
               type="submit"
-              disabled={!title.trim() || !description.trim() || !turnstileToken || isSubmitting}
+              disabled={!title.trim() || !description.trim() || !capToken || isSubmitting}
               className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/30"
             >
               {isSubmitting ? 'Posting...' : (isAnonymous ? 'Post Anonymously' : 'Post as ' + (user?.email?.split('@')[0] || 'User'))}

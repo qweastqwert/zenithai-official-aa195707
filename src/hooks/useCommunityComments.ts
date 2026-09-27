@@ -46,7 +46,7 @@ export const useCommunityComments = (postId: string) => {
     }
   };
 
-  const createComment = async (content: string, isAnonymous: boolean = true) => {
+  const createComment = async (content: string, isAnonymous: boolean = true, capToken?: string) => {
     if (!user) {
       toast.error('You must be logged in to comment');
       return false;
@@ -59,7 +59,8 @@ export const useCommunityComments = (postId: string) => {
           post_id: postId,
           content,
           user_id: user.id,
-          is_anonymous: isAnonymous
+          is_anonymous: isAnonymous,
+          cap_token: capToken
         });
 
       if (error) throw error;
