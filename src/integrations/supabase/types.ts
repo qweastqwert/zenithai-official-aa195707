@@ -74,6 +74,39 @@ export type Database = {
         }
         Relationships: []
       }
+      cap_nonces: {
+        Row: {
+          expires_at: string
+          sig: string
+        }
+        Insert: {
+          expires_at: string
+          sig: string
+        }
+        Update: {
+          expires_at?: string
+          sig?: string
+        }
+        Relationships: []
+      }
+      cap_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          token_key: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          token_key: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          token_key?: string
+        }
+        Relationships: []
+      }
       character_conversations: {
         Row: {
           character_id: string
@@ -232,6 +265,7 @@ export type Database = {
       }
       community_comments: {
         Row: {
+          cap_token: string | null
           content: string
           created_at: string
           id: string
@@ -241,6 +275,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cap_token?: string | null
           content: string
           created_at?: string
           id?: string
@@ -250,6 +285,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cap_token?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -277,6 +313,7 @@ export type Database = {
       }
       community_posts: {
         Row: {
+          cap_token: string | null
           created_at: string
           description: string
           id: string
@@ -286,6 +323,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          cap_token?: string | null
           created_at?: string
           description: string
           id?: string
@@ -295,6 +333,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          cap_token?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -528,6 +567,7 @@ export type Database = {
       mail_replies: {
         Row: {
           body_html: string
+          cap_token: string | null
           created_at: string
           id: string
           mail_id: string
@@ -535,6 +575,7 @@ export type Database = {
         }
         Insert: {
           body_html: string
+          cap_token?: string | null
           created_at?: string
           id?: string
           mail_id: string
@@ -542,6 +583,7 @@ export type Database = {
         }
         Update: {
           body_html?: string
+          cap_token?: string | null
           created_at?: string
           id?: string
           mail_id?: string
@@ -1288,6 +1330,7 @@ export type Database = {
       admin_get_community_comments: {
         Args: never
         Returns: {
+          cap_token: string | null
           content: string
           created_at: string
           id: string
@@ -1306,6 +1349,7 @@ export type Database = {
       admin_get_community_posts: {
         Args: never
         Returns: {
+          cap_token: string | null
           created_at: string
           description: string
           id: string
@@ -1321,7 +1365,9 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      cleanup_expired_guests: { Args: never; Returns: number }
       cleanup_old_conversations: { Args: never; Returns: undefined }
+      consume_cap_token: { Args: { _token: string }; Returns: boolean }
       delete_user_account: { Args: never; Returns: undefined }
       get_leaderboard: {
         Args: { _limit?: number }
@@ -1338,6 +1384,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       is_user_banned: { Args: { user_uuid: string }; Returns: boolean }
+      purge_user_data: { Args: { _uid: string }; Returns: undefined }
       update_user_reputation: {
         Args: { points: number; target_user_id: string }
         Returns: undefined
