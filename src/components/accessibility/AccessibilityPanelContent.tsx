@@ -212,6 +212,14 @@ const AccessibilityPanelContent = ({
               checked={state.skipNavigation}
               onChange={(value) => onUpdate({ skipNavigation: value })}
             />
+
+            <ToggleRow
+              icon={<ScrollText className="h-4 w-4" />}
+              label="Show Scroll Bar"
+              description="Show the page scroll bar on the right side."
+              checked={state.showScrollbar}
+              onChange={(value) => onUpdate({ showScrollbar: value })}
+            />
           </div>
 
           <Separator />
