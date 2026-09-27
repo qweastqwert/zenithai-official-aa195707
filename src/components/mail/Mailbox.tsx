@@ -187,6 +187,8 @@ const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; on
   const [replies, setReplies] = useState<any[]>([]);
   const [replyText, setReplyText] = useState('');
   const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
   const [sending, setSending] = useState(false);
 
   const loadReplies = async () => {
@@ -201,12 +203,12 @@ const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; on
     setSending(true);
     const safe = DOMPurify.sanitize(replyText.replace(/\n/g, '<br/>'));
     const { error } = await supabase.from('mail_replies').insert({
-      mail_id: mail.id, sender_user_id: user.id, body_html: safe,
+      mail_id: mail.id, sender_user_id: user.id, body_html: safe, cap_token: capToken,
     });
     setSending(false);
+    refreshCap();
     if (error) { toast({ title: 'Reply failed', description: error.message, variant: 'destructive' }); return; }
     setReplyText('');
-    setCapToken(null);
     toast({ title: 'Reply sent 💌' });
     loadReplies();
   };

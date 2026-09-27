@@ -1,16 +1,14 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MindMate from './MindMate';
-import ReCAPTCHA from './ReCAPTCHA';
 
 interface MindMateWithVerificationProps {
   profile: any;
   onBack?: () => void;
 }
 
+// MindMate requires a signed-in session, which already proves the visitor is human.
 const MindMateWithVerification: React.FC<MindMateWithVerificationProps> = ({ profile, onBack }) => {
-  const [isVerified, setIsVerified] = useState(false);
   const [autoPrompt, setAutoPrompt] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -22,28 +20,7 @@ const MindMateWithVerification: React.FC<MindMateWithVerificationProps> = ({ pro
     }
   }, []);
 
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate('/chat');
-    }
-  };
-
-  if (!isVerified) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="max-w-md w-full">
-          <ReCAPTCHA 
-            onVerified={() => setIsVerified(true)} 
-            title="Verify to Continue"
-          />
-        </div>
-      </div>
-    );
-  }
-
-  return <MindMate profile={profile} initialPrompt={autoPrompt} onBack={handleBack} />;
+  return <MindMate profile={profile} initialPrompt={autoPrompt} onBack={onBack ?? (() => navigate('/chat'))} />;
 };
 
 export default MindMateWithVerification;

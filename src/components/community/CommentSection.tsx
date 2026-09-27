@@ -23,6 +23,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
   const { comments, createComment, deleteComment, loading } = useCommunityComments(postId);
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
@@ -57,7 +59,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     if (!validatedComment) return;
 
     setIsSubmitting(true);
-    const success = await createComment(validatedComment, isAnonymous);
+    const success = await createComment(validatedComment, isAnonymous, capToken);
+    refreshCap();
     if (success) {
       setNewComment('');
       setIsAnonymous(true);

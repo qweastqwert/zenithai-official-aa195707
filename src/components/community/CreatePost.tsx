@@ -26,6 +26,8 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
   const { createPost } = useCommunityPosts();
   const { user } = useAuth();
   const { isBanned, checkingBan } = useCommunityBans();
@@ -69,7 +71,8 @@ const CreatePost: React.FC<CreatePostProps> = ({ onCancel }) => {
     if (!validatedDescription) return;
 
     setIsSubmitting(true);
-    const success = await createPost(validatedTitle, validatedDescription, isAnonymous);
+    const success = await createPost(validatedTitle, validatedDescription, isAnonymous, capToken);
+    refreshCap();
     setIsSubmitting(false);
 
     if (success) {

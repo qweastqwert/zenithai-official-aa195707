@@ -24,6 +24,8 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -76,6 +78,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
       setError(msg);
       toast({ title: "Guest Sign-In Error", description: msg, variant: "destructive" });
     } finally {
+      refreshCap();
       setLoading(false);
     }
   };
@@ -157,6 +160,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         variant: "destructive",
       });
     } finally {
+      refreshCap();
       setLoading(false);
     }
   };
