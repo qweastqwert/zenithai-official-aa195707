@@ -71,7 +71,7 @@ const GuestVerificationSection: React.FC = () => {
             You're using a Guest Account
           </h4>
           <p className="text-xs text-amber-800 dark:text-amber-200/80 mt-1">
-            Add your email and password below to save your data. Unverified guest accounts may be wiped at any time without warning.
+            Add your email and password below to save your data. Guest accounts without an email are permanently deleted 10 days after creation.
           </p>
         </div>
       </div>

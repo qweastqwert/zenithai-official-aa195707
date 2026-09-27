@@ -358,7 +358,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     Continue as Guest
                   </Button>
                   <p className="text-[11px] text-muted-foreground text-center mt-2 px-2">
-                    Try Zenith without signing up. You'll be reminded to add your email in Settings — unverified guest accounts may be wiped.
+                    Try Zenith without signing up. You'll be reminded to add your email in Settings — guest accounts are deleted after 10 days unless you add an email.
                   </p>
                 </motion.div>
               </>

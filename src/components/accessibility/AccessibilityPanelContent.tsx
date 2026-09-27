@@ -1,4 +1,4 @@
-import { Brain, Ear, Eye, Minus, Moon, MousePointer2, Palette, Plus, Sparkles, Sun, Type, Volume2, VolumeX, Zap, Focus } from 'lucide-react';
+import { Brain, Ear, Eye, Minus, Moon, MousePointer2, Palette, Plus, Sparkles, Sun, Type, Volume2, VolumeX, Zap, Focus, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
