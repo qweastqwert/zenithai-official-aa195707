@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { MessageCircle, Shield } from 'lucide-react';
 import CommentItem from './CommentItem';
-import TurnstileWidget from '@/components/TurnstileWidget';
+import CapWidget from '@/components/CapWidget';
 import { useCommunityComments } from '@/hooks/useCommunityComments';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -22,7 +22,9 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const [newComment, setNewComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
   const { comments, createComment, deleteComment, loading } = useCommunityComments(postId);
   const { user } = useAuth();
   const { isAdmin } = useUserRole();
@@ -32,7 +34,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    if (!turnstileToken) {
+    if (!capToken) {
       toast.error('Please complete the verification');
       return;
     }
@@ -57,7 +59,8 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
     if (!validatedComment) return;
 
     setIsSubmitting(true);
-    const success = await createComment(validatedComment, isAnonymous);
+    const success = await createComment(validatedComment, isAnonymous, capToken);
+    refreshCap();
     if (success) {
       setNewComment('');
       setIsAnonymous(true);
@@ -104,10 +107,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
               <Shield className="h-3.5 w-3.5 text-[#7950f2]" />
               <span>Verify you're human to comment</span>
             </div>
-            <TurnstileWidget
-              onVerify={(token) => setTurnstileToken(token)}
-              onExpire={() => setTurnstileToken(null)}
-              size="compact"
+            <CapWidget resetKey={capReset}
+              onVerify={(token) => setCapToken(token)}
+              onExpire={() => setCapToken(null)}
+
             />
           </div>
 
@@ -115,7 +118,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
             <Button
               type="submit"
               size="sm"
-              disabled={!newComment.trim() || !turnstileToken || isSubmitting}
+              disabled={!newComment.trim() || !capToken || isSubmitting}
               className="bg-gradient-to-r from-[#7950f2] to-[#b197fc] hover:from-[#6741d9] hover:to-[#9775fa] text-white shadow-lg shadow-[#7950f2]/20"
             >
               {isSubmitting ? 'Posting...' : 'Comment'}

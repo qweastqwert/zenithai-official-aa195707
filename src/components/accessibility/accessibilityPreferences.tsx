@@ -24,6 +24,7 @@ export interface AccessibilityState {
   lineHeight: number;
   cursorSpeed: 'normal' | 'slow';
   tooltipDelay: 'normal' | 'long';
+  showScrollbar: boolean;
   activePreset: string | null;
 }
 
@@ -55,6 +56,7 @@ export const DEFAULT_ACCESSIBILITY_STATE: AccessibilityState = {
   lineHeight: 100,
   cursorSpeed: 'normal',
   tooltipDelay: 'normal',
+  showScrollbar: false,
   activePreset: null,
 };
 
@@ -221,6 +223,7 @@ export const applyAccessibilityState = (state: AccessibilityState) => {
   root.classList.toggle('a11y-focus-highlight', state.focusHighlight);
   root.classList.toggle('a11y-skip-nav', state.skipNavigation);
   root.classList.toggle('a11y-slow-cursor', state.cursorSpeed === 'slow');
+  root.classList.toggle('a11y-show-scrollbar', state.showScrollbar);
 
   root.classList.remove(...COLOR_BLIND_CLASSES);
   if (state.colorBlindMode !== 'none') {

@@ -1,4 +1,4 @@
-import { Brain, Ear, Eye, Minus, Moon, MousePointer2, Palette, Plus, Sparkles, Sun, Type, Volume2, VolumeX, Zap, Focus } from 'lucide-react';
+import { Brain, Ear, Eye, Minus, Moon, MousePointer2, Palette, Plus, Sparkles, Sun, Type, Volume2, VolumeX, Zap, Focus, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Slider } from '@/components/ui/slider';
@@ -211,6 +211,14 @@ const AccessibilityPanelContent = ({
               description="Add a quick shortcut to jump to content."
               checked={state.skipNavigation}
               onChange={(value) => onUpdate({ skipNavigation: value })}
+            />
+
+            <ToggleRow
+              icon={<ScrollText className="h-4 w-4" />}
+              label="Show Scroll Bar"
+              description="Show the page scroll bar on the right side."
+              checked={state.showScrollbar}
+              onChange={(value) => onUpdate({ showScrollbar: value })}
             />
           </div>
 

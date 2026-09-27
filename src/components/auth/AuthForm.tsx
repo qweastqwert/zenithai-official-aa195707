@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2, Mail, Lock, User, Eye, EyeOff, UserCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import TurnstileWidget from '@/components/TurnstileWidget';
+import CapWidget from '@/components/CapWidget';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 
 interface AuthFormProps {
@@ -23,7 +23,9 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -46,7 +48,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   };
 
   const handleGuestSignIn = async () => {
-    if (!turnstileToken) {
+    if (!capToken) {
       setError('Please complete the verification before continuing as guest.');
       toast({
         title: 'Verification required',
@@ -76,6 +78,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
       setError(msg);
       toast({ title: "Guest Sign-In Error", description: msg, variant: "destructive" });
     } finally {
+      refreshCap();
       setLoading(false);
     }
   };
@@ -83,7 +86,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!turnstileToken) {
+    if (!capToken) {
       setError('Please complete the verification');
       return;
     }
@@ -157,6 +160,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         variant: "destructive",
       });
     } finally {
+      refreshCap();
       setLoading(false);
     }
   };
@@ -166,7 +170,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     setError('');
     setEmail('');
     setPassword('');
-    setTurnstileToken(null);
+    setCapToken(null);
   };
 
   return (
@@ -270,9 +274,9 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 transition={{ duration: 0.4, delay: 0.5 }}
                 className="space-y-3"
               >
-                <TurnstileWidget
-                  onVerify={(token) => setTurnstileToken(token)}
-                  onExpire={() => setTurnstileToken(null)}
+                <CapWidget resetKey={capReset}
+                  onVerify={(token) => setCapToken(token)}
+                  onExpire={() => setCapToken(null)}
                 />
                 
                 <Button
@@ -354,7 +358,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     Continue as Guest
                   </Button>
                   <p className="text-[11px] text-muted-foreground text-center mt-2 px-2">
-                    Try Zenith without signing up. You'll be reminded to add your email in Settings — unverified guest accounts may be wiped.
+                    Try Zenith without signing up. You'll be reminded to add your email in Settings — guest accounts are deleted after 10 days unless you add an email.
                   </p>
                 </motion.div>
               </>

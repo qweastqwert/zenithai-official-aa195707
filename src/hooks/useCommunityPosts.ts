@@ -72,7 +72,7 @@ export const useCommunityPosts = () => {
     }
   }, [user]);
 
-  const createPost = async (title: string, description: string, isAnonymous: boolean = true) => {
+  const createPost = async (title: string, description: string, isAnonymous: boolean = true, capToken?: string) => {
     if (!user) {
       toast.error('You must be logged in to create a post');
       return false;
@@ -85,7 +85,8 @@ export const useCommunityPosts = () => {
           title,
           description,
           user_id: user.id,
-          is_anonymous: isAnonymous
+          is_anonymous: isAnonymous,
+          cap_token: capToken
         });
 
       if (error) throw error;

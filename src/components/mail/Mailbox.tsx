@@ -13,7 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
-import TurnstileWidget from '@/components/TurnstileWidget';
+import CapWidget from '@/components/CapWidget';
 import { Textarea } from '@/components/ui/textarea';
 
 type MailRow = {
@@ -186,7 +186,9 @@ const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; on
   const { toast } = useToast();
   const [replies, setReplies] = useState<any[]>([]);
   const [replyText, setReplyText] = useState('');
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [capToken, setCapToken] = useState<string | null>(null);
+  const [capReset, setCapReset] = useState(0);
+  const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
   const [sending, setSending] = useState(false);
 
   const loadReplies = async () => {
@@ -197,16 +199,16 @@ const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; on
 
   const sendReply = async () => {
     if (!user || !replyText.trim()) return;
-    if (!turnstileToken) { toast({ title: 'Please complete the verification', variant: 'destructive' }); return; }
+    if (!capToken) { toast({ title: 'Please complete the verification', variant: 'destructive' }); return; }
     setSending(true);
     const safe = DOMPurify.sanitize(replyText.replace(/\n/g, '<br/>'));
     const { error } = await supabase.from('mail_replies').insert({
-      mail_id: mail.id, sender_user_id: user.id, body_html: safe,
+      mail_id: mail.id, sender_user_id: user.id, body_html: safe, cap_token: capToken,
     });
     setSending(false);
+    refreshCap();
     if (error) { toast({ title: 'Reply failed', description: error.message, variant: 'destructive' }); return; }
     setReplyText('');
-    setTurnstileToken(null);
     toast({ title: 'Reply sent 💌' });
     loadReplies();
   };
@@ -242,9 +244,9 @@ const MailReader: React.FC<{ mail: MailRow; sanitized: (h: string) => string; on
         <div className="mt-6 border-t pt-4 space-y-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Reply to the developers</p>
           <Textarea value={replyText} onChange={(e) => setReplyText(e.target.value)} placeholder="Type your reply..." rows={3} maxLength={2000} />
-          <TurnstileWidget onVerify={setTurnstileToken} onExpire={() => setTurnstileToken(null)} theme="auto" size="compact" />
+          <CapWidget resetKey={capReset} onVerify={setCapToken} onExpire={() => setCapToken(null)} />
           <div className="flex justify-end">
-            <Button size="sm" onClick={sendReply} disabled={sending || !replyText.trim() || !turnstileToken}>
+            <Button size="sm" onClick={sendReply} disabled={sending || !replyText.trim() || !capToken}>
               {sending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
               Send reply
             </Button>

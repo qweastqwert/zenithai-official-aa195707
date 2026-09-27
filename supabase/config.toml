@@ -11,3 +11,5 @@ verify_jwt = true
 
 [functions.send-scheduled-notifications]
 verify_jwt = false
+[functions.cap]
+verify_jwt = false

@@ -5,8 +5,8 @@ import { Shield, Lock, AlertTriangle, CheckCircle2, Ban, Eye } from "lucide-reac
 const SecurityTips = () => {
   const implementedMeasures = [
     {
-      title: "Cloudflare Turnstile",
-      description: "Bot protection on sign-up, sign-in, and post creation",
+      title: "Cap (self-hosted CAPTCHA)",
+      description: "Server-verified, single-use human checks on posts, comments and mail replies; checkbox on sign-in",
       icon: Shield,
       status: "active"
     },
@@ -38,8 +38,8 @@ const SecurityTips = () => {
       icon: Ban
     },
     {
-      title: "Configure Turnstile Site Key",
-      description: "Add VITE_CLOUDFLARE_TURNSTILE_SITE_KEY to your environment variables for production bot protection.",
+      title: "Disable Supabase Auth CAPTCHA",
+      description: "Cap replaced Turnstile. If CAPTCHA protection is on in Supabase Auth settings, turn it off or sign-in will fail.",
       priority: "high",
       icon: Shield
     },

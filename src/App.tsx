@@ -18,6 +18,7 @@ import AchievementNotification from "@/components/achievements/AchievementNotifi
 import PWAInstallDialog from "@/components/PWAInstallDialog";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ErrorReportPanel from "@/components/ErrorReportPanel";
+import GuestExpiryNotice from "@/components/GuestExpiryNotice";
 import { installGlobalErrorHandlers } from "@/utils/errorReporter";
 import Index from "./pages/Index";
 import MeditationPage from "./pages/Meditation";
@@ -165,6 +166,7 @@ const AppContent = () => {
       <AccessibilityWidget />
       <PWAInstallDialog />
       <ErrorReportPanel />
+      <GuestExpiryNotice />
 
       {/* Achievement Notification */}
       <AchievementNotification 

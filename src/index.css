@@ -900,3 +900,7 @@ p, li { line-height: 1.65; }
 }
 
 
+
+/* Page scroll bar hidden by default; re-enable via Accessibility → "Show Scroll Bar" */
+html:not(.a11y-show-scrollbar), html:not(.a11y-show-scrollbar) body { scrollbar-width: none; -ms-overflow-style: none; }
+html:not(.a11y-show-scrollbar)::-webkit-scrollbar, html:not(.a11y-show-scrollbar) body::-webkit-scrollbar { display: none; width: 0; }
