@@ -1,0 +1,1 @@
+- Keep all AI edge functions on the shared OpenRouter request helper so model selection, credentials, and provider errors stay consistent.

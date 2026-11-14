@@ -6,7 +6,7 @@ const SecurityTips = () => {
   const implementedMeasures = [
     {
       title: "Cap (self-hosted CAPTCHA)",
-      description: "Server-verified, single-use human checks on posts, comments and mail replies; checkbox on sign-in",
+      description: "Server-verified, single-use human checks on sign-in, Google sign-in, guest access, posts, comments and mail replies",
       icon: Shield,
       status: "active"
     },
@@ -39,7 +39,7 @@ const SecurityTips = () => {
     },
     {
       title: "Disable Supabase Auth CAPTCHA",
-      description: "Cap replaced Turnstile. If CAPTCHA protection is on in Supabase Auth settings, turn it off or sign-in will fail.",
+      description: "Required for Cap to work: Supabase Auth only accepts Turnstile or hCaptcha. Turn off Enable CAPTCHA Protection in Supabase Dashboard → Authentication → Bot and Abuse Protection, or email sign-in will report that the CAPTCHA token is missing.",
       priority: "high",
       icon: Shield
     },

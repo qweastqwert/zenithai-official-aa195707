@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { getCompletionMessage, requestOpenRouter } from '../_shared/openrouter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -67,11 +68,6 @@ serve(async (req) => {
       console.log('Conversation saved with ID:', convId);
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
-    if (!googleApiKey) {
-      throw new Error('Google AI Studio API key not configured');
-    }
-
     const conversationText = messages
       .filter((msg: any) => msg.role !== 'system')
       .map((msg: any) => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
@@ -100,28 +96,12 @@ Categories should be one of: "trigger", "preference", "challenge", "goal", "back
 Conversation:
 ${conversationText}`;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key=${googleApiKey}`;
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: analysisPrompt }] }],
-        generationConfig: {
-          temperature: 0.3,
-          responseMimeType: 'application/json',
-        },
-      }),
+    const data = await requestOpenRouter({
+      messages: [{ role: 'user', content: analysisPrompt }],
+      temperature: 0.3,
+      responseFormat: { type: 'json_object' },
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Google AI Studio API error:', response.status, errorText);
-      throw new Error(`Google AI Studio API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const analysisText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{"memories":[]}';
+    const analysisText = getCompletionMessage(data).content || '{"memories":[]}';
     
     let analysis;
     try {

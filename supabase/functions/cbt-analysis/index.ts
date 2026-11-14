@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { getCompletionMessage, requestOpenRouter } from '../_shared/openrouter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,9 +35,6 @@ Deno.serve(async (req) => {
       activePlans: plans.data || [],
     };
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
-
     const systemPrompt = `You are a clinical mental-health assistant trained in Cognitive Behavioral Therapy (CBT).
 You will analyze the user's mood, journal, and sleep data from the last 30 days and produce a structured CBT-informed clinical analysis.
 
@@ -54,30 +52,16 @@ STRICTLY output valid JSON matching this schema (no extra prose, no markdown fen
 
 Never diagnose. Frame findings as observations. Be warm but clinical. If data is sparse, say so in clinical_overview.`;
 
-    const resp = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Here is the user's data (JSON):\n\n${JSON.stringify(summary)}` },
-        ],
-        response_format: { type: 'json_object' },
-      }),
+    const data = await requestOpenRouter({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Here is the user's data (JSON):\n\n${JSON.stringify(summary)}` },
+      ],
+      maxTokens: 4096,
+      temperature: 0.2,
+      responseFormat: { type: 'json_object' },
     });
-
-    if (!resp.ok) {
-      const t = await resp.text();
-      console.error('Gateway error:', resp.status, t);
-      return new Response(JSON.stringify({ error: `AI gateway error ${resp.status}` }), { status: resp.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    const data = await resp.json();
-    const raw = data.choices?.[0]?.message?.content ?? '{}';
+    const raw = getCompletionMessage(data).content ?? '{}';
     let parsed: any = {};
     try { parsed = JSON.parse(raw); } catch { parsed = { clinical_overview: raw }; }
 

@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2, Mail, Lock, User, Eye, EyeOff, UserCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import CapWidget from '@/components/CapWidget';
+import CapWidget, { CAP_ENDPOINT } from '@/components/CapWidget';
 import { rateLimiter, RATE_LIMITS } from '@/utils/rateLimiter';
 
 interface AuthFormProps {
@@ -27,8 +27,24 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
   const [capReset, setCapReset] = useState(0);
   const refreshCap = () => { setCapToken(null); setCapReset((n) => n + 1); };
 
+  const consumeCapToken = async () => {
+    if (!capToken) throw new Error('Please complete the human check before continuing.');
+    const response = await fetch(`${CAP_ENDPOINT}consume`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: capToken }),
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.success) {
+      throw new Error(result?.error || 'The human check expired. Please try again.');
+    }
+  };
+
   const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
     try {
+      await consumeCapToken();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -38,28 +54,23 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
       
       if (error) throw error;
     } catch (error: any) {
-      setError(error.message);
+      setError(error.message || 'Google sign-in could not start.');
       toast({
         title: "Google Sign-In Error",
-        description: error.message,
+        description: error.message || 'Google sign-in could not start.',
         variant: "destructive",
       });
+    } finally {
+      refreshCap();
+      setLoading(false);
     }
   };
 
   const handleGuestSignIn = async () => {
-    if (!capToken) {
-      setError('Please complete the verification before continuing as guest.');
-      toast({
-        title: 'Verification required',
-        description: 'Complete the captcha below to continue as guest.',
-        variant: 'destructive',
-      });
-      return;
-    }
     setLoading(true);
     setError('');
     try {
+      await consumeCapToken();
       const { data, error } = await supabase.auth.signInAnonymously();
       if (error) throw error;
       if (data.user) {
@@ -85,11 +96,6 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!capToken) {
-      setError('Please complete the verification');
-      return;
-    }
 
     // Rate limiting check
     const rateLimitKey = `auth_attempt_${email}`;
@@ -109,6 +115,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     setError('');
 
     try {
+      await consumeCapToken();
       if (isLogin) {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -153,10 +160,13 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         }
       }
     } catch (error: any) {
-      setError(error.message || 'An unexpected error occurred');
+      const message = error.message?.toLowerCase().includes('captcha')
+        ? 'Supabase Auth CAPTCHA is still enabled. Cap uses its own check; turn off Supabase Auth CAPTCHA in Authentication settings, then try again.'
+        : error.message || 'An unexpected error occurred';
+      setError(message);
       toast({
         title: "Authentication Error",
-        description: error.message || 'An unexpected error occurred',
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -274,6 +284,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 transition={{ duration: 0.4, delay: 0.5 }}
                 className="space-y-3"
               >
+                <p className="text-sm font-medium text-center text-foreground">Human verification</p>
                 <CapWidget resetKey={capReset}
                   onVerify={(token) => setCapToken(token)}
                   onExpire={() => setCapToken(null)}
@@ -281,7 +292,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                 
                 <Button
                   type="submit" 
-                  disabled={loading}
+                  disabled={loading || !capToken}
                   className="w-full zenith-button-primary text-lg py-6 font-semibold"
                 >
                   {loading ? (
@@ -317,6 +328,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="button"
                     variant="outline"
                     onClick={handleGoogleSignIn}
+                    disabled={loading || !capToken}
                     className="w-full py-6 border-2"
                   >
                     <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
@@ -351,7 +363,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                     type="button"
                     variant="ghost"
                     onClick={handleGuestSignIn}
-                    disabled={loading}
+                    disabled={loading || !capToken}
                     className="w-full py-6 border border-dashed border-zenith-primary/40 text-zenith-primary hover:bg-zenith-primary/5"
                   >
                     <UserCircle2 className="mr-2 h-5 w-5" />
@@ -379,6 +391,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                         return;
                       }
                       try {
+                        await consumeCapToken();
                         await supabase.auth.resetPasswordForEmail(email, {
                           redirectTo: `${window.location.origin}/auth/reset-password`
                         });
@@ -387,10 +400,14 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                           description: "Check your email for password reset instructions.",
                         });
                       } catch (error: any) {
-                        setError(error.message);
+                        const message = error.message?.toLowerCase().includes('captcha')
+                          ? 'Supabase Auth CAPTCHA is still enabled. Cap uses its own check; turn off Supabase Auth CAPTCHA in Authentication settings, then try again.'
+                          : error.message;
+                        setError(message);
                       }
                     }}
-                    className="text-sm text-zenith-primary hover:text-zenith-darkpurple transition-colors"
+                    disabled={loading || !capToken}
+                    className="text-sm text-zenith-primary hover:text-zenith-darkpurple transition-colors disabled:opacity-50"
                   >
                     Forgot your password?
                   </button>

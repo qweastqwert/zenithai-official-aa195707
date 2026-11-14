@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
+import { getCompletionMessage, requestOpenRouter } from '../_shared/openrouter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -63,11 +64,6 @@ serve(async (req) => {
     const messages = rawMessages;
     console.log('Characters chat request, streaming:', stream);
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
-    if (!googleApiKey) {
-      throw new Error('AI service not configured');
-    }
-
     // Inject hard anti-leak guard into the first system message (or prepend one)
     const ANTI_LEAK_GUARD = `\n\nCRITICAL OUTPUT RULES (NEVER VIOLATE):
 - Output ONLY the in-character spoken reply. Nothing else.
@@ -89,12 +85,6 @@ serve(async (req) => {
       messages.unshift({ role: 'system', content: (ANTI_LEAK_GUARD + STRICT_FORMAT).trim() });
     }
 
-    // Convert messages to Gemini format
-    const contents = convertToGeminiFormat(messages);
-
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key=${googleApiKey}`;
-    const streamApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:streamGenerateContent?alt=sse&key=${googleApiKey}`;
-
     // Log usage
     try {
       await supabaseClient.from('ai_usage').insert({
@@ -106,91 +96,27 @@ serve(async (req) => {
       console.error('Error logging AI usage:', usageError);
     }
 
+    const data = await requestOpenRouter({
+      messages,
+      maxTokens,
+      temperature: temperature || 0.8,
+    });
+    const rawReply = getCompletionMessage(data).content;
+    const reply = sanitizeModelText(typeof rawReply === 'string' ? rawReply : "I'm having trouble responding right now.");
+
     if (stream) {
-      const response = await fetch(streamApiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents,
-          generationConfig: {
-            maxOutputTokens: 2048,
-            temperature: temperature || 0.8,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Google AI Studio API error:', response.status, errorText);
-        throw new Error(`AI service error: ${response.status}`);
-      }
-
-      // Transform Gemini SSE to OpenAI-compatible SSE, sanitize on finish
       const encoder = new TextEncoder();
-      const decoder = new TextDecoder();
-      let streamedReply = '';
-      let streamClosed = false;
-
-      const emitSanitized = (controller: TransformStreamDefaultController<Uint8Array>) => {
-        if (streamClosed) return;
-        streamClosed = true;
-        const final = sanitizeModelText(streamedReply) || "I'm having trouble responding right now.";
-        const chunk = { choices: [{ delta: { content: final } }] };
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
-        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-      };
-
-      const transformStream = new TransformStream({
-        transform(chunk, controller) {
-          const text = decoder.decode(chunk, { stream: true });
-          const lines = text.split('\n');
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            const jsonStr = line.slice(6).trim();
-            if (!jsonStr) continue;
-            try {
-              const geminiData = JSON.parse(jsonStr);
-              const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (content) streamedReply += content;
-              if (geminiData.candidates?.[0]?.finishReason) {
-                emitSanitized(controller);
-              }
-            } catch { /* skip */ }
-          }
+      const readable = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: reply } }] })}\n\n`));
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+          controller.close();
         },
-        flush(controller) {
-          if (streamedReply && !streamClosed) emitSanitized(controller);
-        }
       });
-
-      const readable = response.body!.pipeThrough(transformStream);
       return new Response(readable, {
         headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
       });
     }
-
-    // Non-streaming
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents,
-        generationConfig: {
-          maxOutputTokens: 2048,
-          temperature: temperature || 0.8,
-        },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Google AI Studio API error:', response.status, errorText);
-      throw new Error(`AI service error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const rawReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble responding right now.";
-    const reply = sanitizeModelText(rawReply);
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -207,42 +133,6 @@ serve(async (req) => {
     });
   }
 });
-
-function convertToGeminiFormat(messages: any[]) {
-  const contents: any[] = [];
-  let systemInstruction = '';
-
-  for (const msg of messages) {
-    if (msg.role === 'system') {
-      systemInstruction += (systemInstruction ? '\n\n' : '') + msg.content;
-      continue;
-    }
-    contents.push({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }],
-    });
-  }
-
-  if (systemInstruction && contents.length > 0) {
-    if (contents[0].role === 'user') {
-      contents[0].parts[0].text = systemInstruction + '\n\n' + contents[0].parts[0].text;
-    } else {
-      contents.unshift({ role: 'user', parts: [{ text: systemInstruction }] });
-    }
-  }
-
-  const cleaned: any[] = [];
-  for (const c of contents) {
-    if (cleaned.length === 0 && c.role !== 'user') continue;
-    if (cleaned.length > 0 && cleaned[cleaned.length - 1].role === c.role) {
-      cleaned[cleaned.length - 1].parts[0].text += '\n\n' + c.parts[0].text;
-    } else {
-      cleaned.push(c);
-    }
-  }
-
-  return cleaned;
-}
 
 function sanitizeModelText(text: string): string {
   let cleaned = text

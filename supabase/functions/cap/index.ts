@@ -27,6 +27,38 @@ Deno.serve(async (req) => {
       return json(await generateChallenge(SECRET, { scope: SCOPE, instrumentation: true }));
     }
 
+    if (path.endsWith("/consume")) {
+      const body = await req.json().catch(() => null);
+      const token = body?.token;
+      if (typeof token !== "string" || token.length < 3 || token.length > 512) {
+        return json({ success: false, error: "Invalid verification token" }, 400);
+      }
+
+      const separator = token.indexOf(":");
+      if (separator < 1 || separator === token.length - 1) {
+        return json({ success: false, error: "Invalid verification token" }, 400);
+      }
+
+      const tokenId = token.slice(0, separator);
+      const verifier = token.slice(separator + 1);
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+      const digestHex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      const { data: consumed, error } = await admin
+        .from("cap_tokens")
+        .delete()
+        .eq("token_key", `${tokenId}:${digestHex}`)
+        .gt("expires_at", new Date().toISOString())
+        .select("token_key")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Cap token consume failed", error.message);
+        return json({ success: false, error: "Could not check verification. Please try again." }, 500);
+      }
+      if (!consumed) return json({ success: false, error: "Verification expired or already used. Please verify again." }, 400);
+      return json({ success: true });
+    }
+
     if (path.endsWith("/redeem")) {
       const { token, solutions, instr } = await req.json();
       const result = await validateChallenge(

@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { getCompletionMessage, getToolCallArguments, requestOpenRouter } from '../_shared/openrouter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -228,11 +229,6 @@ serve(async (req) => {
       ? `\n\nUSER'S ACTIVE TREATMENT PLAN:\nTitle: ${activePlan.title}\n${activePlan.description ? `Description: ${activePlan.description}\n` : ''}Goals:\n${(activePlan.goals as any[]).map((g: any, i: number) => `  ${i + 1}. ${g.title}${g.measurable ? ` — measure: ${g.measurable}` : ''}${g.done ? ' [done]' : ''}`).join('\n')}\n${activePlan.cbt_summary ? `CBT summary snippet: ${String(activePlan.cbt_summary).slice(0, 400)}` : ''}\n\nWhen the user mentions goals, progress, setbacks, or planning — refer to this plan by name and adapt suggestions to support it. Use save_treatment_plan to create/update plans when collaborating on one.`
       : `\n\nUSER'S TREATMENT PLAN: None active. If the user wants to build one (or arrives via "collaborate with MindMate"), gently ask about current struggles, ideal outcomes, and 3-5 measurable goals — then call save_treatment_plan.`;
 
-    const googleApiKey = Deno.env.get('GOOGLE_AI_STUDIO_API_KEY');
-    if (!googleApiKey) {
-      throw new Error('Google AI Studio API key not configured');
-    }
-
     // Build the full system instruction (separate from user messages)
     let systemInstruction = '';
     const userMessages: any[] = [];
@@ -296,9 +292,6 @@ RESPONSE SAFETY RULES:
 - Do NOT describe what tools you will call or plan to call. Just call them and give your response.
 - Think privately if needed, then return ONLY the final user-facing reply.
 - Your response must read like a natural conversation, not like notes or a plan.`;
-
-    // Convert user messages to Gemini format (no system messages - those go in system_instruction)
-    const geminiContents = convertUserMessagesToGemini(userMessages);
 
     const tools = [
       {
@@ -484,67 +477,20 @@ RESPONSE SAFETY RULES:
       }
     ];
 
-    // Convert tools to Gemini format
-    const geminiTools = [{
-      function_declarations: tools.map(t => ({
-        name: t.function.name,
-        description: t.function.description,
-        parameters: t.function.parameters,
-      }))
-    }];
-
-    // Use non-streaming for all requests to support tool calling properly
-    // We'll format the response as SSE if the client requested streaming
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-31b-it:generateContent?key=${googleApiKey}`;
-
-    const requestBody: any = {
-      contents: geminiContents,
-      tools: geminiTools,
-      systemInstruction: {
-        parts: [{ text: systemInstruction }]
-      },
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-        temperature,
-      },
-    };
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody),
+    const data = await requestOpenRouter({
+      messages: [{ role: 'system', content: systemInstruction }, ...userMessages],
+      tools,
+      maxTokens,
+      temperature,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      const googleErrorMessage = extractGoogleErrorMessage(errorText);
-      console.error('Google AI Studio API error:', response.status, googleErrorMessage, errorText);
-
-      return buildMindMateErrorResponse({
-        message: `Google AI Studio API error: ${response.status}${googleErrorMessage ? ` - ${googleErrorMessage}` : ''}`,
-        reply: 'I’m having trouble reaching MindMate right now. Please try again in a moment.',
-        status: response.status,
-        stream: requestedStream,
-        fallback: response.status >= 500,
-      });
-    }
-
-    const data = await response.json();
-    const candidate = data.candidates?.[0];
-    const parts = candidate?.content?.parts || [];
-    
-    let reply = '';
+    const candidate = getCompletionMessage(data);
+    let reply = typeof candidate.content === 'string' ? candidate.content : '';
     const toolCallsData: any[] = [];
 
-    for (const part of parts) {
-      // Skip thinking parts
-      if (part.thought === true) continue;
-      if (part.text) {
-        reply += part.text;
-      }
-      if (part.functionCall) {
-        const fc = part.functionCall;
-        const args = fc.args || {};
+    for (const toolCall of candidate.tool_calls || []) {
+        const fc = toolCall?.function;
+        if (!fc?.name) continue;
+        const args = getToolCallArguments(toolCall);
 
         if (fc.name === 'save_memory') {
           const { error: memoryError } = await supabaseClient
@@ -584,7 +530,6 @@ RESPONSE SAFETY RULES:
           };
           toolCallsData.push({ type: typeMap[fc.name] || fc.name, ...args });
         }
-      }
     }
 
     reply = sanitizeModelText(reply);
@@ -605,7 +550,7 @@ RESPONSE SAFETY RULES:
           : "Here's something that might help. 💛";
     }
 
-    const tokensUsed = data.usageMetadata?.totalTokenCount || 0;
+    const tokensUsed = data.usage?.total_tokens || 0;
 
     // Log AI usage
     await supabaseClient.from('ai_usage').insert({
@@ -658,32 +603,6 @@ RESPONSE SAFETY RULES:
     });
   }
 });
-
-// Helper: Convert user/assistant messages to Gemini format (system handled separately)
-function convertUserMessagesToGemini(messages: any[]) {
-  const contents: any[] = [];
-
-  for (const msg of messages) {
-    if (msg.role === 'system') continue; // Already handled via systemInstruction
-    contents.push({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }],
-    });
-  }
-
-  // Ensure conversation starts with user and alternates
-  const cleaned: any[] = [];
-  for (const c of contents) {
-    if (cleaned.length === 0 && c.role !== 'user') continue;
-    if (cleaned.length > 0 && cleaned[cleaned.length - 1].role === c.role) {
-      cleaned[cleaned.length - 1].parts[0].text += '\n\n' + c.parts[0].text;
-    } else {
-      cleaned.push(c);
-    }
-  }
-
-  return cleaned;
-}
 
 function sanitizeModelText(text: string) {
   // Strip thinking blocks
