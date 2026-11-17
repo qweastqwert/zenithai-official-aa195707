@@ -40,6 +40,13 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     }
   };
 
+  const friendlyAuthError = (message?: string) => {
+    if (message && /captcha|token not found/i.test(message)) {
+      return 'Supabase Auth CAPTCHA is still enabled. Cap uses its own human check; turn off Enable CAPTCHA Protection in your Supabase Authentication settings, then try again.';
+    }
+    return message || 'An unexpected error occurred';
+  };
+
   const handleGoogleSignIn = async () => {
     setLoading(true);
     setError('');
@@ -54,10 +61,11 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
       
       if (error) throw error;
     } catch (error: any) {
-      setError(error.message || 'Google sign-in could not start.');
+      const message = friendlyAuthError(error.message || 'Google sign-in could not start.');
+      setError(message);
       toast({
         title: "Google Sign-In Error",
-        description: error.message || 'Google sign-in could not start.',
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -85,7 +93,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     } catch (error: any) {
       const msg = error.message?.includes('Anonymous')
         ? 'Guest sign-in is not enabled. Please enable Anonymous Sign-In in Supabase Auth settings.'
-        : error.message || 'Could not start guest session.';
+        : friendlyAuthError(error.message || 'Could not start guest session.');
       setError(msg);
       toast({ title: "Guest Sign-In Error", description: msg, variant: "destructive" });
     } finally {
@@ -160,9 +168,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         }
       }
     } catch (error: any) {
-      const message = error.message?.toLowerCase().includes('captcha')
-        ? 'Supabase Auth CAPTCHA is still enabled. Cap uses its own check; turn off Supabase Auth CAPTCHA in Authentication settings, then try again.'
-        : error.message || 'An unexpected error occurred';
+      const message = friendlyAuthError(error.message);
       setError(message);
       toast({
         title: "Authentication Error",
@@ -180,7 +186,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
     setError('');
     setEmail('');
     setPassword('');
-    setCapToken(null);
+    refreshCap();
   };
 
   return (
@@ -289,6 +295,9 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                   onVerify={(token) => setCapToken(token)}
                   onExpire={() => setCapToken(null)}
                 />
+                <p className="text-xs text-center text-muted-foreground">
+                  If sign-in says “CAPTCHA token not found,” Supabase’s separate CAPTCHA protection still needs to be turned off in Authentication settings; Supabase does not accept Cap tokens there.
+                </p>
                 
                 <Button
                   type="submit" 
@@ -392,6 +401,7 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                       }
                       try {
                         await consumeCapToken();
+                        refreshCap();
                         await supabase.auth.resetPasswordForEmail(email, {
                           redirectTo: `${window.location.origin}/auth/reset-password`
                         });
@@ -400,10 +410,9 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
                           description: "Check your email for password reset instructions.",
                         });
                       } catch (error: any) {
-                        const message = error.message?.toLowerCase().includes('captcha')
-                          ? 'Supabase Auth CAPTCHA is still enabled. Cap uses its own check; turn off Supabase Auth CAPTCHA in Authentication settings, then try again.'
-                          : error.message;
+                        const message = friendlyAuthError(error.message);
                         setError(message);
+                        refreshCap();
                       }
                     }}
                     disabled={loading || !capToken}

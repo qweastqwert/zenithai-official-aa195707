@@ -117,7 +117,7 @@ const SecurityTips = () => {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h4 className="font-semibold mb-1">{action.title}</h4>
-                      <p className="text-sm">{action.description}</p>
+          <p className="text-sm">{action.description}</p>
                     </div>
                     <span className={`text-xs font-medium uppercase ${priorityColors[action.priority as keyof typeof priorityColors]}`}>
                       {action.priority}

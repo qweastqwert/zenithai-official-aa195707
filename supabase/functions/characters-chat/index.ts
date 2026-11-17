@@ -124,9 +124,10 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in characters-chat function:', error);
+    const details = error instanceof Error ? error.message : 'Unknown provider error';
     return new Response(JSON.stringify({ 
-      error: 'Internal server error',
-      reply: "I apologize, but I'm having trouble connecting right now. Please try again later!"
+      error: details,
+      reply: `I couldn't reach the AI service just now. ${details}`
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

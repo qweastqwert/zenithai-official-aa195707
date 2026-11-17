@@ -51,15 +51,6 @@ function buildMindMateErrorResponse({
   });
 }
 
-function extractGoogleErrorMessage(errorText: string) {
-  try {
-    const parsed = JSON.parse(errorText);
-    return parsed?.error?.message || parsed?.error?.status || errorText;
-  } catch {
-    return errorText;
-  }
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });

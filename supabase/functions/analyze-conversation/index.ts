@@ -153,7 +153,7 @@ ${conversationText}`;
   } catch (error) {
     console.error('Error in analyze-conversation function:', error);
     return new Response(JSON.stringify({ 
-      error: 'Internal server error',
+      error: error instanceof Error ? error.message : 'AI analysis failed',
       success: false
     }), {
       status: 500,
